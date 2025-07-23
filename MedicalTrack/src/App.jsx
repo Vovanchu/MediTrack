@@ -5,7 +5,7 @@ import "./main.scss";
 
 import Home from "./Pages/Public/Main/Main.jsx";
 import Login from "./Pages/Public/LogIn/LogIn.jsx";
-import SignUp from "./Pages/Public/SingUp/SingUp.jsx";
+import SignUp from "./Pages/Public/SignUp/SignUp.jsx";
 
 export default function App() {
   return (
