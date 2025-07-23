@@ -1,0 +1,62 @@
+.section_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 2.5rem; 
+  background: linear-gradient(to right, #e8f1ff, #ffffff);
+  border-bottom: 0.0625rem solid #d9e2f1;
+  
+  &_logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &_image {
+      width: 2.5rem;
+      height: 2.5rem;  
+      background-color: #2563eb;
+      border-radius: 0.3rem; 
+      padding: 0.2rem;
+    }
+
+    &_title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #1f3a7d;
+    }
+  }
+
+  &_buttons {
+    display: flex;
+    gap: 0.75rem; // 12px
+
+    .btn {
+      padding: 0.625rem 1.25rem; 
+      font-size: 1rem;
+      border-radius: 0.5rem;     
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.btn_login {
+        background: transparent;
+        color: #1f3a7d;
+        border: 0.06rem solid #1f3a7d;
+
+        &:hover {
+          background: #1f3a7d;
+          color: #fff;
+        }
+      }
+
+      &.btn_register {
+        background: #1f3a7d;
+        color: #fff;
+
+        &:hover {
+          background: #0f2b5c;
+        }
+      }
+    }
+  }
+}
