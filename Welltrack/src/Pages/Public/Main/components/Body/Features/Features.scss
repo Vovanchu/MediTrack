@@ -1,0 +1,143 @@
+@use "@/styles/mixins" as *;
+
+.features {
+  display: grid;
+  gap: 2rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem;
+
+  @include mobile-small {
+    grid-template-columns: 1fr; // 1 карта
+    padding: 1rem 0.5rem;
+    gap: 1rem;
+    max-width: 100%;
+  }
+
+  @include mobile-medium {
+    grid-template-columns: repeat(2, 1fr); // 2 карти
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  @include tablet {
+    grid-template-columns: repeat(3, 1fr); // 3 карти
+    padding: 2rem;
+  }
+
+  @include laptop-small {
+    grid-template-columns: repeat(4, 1fr); // 4 карти
+    padding: 2rem;
+  }
+
+  @include laptop {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 2rem 3rem;
+  }
+
+  @include desktop-large {
+    grid-template-columns: repeat(4, 1fr);
+    padding: 2rem 4rem;
+  }
+}
+
+.feature-card {
+  background: #fff;
+  border: 0.0625rem solid #e5e7eb;
+  border-radius: 1rem;
+  overflow: hidden;
+  text-decoration: none;
+  color: #1f2937;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  text-align: center;
+  padding: 1.25rem;
+
+  @include hover-large {
+    &:hover {
+      transform: translateY(-0.5rem) scale(1.03);
+      box-shadow: 0 12px 20px rgba(59, 130, 246, 0.25);
+      border-color: #3b82f6;
+    }
+  }
+
+  &__image-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 0;
+    background: #f0f6ff;
+    border-bottom: 0.0625rem solid #e5e7eb;
+
+    img {
+      width: 5rem;
+      height: 5rem;
+      object-fit: cover;
+      border-radius: 50%; // робить фото круглим (аватарка)
+      background: #fff; // білий фон позаду фото
+      padding: 0.5rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+      @include mobile-small {
+        width: 4rem;
+        height: 4rem;
+        padding: 0.3rem;
+      }
+
+      @include mobile-medium {
+        width: 4.5rem;
+        height: 4.5rem;
+        padding: 0.4rem;
+      }
+
+      @include tablet {
+        width: 5rem;
+        height: 5rem;
+        padding: 0.5rem;
+      }
+    }
+  }
+
+  &__title {
+    font-weight: bold;
+    color: #1f3a7d;
+    margin: 1rem;
+
+    @include mobile-small {
+      font-size: 1.1rem;
+      margin: 0.6rem;
+    }
+
+    @include mobile-medium {
+      font-size: 1.3rem;
+      margin: 0.8rem;
+    }
+
+    @include tablet {
+      font-size: 1.5rem;
+      margin: 1rem;
+    }
+  }
+
+  &__description {
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0 1rem 1.5rem;
+
+    @include mobile-small {
+      font-size: 0.85rem;
+      margin: 0 0.6rem 1rem;
+    }
+
+    @include mobile-medium {
+      font-size: 0.9rem;
+      margin: 0 0.8rem 1.2rem;
+    }
+
+    @include tablet {
+      font-size: 1rem;
+      margin: 0 1rem 1.5rem;
+    }
+  }
+}

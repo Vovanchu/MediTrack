@@ -1,0 +1,51 @@
+@mixin mobile-small {
+  @media (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin mobile-medium {
+  @media (min-width: 481px) and (max-width: 600px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 601px) and (max-width: 900px) {
+    @content;
+  }
+}
+
+@mixin laptop-small {
+  @media (min-width: 901px) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin laptop {
+  @media (min-width: 1025px) and (max-width: 1440px) {
+    @content;
+  }
+}
+
+@mixin desktop-large {
+  @media (min-width: 1441px) {
+    @content;
+  }
+}
+
+// Міксін для ховера тільки на великих екранах
+@mixin hover-large {
+  @include tablet {
+    @content;
+  }
+  @include laptop-small {
+    @content;
+  }
+  @include laptop {
+    @content;
+  }
+  @include desktop-large {
+    @content;
+  }
+}

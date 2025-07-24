@@ -1,0 +1,112 @@
+@use "@/styles/_mixins" as *;
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 2.5rem;
+  background: linear-gradient(to right, #e8f1ff, #ffffff);
+  border-bottom: 1px solid #d9e2f1;
+
+  &-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    &-image {
+      width: 2.5rem;
+      height: 2.5rem;
+      background-color: #2563eb;
+      border-radius: 0.3rem;
+      padding: 0.2rem;
+
+      @include mobile-small {
+        width: 2rem;
+        height: 2rem;
+        padding: 0.15rem;
+      }
+    }
+  }
+
+  .navbar-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1f3a7d;
+
+    @include tablet {
+      font-size: 1.5rem;
+    }
+
+    @include mobile-medium {
+      font-size: 1.25rem;
+    }
+
+    @include mobile-small {
+      font-size: 1rem;
+    }
+  }
+
+  &-links {
+    display: flex;
+    gap: 1.5rem;
+
+    .navbar-link {
+      padding: 0.625rem 1.25rem;
+      font-size: 1rem;
+      border-radius: 0.5rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      color: #1f3a7d;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #1f3a7d;
+        color: #fff;
+      }
+    }
+
+    @include mobile-medium {
+      gap: 1rem;
+    }
+
+    @include mobile-small {
+      display: none; // для мобільної версії можна сховати (зробимо бургер пізніше)
+    }
+  }
+
+  &-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .navbar-bell {
+      background: transparent;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .navbar-signout {
+      background: #ff0000;
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: #5c0f0f;
+      }
+    }
+  }
+
+  @include mobile-small {
+    padding: 0.6rem 1rem;
+  }
+
+  @media (max-width: 320px) {
+    padding: 0.5rem 0.75rem;
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "sass": "^1.89.2",
+    "sass-embedded": "^1.89.2"
+  },
+  "dependencies": {
+    "react-dom": "^19.1.0"
+  }
+}
