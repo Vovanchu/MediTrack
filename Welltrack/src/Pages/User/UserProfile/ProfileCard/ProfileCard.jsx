@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Upload, User } from "lucide-react";
 import "./ProfileCard.scss";
 
 const ProfileCard = () => {
   const [profileImage, setProfileImage] = useState(null);
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    // Дістаємо дані користувача з localStorage
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const parsed = JSON.parse(userData);
+        setEmail(parsed.email || "No email");
+      } catch {
+        setEmail("No email");
+      }
+    }
+  }, []);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -40,8 +54,7 @@ const ProfileCard = () => {
         </div>
 
         {/* Інформація про користувача */}
-        <h2 className="username">John Doe</h2>
-        <p className="email">john.doe@example.com</p>
+        <h2 className="username">{email}</h2>
 
         <div className="upload-info">
           <Upload size={16} className="icon" />

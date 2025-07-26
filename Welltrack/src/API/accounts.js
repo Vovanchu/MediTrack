@@ -15,6 +15,7 @@ export function loginUser(data) {
   return api.post("/login/", data);
 }
 
+
 // Отримати профіль користувача (по токену)
 export function fetchUserProfile(token) {
   return api.get("/profile/", {

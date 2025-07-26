@@ -1,70 +1,70 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "./LogIn.scss";
 import Swal from "sweetalert2";
+import { loginUser } from "../../../API/accounts";
+import "./LogIn.scss";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(""); // для повідомлення про помилку
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
-
-  // Фейкові дані користувача (можна замінити на справжній бекенд пізніше)
-  const validUser = {
-    email: "test@example.com",
-    password: "123456",
-    name: "Test User",
-  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    setTimeout(() => {
-      if (
-        formData.email === validUser.email &&
-        formData.password === validUser.password
-      ) {
-        localStorage.setItem("token", "fake-token");
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            name: validUser.name,
-            email: validUser.email,
-          })
-        );
-
-        setLoading(false);
-
-        Swal.fire({
-          icon: "success",
-          title: "Welcome back!",
-          text: "You have successfully logged in.",
-          timer: 1000,
-          showConfirmButton: false,
-        });
-
-        setTimeout(() => {
-          navigate("/my-profile");
-        }, 2000);
-      } else {
-        setLoading(false);
-
-        Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text: "Invalid email or password. Please try again.",
-        });
+    setError("");
+  
+    try {
+      // ВАЖЛИВО: URL підстав свій бекенд в самій loginUser функції
+      const response = await loginUser({
+        email: formData.email,
+        password: formData.password,
+      });
+  
+      const { access, refresh } = response.data;
+  
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("userEmail", formData.email);
+  
+      Swal.fire({
+        icon: "success",
+        title: "Welcome back!",
+        text: "You have successfully logged in.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+  
+      setTimeout(() => {
+        navigate("/my-profile");
+      }, 1500);
+    } catch (error) {
+      let message = "Invalid email or password. Please try again.";
+  
+      if (error.response?.data?.detail) {
+        message = error.response.data.detail;
       }
-    }, 1000);
+  
+      setError(message);
+  
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: message,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
@@ -80,9 +80,11 @@ export default function Login() {
             onClick={() => navigate("/")}
             disabled={loading}
             aria-label="Go back"
+            type="button"
           >
             ← Back
           </button>
+
           <div className="form-group">
             <label>Email</label>
             <input
@@ -95,6 +97,7 @@ export default function Login() {
               disabled={loading}
             />
           </div>
+
           <div className="form-group">
             <label>Password</label>
             <input
@@ -115,7 +118,9 @@ export default function Login() {
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
-          {error && <p style={{ color: "red" }}>{error}</p>}{" "}
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? "Signing In..." : "Log In"}
           </button>
