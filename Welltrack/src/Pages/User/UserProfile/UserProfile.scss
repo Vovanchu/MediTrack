@@ -1,89 +1,86 @@
+@use "@/styles/_mixins" as *;
+
 .profile-page {
-    min-height: 100vh;
-    background: linear-gradient(to bottom, #f0f6ff, #fff);
-    padding: 40px;
-  
-    .profile-header {
-      text-align: center;
-      margin-bottom: 30px;
-  
-      .avatar-wrapper {
-        position: relative;
-        display: inline-block;
-        margin-bottom: 20px;
-  
-        img {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 3px solid #007bff;
-        }
-  
-        .upload-btn {
-          position: absolute;
-          bottom: 0;
-          right: 0;
-          background: #007bff;
-          color: #fff;
-          font-size: 12px;
-          padding: 5px 10px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: background 0.3s;
-  
-          &:hover {
-            background: #0056b3;
-          }
-        }
-  
-        input[type="file"] {
-          display: none;
-        }
+  background-color: #e6f2ff;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  .profile-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+
+    h1 {
+      font-size: 2.5rem;
+      color: #1e40af;
+      margin-bottom: 0.5rem;
+
+      @include tablet {
+        font-size: 2rem;
       }
-  
-      h2 {
-        font-size: 1.8rem;
-        margin: 10px 0;
-        color: #333;
+
+      @include mobile-medium {
+        font-size: 1.7rem;
       }
-  
-      p {
-        font-size: 1rem;
-        color: #666;
+
+      @include mobile-small {
+        font-size: 1.5rem;
       }
     }
-  
-    .profile-sections {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-  
-      .section-card {
-        background: #fff;
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #eaeaea;
-        text-decoration: none;
-        color: #333;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s, box-shadow 0.2s;
-  
-        h3 {
-          margin-bottom: 10px;
-          font-size: 1.2rem;
-        }
-  
-        p {
-          font-size: 0.9rem;
-          color: #555;
-        }
-  
-        &:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
+
+    p {
+      font-size: 1.2rem;
+      color: #475569;
+      margin-bottom: 2rem;
+
+      @include tablet {
+        font-size: 1rem;
       }
+
+      @include mobile-medium {
+        font-size: 0.95rem;
+      }
+
+      @include mobile-small {
+        font-size: 0.85rem;
+      }
+    }
+
+    > *:not(:last-child) {
+      margin-bottom: 2rem;
+
+      @include tablet {
+        margin-bottom: 1.5rem;
+      }
+
+      @include mobile-medium {
+        margin-bottom: 1rem;
+      }
+
+      @include mobile-small {
+        margin-bottom: 0.8rem;
+      }
+    }
+
+    // Зменшуємо паддінги самого контейнера
+    @include tablet {
+      padding: 1.5rem;
+    }
+
+    @include mobile-medium {
+      padding: 1rem;
+    }
+
+    @include mobile-small {
+      padding: 0.8rem;
     }
   }
-  
+}

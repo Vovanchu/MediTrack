@@ -1,32 +1,24 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import heart from "@/assets/images/heart.svg";
 import "./NavBar.scss";
 
 const nav_links = [
-  "Services",
-  "My Events",
-  "Symptom Diary",
-  "Health Plan",
-  "My Profile",
+  { name: "Services", path: "/services" },
+  { name: "My Events", path: "/my-events" },
+  { name: "Symptom Diary", path: "/symptom-diary" },
+  { name: "Health Plan", path: "/health-plan" },
+  { name: "My Profile", path: "/my-profile" },
 ];
-
-function capitalizeWords(str) {
-  return str
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(" ");
-}
 
 export default function NavBar() {
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    // Видаляємо токен з localStorage (або sessionStorage)
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
-    // Перенаправляємо на сторінку логіну
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -36,20 +28,60 @@ export default function NavBar() {
         <h1 className="navbar-title">HealthCare</h1>
       </div>
 
+      {/* Звичайні лінки (desktop) */}
       <nav className="navbar-links">
         {nav_links.map((link, index) => (
-          <a href="#" key={index} className="navbar-link">
-            {capitalizeWords(link)}
-          </a>
+          <Link to={link.path} key={index} className="navbar-link">
+            {link.name}
+          </Link>
         ))}
       </nav>
 
+      {/* Дії (дзвінок, вихід, бургер) */}
       <div className="navbar-actions">
         <button className="navbar-bell">🔔</button>
         <button className="navbar-signout" onClick={handleLogout}>
           Sign Out
         </button>
+
+        {/* Бургер для мобільних */}
+        <button
+          className={`navbar-burger ${isMenuOpen ? "open" : ""}`}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          ☰
+        </button>
       </div>
+
+      {/* Сайдбар (відкривається справа) */}
+      <div className={`navbar-sidebar ${isMenuOpen ? "active" : ""}`}>
+        <button className="sidebar-close" onClick={() => setIsMenuOpen(false)}>
+          ✕
+        </button>
+        <nav className="sidebar-links">
+          {nav_links.map((link, index) => (
+            <Link
+              to={link.path}
+              key={index}
+              className="sidebar-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))}
+          <button className="sidebar-signout" onClick={handleLogout}>
+            Sign Out
+          </button>
+        </nav>
+      </div>
+
+      {/* Темний фон при відкритому меню */}
+      {isMenuOpen && (
+        <div
+          className="navbar-overlay"
+          onClick={() => setIsMenuOpen(false)}
+        ></div>
+      )}
     </header>
   );
 }

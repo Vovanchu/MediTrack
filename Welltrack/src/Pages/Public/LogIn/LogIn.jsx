@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./LogIn.scss";
+import Swal from "sweetalert2";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(""); // для повідомлення про помилку
   const navigate = useNavigate();
-  
+
   const [showPassword, setShowPassword] = useState(false);
 
   // Фейкові дані користувача (можна замінити на справжній бекенд пізніше)
@@ -19,7 +20,7 @@ export default function Login() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError(""); // очищаємо помилку при вводі
+    setError("");
   };
 
   const handleSubmit = (e) => {
@@ -41,10 +42,26 @@ export default function Login() {
         );
 
         setLoading(false);
-        navigate("/profile");
+
+        Swal.fire({
+          icon: "success",
+          title: "Welcome back!",
+          text: "You have successfully logged in.",
+          timer: 1000,
+          showConfirmButton: false,
+        });
+
+        setTimeout(() => {
+          navigate("/my-profile");
+        }, 2000);
       } else {
         setLoading(false);
-        setError("Invalid email or password");
+
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "Invalid email or password. Please try again.",
+        });
       }
     }, 1000);
   };
@@ -60,7 +77,7 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="auth-form">
           <button
             className="btn-back"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/")}
             disabled={loading}
             aria-label="Go back"
           >
@@ -85,7 +102,7 @@ export default function Login() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="Create a password"
+              placeholder="Enter your password"
               required
               disabled={loading}
             />
@@ -100,7 +117,7 @@ export default function Login() {
           </div>
           {error && <p style={{ color: "red" }}>{error}</p>}{" "}
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? "Loading..." : "Log In"}
+            {loading ? "Signing In..." : "Log In"}
           </button>
         </form>
 
@@ -109,7 +126,7 @@ export default function Login() {
         </p>
 
         <p className="auth-footer">
-          Don't have an account? <Link to="/signup">Register</Link>
+          Don't have an account? <Link to="/signup">Create Account</Link>
         </p>
       </div>
     </div>

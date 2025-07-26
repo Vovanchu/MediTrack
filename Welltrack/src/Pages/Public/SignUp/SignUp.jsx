@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../../../API/accounts"; // перевір шлях
+import Swal from "sweetalert2"; // підключаємо бібліотеку
+import { registerUser } from "../../../API/accounts";
 import "./SignUp.scss";
 
 function formatErrors(errorData) {
@@ -28,13 +29,9 @@ export default function Register() {
     repeat_password: "",
   });
 
-  // Окремі стани для кожного поля
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
-
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -44,28 +41,43 @@ export default function Register() {
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
   const toggleShowRepeatPassword = () => setShowRepeatPassword((prev) => !prev);
 
+  const passwordChecks = {
+    length: formData.password.length >= 8 && formData.password.length <= 30,
+    uppercase: /[A-Z]/.test(formData.password),
+    digit: /\d/.test(formData.password),
+    special: /[!@#$%^&*]/.test(formData.password),
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     try {
       const res = await registerUser(formData);
-      console.log("Registered:", res.data);
-      setSuccess("Registration successful! Redirecting to login...");
+
+      // Успіх
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Registration successful! Redirecting to login...",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
       setTimeout(() => {
         navigate("/login");
-      }, 1500);
+      }, 2000);
     } catch (err) {
-      console.error("Error registering:", err);
-      if (err.response?.data) {
-        setError(formatErrors(err.response.data));
-      } else if (err.response?.data?.detail) {
-        setError(err.response.data.detail);
-      } else {
-        setError("Failed to register. Try again.");
-      }
+      const message = err.response?.data
+        ? formatErrors(err.response.data)
+        : "Failed to register. Try again.";
+
+      // Виводимо помилку у popup
+      Swal.fire({
+        icon: "error",
+        title: "Registration Failed",
+        text: message,
+      });
     } finally {
       setLoading(false);
     }
@@ -80,12 +92,13 @@ export default function Register() {
         <form onSubmit={handleSubmit} className="auth-form">
           <button
             className="btn-back"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/")}
             disabled={loading}
             aria-label="Go back"
           >
             ← Back
           </button>
+
           <div className="form-group">
             <label>Email</label>
             <input
@@ -98,6 +111,7 @@ export default function Register() {
               disabled={loading}
             />
           </div>
+
           <div className="form-group password-group">
             <label>Password</label>
             <div className="input-with-button">
@@ -109,6 +123,9 @@ export default function Register() {
                 placeholder="Create a password"
                 required
                 disabled={loading}
+                onCopy={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
               />
               <button
                 type="button"
@@ -120,6 +137,7 @@ export default function Register() {
               </button>
             </div>
           </div>
+
           <div className="form-group password-group">
             <label>Repeat Password</label>
             <div className="input-with-button">
@@ -131,6 +149,9 @@ export default function Register() {
                 placeholder="Repeat your password"
                 required
                 disabled={loading}
+                onCopy={(e) => e.preventDefault()}
+                onCut={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
               />
               <button
                 type="button"
@@ -146,22 +167,25 @@ export default function Register() {
               </button>
             </div>
           </div>
+
+          <div className="password-hints">
+            <p style={{ color: passwordChecks.length ? "green" : "gray" }}>
+              • 8–30 characters
+            </p>
+            <p style={{ color: passwordChecks.uppercase ? "green" : "gray" }}>
+              • At least one uppercase letter (A-Z)
+            </p>
+            <p style={{ color: passwordChecks.digit ? "green" : "gray" }}>
+              • At least one number (0-9)
+            </p>
+            <p style={{ color: passwordChecks.special ? "green" : "gray" }}>
+              • At least one special character (ex. !@#$%^&*)
+            </p>
+          </div>
+
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
+            {loading ? "Creating..." : "Create Profile"}
           </button>
-          {error && (
-            <p
-              className="auth-message"
-              style={{ color: "red", whiteSpace: "pre-wrap" }}
-            >
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="auth-message" style={{ color: "green" }}>
-              {success}
-            </p>
-          )}
         </form>
 
         <p className="auth-footer">

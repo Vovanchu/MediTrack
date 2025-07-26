@@ -1,0 +1,164 @@
+.health-indicators {
+  font-family: Arial, sans-serif;
+  color: #1e293b;
+  display: flex;
+  flex: 1;
+
+  &__container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* Заголовок у рядок */
+  .health-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    &__text {
+      max-width: 70%;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      color: #334155;
+    }
+
+    .page-description {
+      font-size: 1.1rem;
+      color: #64748b;
+    }
+  }
+
+  /* Дві колонки */
+  .health-sections-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .health-section {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #334155;
+    }
+
+    .metrics-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #e2e8f0;
+
+        strong {
+          color: #1e293b;
+          margin-right: 1rem;
+        }
+
+        input {
+          flex: 1;
+          max-width: 60%;
+          padding: 0.4rem 0.6rem;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          background: #ffffff;
+          font-size: 0.95rem;
+          color: #1e293b;
+
+          &:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 4px rgba(56, 189, 248, 0.5);
+            outline: none;
+          }
+        }
+      }
+    }
+
+    /* Кнопка збереження */
+    .btn-save {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      margin-top: 1rem;
+      background: #38bdf8;
+      color: #fff;
+      border: none;
+      padding: 0.8rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: #0ea5e9;
+      }
+
+      /* Іконка зліва */
+      &::before {
+        content: "💾";
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  .trends-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #e2e8f0;
+
+      strong {
+        color: #1e293b;
+      }
+
+      span {
+        color: #475569;
+      }
+    }
+  }
+
+  .tips-list {
+    list-style: disc;
+    padding-left: 1.5rem;
+
+    li {
+      color: #475569;
+      margin-bottom: 0.5rem;
+    }
+  }
+}

@@ -1,0 +1,48 @@
+@use "../ProfileContainer" as *;
+
+.profile-stats {
+    @include profile-container;
+
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+
+  .stat-card {
+    flex: 1 1 280px;
+    min-width: 280px;
+    max-width: 320px;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    &__value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+
+      &.blue {
+        color: #3b82f6;
+      }
+      &.green {
+        color: #22c55e;
+      }
+      &.purple {
+        color: #8b5cf6;
+      }
+    }
+
+    &__label {
+      font-size: 1rem;
+      color: #475569;
+    }
+  }
+}

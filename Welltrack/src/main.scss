@@ -1,9 +1,58 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: 'Arial', sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-  }
-    
+/* Глобальний ресет */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Основні елементи */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: "Arial", sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+  box-sizing: border-box;
+
+  /* Щоб не було горизонтального скролу */
+  overflow-x: hidden;
+}
+
+/* Щоб картинки і відео не ламали вёрстку */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Щоб списки і заголовки не створювали зайвих відступів */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Щоб лінки не мали дефолтного підкреслення */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Щоб шрифти й елементи виглядали однаково в різних браузерах */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
