@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./HealthIndicators.scss";
 import NavBar from "../../components/NavBar/NavBar";
-import BtnBack from "../../components/BtnBack/BtnBack";
+import BtnBack from "../../components/ui/BtnBack/BtnBack";
 import Footer from "../../components/Footer/Footer";
 
 export default function HealthIndicators() {

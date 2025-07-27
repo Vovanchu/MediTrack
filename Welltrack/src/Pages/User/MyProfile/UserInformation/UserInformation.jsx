@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./UserInformation.scss";
 import NavBar from "../../components/NavBar/NavBar";
 import Footer from "../../components/Footer/Footer";
-import BtnBack from "../../components/BtnBack/BtnBack";
+import BtnBack from "../../components/ui/BtnBack/BtnBack";
 
 export default function UserInformation() {
   const navigate = useNavigate();

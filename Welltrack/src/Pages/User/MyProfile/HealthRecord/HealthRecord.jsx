@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import "./HealthRecord.scss";
 import NavBar from "../../components/NavBar/NavBar";
-import BtnBack from "../../components/BtnBack/BtnBack";
+import BtnBack from "../../components/ui/BtnBack/BtnBack";
 import { fetchRecords, addRecord } from "../../../../API/accounts";
 
 const recordTypes = [
