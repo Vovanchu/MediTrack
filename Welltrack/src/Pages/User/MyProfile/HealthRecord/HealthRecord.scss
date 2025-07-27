@@ -1,0 +1,349 @@
+@use "@/styles/mixins" as *;
+
+.health-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f0f6ff, #ffffff);
+  padding: 20px 40px;
+  font-family: Arial, sans-serif;
+}
+
+// --- Header ---
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 2rem;
+
+  .title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: #222;
+  }
+
+  .subtitle {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s ease;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      @include hover-large {
+        &:hover {
+          background: #0056b3;
+        }
+      }
+    }
+  }
+}
+
+// --- Filters (твій стиль) ---
+.record-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 30px;
+    border: 2px solid transparent;
+    background: #f5f7ff;
+    font-weight: 600;
+    font-size: 14px;
+    color: #444;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      stroke-width: 2.5;
+    }
+
+    &:hover {
+      background: #e0e7ff;
+      color: #2563eb;
+      border-color: #2563eb;
+      box-shadow: 0 2px 8px rgb(37 99 235 / 0.3);
+    }
+
+    &.active {
+      background: #2563eb;
+      color: #fff;
+      border-color: #1e40af;
+      box-shadow: 0 4px 12px rgb(30 64 175 / 0.5);
+
+      svg {
+        stroke: #fff;
+      }
+    }
+  }
+}
+
+// --- Records list ---
+.records-list {
+  display: grid;
+  gap: 16px;
+}
+
+.record-card {
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 10px;
+  background: #fff;
+  transition: box-shadow 0.2s ease;
+
+  @include hover-large {
+    &:hover {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.record-header {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.record-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+}
+
+.record-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+
+  .badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    color: #fff;
+    text-transform: capitalize;
+  }
+
+  .record-date {
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .calendar-icon {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2;
+      color: #888;
+    }
+  }
+}
+
+.record-desc {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.record-provider,
+.record-value {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 6px;
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+// --- Badge Colors ---
+.badge-blue {
+  background: #2563eb;
+}
+.badge-purple {
+  background: #7c3aed;
+}
+.badge-green {
+  background: #16a34a;
+}
+.badge-orange {
+  background: #ea580c;
+}
+.badge-red {
+  background: #dc2626;
+}
+.badge-teal {
+  background: #0d9488;
+}
+
+// --- No Records Message ---
+.no-records {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+
+  .no-records-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    color: #aaa;
+  }
+}
+
+// --- Modal (форма додавання запису) ---
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 100%;
+
+  h2 {
+    margin-bottom: 16px;
+    font-size: 20px;
+    color: #222;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      color: #444;
+
+      input,
+      select,
+      textarea {
+        margin-top: 6px;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+
+        &:focus {
+          border-color: #007bff;
+          outline: none;
+        }
+      }
+
+      textarea {
+        min-height: 60px;
+        resize: vertical;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+
+      .btn-submit {
+        background: #007bff;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+
+        @include hover-large {
+          &:hover {
+            background: #0056b3;
+          }
+        }
+      }
+
+      .btn-cancel {
+        background: #f4f4f4;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+
+        @include hover-large {
+          &:hover {
+            background: #e2e2e2;
+          }
+        }
+      }
+    }
+  }
+}
+
+// --- Адаптивність ---
+@include mobile-small {
+  .health-page {
+    padding: 10px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+  }
+
+  .modal {
+    max-width: 90%;
+  }
+}

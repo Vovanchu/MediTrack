@@ -7,34 +7,62 @@ import "./LogIn.scss";
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError("");
+  };
+
+  const validateEmail = (email) => {
+    // Email повинен мати @ і домен, наприклад: test@example.com
+    const emailRegex =
+      /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // --- Валідації перед відправкою ---
+    if (!formData.email) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: "Email is required.",
+      });
+      return;
+    }
+    if (!validateEmail(formData.email)) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: "Please enter the correct email address.",
+      });
+      return;
+    }
+    if (!formData.password) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: "Password is required",
+      });
+      return;
+    }
+
     setLoading(true);
-    setError("");
-  
+
     try {
-      // ВАЖЛИВО: URL підстав свій бекенд в самій loginUser функції
       const response = await loginUser({
         email: formData.email,
         password: formData.password,
       });
-  
+
       const { access, refresh } = response.data;
-  
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
       localStorage.setItem("userEmail", formData.email);
-  
+
       Swal.fire({
         icon: "success",
         title: "Welcome back!",
@@ -42,29 +70,19 @@ export default function Login() {
         timer: 1500,
         showConfirmButton: false,
       });
-  
-      setTimeout(() => {
-        navigate("/my-profile");
-      }, 1500);
+
+      setTimeout(() => navigate("/my-profile"), 1500);
     } catch (error) {
-      let message = "Invalid email or password. Please try again.";
-  
-      if (error.response?.data?.detail) {
-        message = error.response.data.detail;
-      }
-  
-      setError(message);
-  
+      // Якщо бекенд відхиляє логін, показуємо єдине повідомлення
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: message,
+        text: "Incorrect email or password",
       });
     } finally {
       setLoading(false);
     }
   };
-  
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
 
@@ -79,7 +97,6 @@ export default function Login() {
             className="btn-back"
             onClick={() => navigate("/")}
             disabled={loading}
-            aria-label="Go back"
             type="button"
           >
             ← Back
@@ -113,13 +130,10 @@ export default function Login() {
               type="button"
               className="show-password-btn"
               onClick={toggleShowPassword}
-              aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
-
-          {error && <p style={{ color: "red" }}>{error}</p>}
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
             {loading ? "Signing In..." : "Log In"}
@@ -129,7 +143,6 @@ export default function Login() {
         <p className="auth-footer">
           Forgot password? <Link to="/reset-password">Reset it here</Link>
         </p>
-
         <p className="auth-footer">
           Don't have an account? <Link to="/signup">Create Account</Link>
         </p>

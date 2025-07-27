@@ -7,7 +7,7 @@ const api = axios.create({
   },
 });
 
-// Інтерсептор для додавання токена
+// Додаємо токен автоматично до кожного запиту
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");

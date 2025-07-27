@@ -15,12 +15,12 @@ export function loginUser(data) {
   return api.post("/login/", data);
 }
 
+// Отримати всі події (health records)
+export function fetchRecords() {
+  return api.get("/events/"); // => http://127.0.0.1:8001/api/events/
+}
 
-// Отримати профіль користувача (по токену)
-export function fetchUserProfile(token) {
-  return api.get("/profile/", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+// Додати новий запис
+export function addRecord(record) {
+  return api.post("/events/", record); // axios автоматично додасть токен
 }
