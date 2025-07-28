@@ -10,6 +10,7 @@
   position: relative;
   z-index: 100;
 
+  // Лого
   &-logo {
     display: flex;
     align-items: center;
@@ -30,6 +31,7 @@
     }
   }
 
+  // Лінки
   .navbar-links {
     display: flex;
     gap: 1.5rem;
@@ -48,11 +50,13 @@
       }
     }
 
+    // Ховаємо на мобільних
     @media (max-width: 1024px) {
       display: none;
     }
   }
 
+  // Дії (іконки, кнопки)
   .navbar-actions {
     display: flex;
     align-items: center;
@@ -77,12 +81,13 @@
         background: #5c0f0f;
       }
 
+      // Ховаємо на планшетах і менше
       @media (max-width: 1024px) {
         display: none;
       }
     }
 
-    /* Бургер */
+    // Бургер-меню
     .navbar-burger {
       display: none;
       background: transparent;
@@ -96,7 +101,7 @@
     }
   }
 
-  /* Сайдбар */
+  // Сайдбар (для мобільного)
   .navbar-sidebar {
     position: fixed;
     top: 0;
@@ -157,11 +162,64 @@
     }
   }
 
-  /* Темний фон */
+  // Фон позаду сайдбара
   .navbar-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.4);
     z-index: 150;
+  }
+}
+
+/* Мобільна адаптація */
+@include mobile-small {
+  .navbar {
+    padding: 0.5rem 1rem;
+
+    .navbar-logo-image {
+      width: 1.8rem;
+      height: 1.8rem;
+    }
+
+    .navbar-sidebar {
+      width: 220px;
+      padding: 1.5rem 1rem;
+    }
+  }
+}
+
+/* Середні мобільні */
+@include mobile-medium {
+  .navbar {
+    padding: 0.6rem 1.5rem;
+
+    .navbar-sidebar {
+      width: 230px;
+    }
+  }
+}
+
+/* Планшет */
+@include tablet {
+  .navbar {
+    padding: 0.8rem 2rem;
+
+    .navbar-signout {
+      display: none;
+    }
+  }
+}
+
+/* Малі ноутбуки */
+@include laptop-small {
+  .navbar {
+    padding: 0.8rem 2rem;
+  }
+}
+
+/* Десктопи */
+@include laptop {
+  .navbar {
+    padding: 1rem 2.5rem;
   }
 }

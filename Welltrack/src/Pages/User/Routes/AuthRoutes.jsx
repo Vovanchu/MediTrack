@@ -10,7 +10,7 @@ import MyProfile from "../UserProfile/UserProfile.jsx";
 import MyProfileRoutes from "./my_profile/UserInformationRoutes.jsx";
 
 // Інші сторінки
-import Services from "../Services/Services.jsx";
+import Services from "../ServicesPage/ServicesPage.jsx";
 import MyEvents from "../MyEvents/MyEvents.jsx";
 import SymptomDiary from "../SymptomDiary/SymptomDiary.jsx";
 import HealthPlan from "../HealthPlan/HealthPlan.jsx";

@@ -1,0 +1,30 @@
+.services-page {
+    padding: 2rem;
+    background-color: #e6f2ff;
+    text-align: center;
+  
+    &__wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  
+    &__title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+  
+    &__description {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+  
+    &__cards {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+  }
+  

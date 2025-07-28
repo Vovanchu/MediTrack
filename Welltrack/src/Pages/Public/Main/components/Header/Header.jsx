@@ -28,7 +28,7 @@ export default function Header() {
 
       <div className="section_header_buttons">
         <button className="btn btn_login" onClick={handleLogin}>
-          Log In
+          Sign In
         </button>
         <button className="btn btn_register" onClick={handleRegister}>
           Create Profile
