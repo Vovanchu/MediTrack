@@ -16,8 +16,7 @@ export default function Login() {
 
   const validateEmail = (email) => {
     // Email повинен мати @ і домен, наприклад: test@example.com
-    const emailRegex =
-      /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
 
@@ -125,6 +124,9 @@ export default function Login() {
               placeholder="Enter your password"
               required
               disabled={loading}
+              onCopy={(e) => e.preventDefault()}
+              onPaste={(e) => e.preventDefault()}
+              onCut={(e) => e.preventDefault()}
             />
             <button
               type="button"

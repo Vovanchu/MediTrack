@@ -31,13 +31,11 @@ export default function Register() {
     special: /[!@#$%^&*]/.test(formData.password),
   };
 
-  // Валідація email формату
+  // Валідація email формату (додатково)
   const isEmailValid = (email) => {
-    // Має містити @ і крапку у домені (після @)
     if (!email.includes("@") || email.lastIndexOf(".") < email.indexOf("@")) {
       return false;
     }
-    // Перевірка допустимих символів у імені email (до @)
     const emailName = email.split("@")[0];
     return /^[a-zA-Z0-9._+\-]+$/.test(emailName);
   };
@@ -45,28 +43,19 @@ export default function Register() {
   const validateForm = () => {
     const { email, password, repeat_password } = formData;
 
-    // Email порожній або довжина не 12-72 символи
     if (!email || email.length < 12 || email.length > 72) {
       return "Email is required and must be between 12 and 72 characters.";
     }
-
-    // Email некоректний (перевірка символів та @ та крапки)
     if (!isEmailValid(email)) {
       return "Please enter the correct email address.";
     }
-
-    // Перевірка дозволених символів імені email (до @)
     const emailName = email.split("@")[0];
     if (!/^[a-zA-Z0-9._+\-]+$/.test(emailName)) {
       return "Email name part can only contain letters, digits, '.', '_', '+', '-' characters.";
     }
-
-    // Password порожній
     if (!password) {
       return "Password is required";
     }
-
-    // Password не відповідає вимогам
     if (!passwordChecks.length || !passwordChecks.uppercase || !passwordChecks.digit || !passwordChecks.special) {
       return `Your password must contain:
 - At least 8 characters;
@@ -74,19 +63,15 @@ export default function Register() {
 - At least one number (0-9);
 - At least one special character (ex. !@#$%^&*);`;
     }
-
-    // Паролі не співпадають
     if (password !== repeat_password) {
       return "Passwords don’t match";
     }
-
-    return null; // Все ок
+    return null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Додаткова перевірка паролів тут для надійності
+
     if (formData.password !== formData.repeat_password) {
       Swal.fire({
         icon: "error",
@@ -95,7 +80,7 @@ export default function Register() {
       });
       return;
     }
-  
+
     const errorMessage = validateForm();
     if (errorMessage) {
       Swal.fire({
@@ -105,12 +90,12 @@ export default function Register() {
       });
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
-      const res = await registerUser(formData);
-  
+      await registerUser(formData);
+
       Swal.fire({
         icon: "success",
         title: "Success!",
@@ -118,27 +103,32 @@ export default function Register() {
         timer: 2000,
         showConfirmButton: false,
       });
-  
+
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      // Краще зробити перевірку на різні формати помилки
       let message = "Failed to register. Try again.";
-  
-      // Якщо бекенд повертає список помилок в err.response.data.email — перевіряємо це
-      if (err.response?.data?.email && Array.isArray(err.response.data.email)) {
-        if (err.response.data.email.includes("This email is already registered.")) {
+
+      if (err.response?.data?.email) {
+        const emailErrors = Array.isArray(err.response.data.email)
+          ? err.response.data.email
+          : [err.response.data.email];
+
+        // Перевірка на текст від бекенду
+        if (
+          emailErrors.some((msg) =>
+            msg.toLowerCase().includes("user with this email already exists")
+          )
+        ) {
           message = "This email is already registered.";
         } else {
-          message = err.response.data.email.join(" ");
+          message = emailErrors.join(" ");
         }
-      }
-      // Іноді помилка може бути у полі detail (залежить від бекенду)
-      else if (err.response?.data?.detail) {
+      } else if (err.response?.data?.detail) {
         message = err.response.data.detail;
       }
-  
+
       Swal.fire({
         icon: "error",
         title: "Registration Failed",
@@ -176,6 +166,14 @@ export default function Register() {
               placeholder="Enter your email"
               required
               disabled={loading}
+              onInvalid={(e) => {
+                e.preventDefault();
+                Swal.fire({
+                  icon: "error",
+                  title: "Validation Error",
+                  text: "Please enter the correct email address.",
+                });
+              }}
             />
           </div>
 

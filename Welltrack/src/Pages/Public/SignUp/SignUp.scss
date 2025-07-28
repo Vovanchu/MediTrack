@@ -89,6 +89,8 @@
   .form-group {
     text-align: left;
     position: relative;
+    display: flex;
+    flex-direction: column; 
 
     &.password-group {
       input {
@@ -98,7 +100,7 @@
       .show-password-btn {
         position: absolute;
         right: 10px;
-        top: 50%;
+        top: 65%;
         transform: translateY(-50%);
         background: transparent;
         border: none;

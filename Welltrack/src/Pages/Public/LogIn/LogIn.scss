@@ -87,26 +87,28 @@
   }
 
   .form-group {
-    text-align: left;
     position: relative;
+    display: flex;
+    flex-direction: column;
 
-      .show-password-btn {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: transparent;
-        border: none;
-        color: #007bff;
-        cursor: pointer;
-        font-size: 0.9rem;
-        padding: 0;
-        user-select: none;
+    .show-password-btn {
+      position: absolute;
+      right: 12px;
+      top: 65%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0;
+      user-select: none;
+      height: fit-content;
 
-        &:focus {
-          outline: none;
-          text-decoration: underline;
-        }
+      &:focus {
+        outline: none;
+        text-decoration: underline;
+      }
     }
 
     label {
