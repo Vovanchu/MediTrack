@@ -11,7 +11,13 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "password") {
+      const noSpacesValue = value.replace(/\s/g, "");
+      setFormData({ ...formData, [name]: noSpacesValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const validateEmail = (email) => {
@@ -71,8 +77,7 @@ export default function Login() {
       });
 
       setTimeout(() => navigate("/my-profile"), 1500);
-    } catch (error) {
-      // Якщо бекенд відхиляє логін, показуємо єдине повідомлення
+    } catch {
       Swal.fire({
         icon: "error",
         title: "Login Failed",
@@ -110,6 +115,14 @@ export default function Login() {
               onChange={handleChange}
               placeholder="Enter your email"
               required
+              onInvalid={(e) => {
+                e.target.setCustomValidity(
+                  "Please enter the correct email address."
+                );
+              }}
+              onInput={(e) => {
+                e.target.setCustomValidity(""); // очищаємо повідомлення при введенні
+              }}
               disabled={loading}
             />
           </div>
@@ -123,6 +136,12 @@ export default function Login() {
               onChange={handleChange}
               placeholder="Enter your password"
               required
+              onInvalid={(e) => {
+                e.target.setCustomValidity("Password is required");
+              }}
+              onInput={(e) => {
+                e.target.setCustomValidity(""); // очищаємо повідомлення при введенні
+              }}
               disabled={loading}
               onCopy={(e) => e.preventDefault()}
               onPaste={(e) => e.preventDefault()}
@@ -146,7 +165,7 @@ export default function Login() {
           Forgot password? <Link to="/reset-password">Reset it here</Link>
         </p>
         <p className="auth-footer">
-          Don't have an account? <Link to="/signup">Create Account</Link>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
         </p>
       </div>
     </div>

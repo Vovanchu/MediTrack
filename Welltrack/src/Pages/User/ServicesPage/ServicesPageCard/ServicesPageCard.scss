@@ -1,13 +1,13 @@
+@use "@/styles/_mixins" as *;
+
 .services {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(250px, 1fr)
-  ); // автоадаптивна сітка
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* автоадаптив */
   gap: 1.5rem;
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
 
   .services-card {
     display: flex;
@@ -22,19 +22,26 @@
     text-decoration: none;
     color: inherit;
 
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    // Ховер тільки для екранів від планшета і більше
+    @include hover-large {
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
     }
 
     &__image-wrapper {
       width: 80px;
       height: 80px;
       margin-bottom: 1rem;
+      border-radius: 25%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       img {
-        width: 100%;
-        height: 100%;
+        width: 80%;
+        height: 80%;
         object-fit: contain;
       }
     }
@@ -54,37 +61,68 @@
   }
 }
 
-/* Адаптивні стилі */
-@media (max-width: 768px) {
-  .services {
-    padding: 1rem;
-    gap: 1rem;
-  }
+// Індивідуальні кольори для іконок
+.services-card:nth-child(1) .services-card__image-wrapper {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+.services-card:nth-child(2) .services-card__image-wrapper {
+  background-color: #dcfce7;
+}
+.services-card:nth-child(3) .services-card__image-wrapper {
+  background-color: #f3e8ff;
+}
+.services-card:nth-child(4) .services-card__image-wrapper {
+  background-color: #fee2e2;
+}
+.services-card:nth-child(5) .services-card__image-wrapper {
+  background-color: #ffedd5;
+}
 
+// Адаптація
+@include tablet {
+  .services {
+    padding: 1.5rem;
+    gap: 1.2rem;
+  }
   .services-card {
-    padding: 1rem;
+    padding: 1.2rem;
 
     &__title {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
     }
-
     &__description {
       font-size: 0.95rem;
     }
   }
 }
 
-@media (max-width: 480px) {
+@include mobile-medium {
+  .services {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .services-card {
+    padding: 1rem;
+
+    &__title {
+      font-size: 1.1rem;
+    }
+    &__description {
+      font-size: 0.95rem;
+    }
+  }
+}
+
+@include mobile-small {
   .services-card {
     &__image-wrapper {
       width: 60px;
       height: 60px;
     }
-
     &__title {
       font-size: 1rem;
     }
-
     &__description {
       font-size: 0.9rem;
     }

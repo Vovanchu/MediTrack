@@ -3,47 +3,61 @@
 .health-indicators {
   font-family: Arial, sans-serif;
   color: #1e293b;
-  display: flex;
-  flex: 1;
+  background-color: rgb(230, 242, 255);
 
   &__container {
     max-width: 1100px;
     margin: 0 auto;
     padding: 2rem;
+
+    @include mobile-small {
+      padding: 1rem;
+    }
   }
 
-  /* Заголовок у рядок */
+  /* Заголовок */
   .health-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
 
-    &__text {
-      max-width: 70%;
-    }
-
     .page-title {
       font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 0.3rem;
       color: #334155;
+
+      @include mobile-small {
+        font-size: 1.4rem;
+      }
     }
 
     .page-description {
       font-size: 1.1rem;
       color: #64748b;
+
+      @include mobile-small {
+        font-size: 0.9rem;
+      }
     }
   }
 
-  /* Дві колонки */
+  /* Контейнер для колонок */
   .health-sections-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
 
-    @media (max-width: 768px) {
+    @include tablet {
       grid-template-columns: 1fr;
+    }
+    @include mobile-medium {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @include mobile-small {
+      grid-template-columns: 1fr;
+      gap: 1rem;
     }
   }
 
@@ -55,9 +69,15 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    @include hover-large {
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      }
+    }
+
+    @include mobile-small {
+      padding: 1rem;
     }
 
     .section-title {
@@ -65,6 +85,10 @@
       font-weight: 600;
       margin-bottom: 1rem;
       color: #334155;
+
+      @include mobile-small {
+        font-size: 1.1rem;
+      }
     }
 
     .metrics-list {
@@ -79,31 +103,57 @@
         padding: 0.6rem 0;
         border-bottom: 1px solid #e2e8f0;
 
+        @include mobile-small {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
         strong {
           color: #1e293b;
           margin-right: 1rem;
+
+          @include mobile-small {
+            margin: 0;
+            font-size: 0.9rem;
+          }
         }
 
         input {
-          flex: 1;
+          width: 100%;
           max-width: 60%;
-          padding: 0.4rem 0.6rem;
+          padding: 0.6rem 0.8rem;
           border: 1px solid #cbd5e1;
-          border-radius: 6px;
+          border-radius: 8px;
           background: #ffffff;
-          font-size: 0.95rem;
+          font-size: 1rem;
           color: #1e293b;
+          transition: all 0.2s ease;
 
           &:focus {
             border-color: #38bdf8;
-            box-shadow: 0 0 4px rgba(56, 189, 248, 0.5);
+            box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
             outline: none;
+          }
+
+          @include hover-large {
+            border-color: #94a3b8;
+          }
+
+          /* Для маленьких екранів інпут тягнеться на всю ширину */
+          @include mobile-small {
+            max-width: 100%;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+          }
+
+          @include mobile-medium {
+            max-width: 100%;
           }
         }
       }
     }
 
-    /* Кнопка збереження */
     .btn-save {
       display: flex;
       align-items: center;
@@ -118,49 +168,72 @@
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s;
 
-      &:hover {
-        background: #0ea5e9;
+      @include hover-large {
+        &:hover {
+          background: #0ea5e9;
+        }
       }
 
-      /* Іконка зліва */
       &::before {
         content: "💾";
         margin-right: 0.5rem;
-        font-size: 1.2rem;
+      }
+
+      @include mobile-small {
+        font-size: 1rem;
+        padding: 0.6rem;
       }
     }
-  }
 
-  .trends-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-
-    li {
+    /* Стилі для карток рекомендацій */
+    .recommendations {
       display: flex;
-      justify-content: space-between;
-      padding: 0.6rem 0;
-      border-bottom: 1px solid #e2e8f0;
+      flex-direction: column;
+      gap: 1rem;
 
-      strong {
-        color: #1e293b;
-      }
+      .recommendation-card {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
 
-      span {
-        color: #475569;
+        h4 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+        }
+
+        p {
+          font-size: 0.95rem;
+          color: #475569;
+        }
+
+        &.danger {
+          background: #fee2e2;
+          border-color: #ef4444;
+
+          h4,
+          p {
+            color: #b91c1c;
+            font-weight: 600;
+          }
+        }
       }
     }
-  }
 
-  .tips-list {
-    list-style: disc;
-    padding-left: 1.5rem;
+    .recommendations-placeholder {
+      color: #64748b;
+      font-size: 1rem;
+      margin-top: 1rem;
+      text-align: center;
 
-    li {
-      color: #475569;
-      margin-bottom: 0.5rem;
+      @include mobile-small {
+        font-size: 0.9rem;
+      }
     }
   }
 }

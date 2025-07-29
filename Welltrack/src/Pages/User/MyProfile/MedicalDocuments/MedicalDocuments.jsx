@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import BtnBack from "../../components/ui/BtnBack/BtnBack";
 
 import "./MedicalDocuments.scss";
 import NavBar from "../../components/NavBar/NavBar";
 
 export default function MedicalDocuments() {
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setSelectedFiles(files);
+  };
+
   return (
     <>
       <NavBar />
@@ -45,9 +52,20 @@ export default function MedicalDocuments() {
                   id="medical-upload"
                   accept=".png,.pdf,.docx"
                   multiple
+                  onChange={handleFileChange}
                 />
                 <label htmlFor="medical-upload">Choose Files</label>
               </div>
+
+              {selectedFiles.length > 0 && (
+                <ul className="section-medicaldocuments_file-list">
+                  {selectedFiles.map((file, index) => (
+                    <li key={index}>
+                      {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </li>
+                  ))}
+                </ul>
+              )}
 
               <p className="section-medicaldocuments_upload-box-description">
                 Supported formats: PNG (up to 8MB), PDF (up to 8MB), DOCX (up to

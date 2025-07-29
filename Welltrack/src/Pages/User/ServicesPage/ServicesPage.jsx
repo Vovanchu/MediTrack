@@ -11,13 +11,14 @@ export default function ServicesPage() {
 
       <section className="services-page">
         <div className="services-page__wrapper">
-          <h1 className="services-page__title">Services</h1>
+          <h1 className="services-page__title">Healthcare Services</h1>
           <p className="services-page__description">
-            Comprehensive healthcare services to help you manage every aspect of
-            your medical journey
+            Access comprehensive healthcare services designed to keep you
+            healthy and informed. From routine checkups to specialized care,
+            we've got you covered.
           </p>
         </div>
-        
+
         <div className="services-page__cards">
           <ServicesPageCard />
         </div>

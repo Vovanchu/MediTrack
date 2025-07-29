@@ -1,30 +1,90 @@
+@use "@/styles/_mixins" as *;
+
 .services-page {
-    padding: 2rem;
-    background-color: #e6f2ff;
-    text-align: center;
-  
-    &__wrapper {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-  
+  padding: 2rem;
+  background-color: #e6f2ff;
+  text-align: center;
+
+  &__wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+
+  &__description {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 2rem;
+  }
+
+  &__cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+}
+
+/* --- Адаптивність через міксіни --- */
+@include laptop-small {
+  .services-page {
+    padding: 1.5rem;
+
     &__title {
-      font-size: 2rem;
-      font-weight: bold;
-      margin-bottom: 1rem;
+      font-size: 1.8rem;
     }
-  
     &__description {
-      font-size: 1.2rem;
-      color: #555;
-      margin-bottom: 2rem;
-    }
-  
-    &__cards {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
+      font-size: 1.1rem;
     }
   }
-  
+}
+
+@include tablet {
+  .services-page {
+    padding: 1.2rem;
+
+    &__title {
+      font-size: 1.6rem;
+    }
+    &__description {
+      font-size: 1rem;
+    }
+    &__cards {
+      gap: 1rem;
+    }
+  }
+}
+
+@include mobile-medium {
+  .services-page {
+    padding: 1rem;
+
+    &__title {
+      font-size: 1.4rem;
+    }
+    &__description {
+      font-size: 0.95rem;
+    }
+  }
+}
+
+@include mobile-small {
+  .services-page {
+    padding: 0.8rem;
+
+    &__title {
+      font-size: 1.2rem;
+    }
+    &__description {
+      font-size: 0.9rem;
+    }
+    &__cards {
+      gap: 0.8rem;
+    }
+  }
+}

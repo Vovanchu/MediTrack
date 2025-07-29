@@ -8,6 +8,7 @@ import MyProfile from "../UserProfile/UserProfile.jsx";
 
 // Всі вкладені маршрути профілю
 import MyProfileRoutes from "./my_profile/UserInformationRoutes.jsx";
+import ServicesPageSubpages from "./ServicesPageSubpages/ServicesPageSubpages.jsx";
 
 // Інші сторінки
 import Services from "../ServicesPage/ServicesPage.jsx";
@@ -22,8 +23,11 @@ export default function AuthRoutes() {
         {/* Головна сторінка профілю */}
         <Route path="/my-profile" element={<MyProfile />} />
 
-        {/* Всі підсторінки профілю */}
+        {/* Всі підсторінки профілю*/}
         <Route path="/my-profile/*" element={<MyProfileRoutes />} />
+
+        {/* Всі підсторінки сервіси*/}
+        <Route path="/services/*" element={<ServicesPageSubpages />} />
 
         {/* Інші сторінки */}
         <Route path="/services" element={<Services />} />

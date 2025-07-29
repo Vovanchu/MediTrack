@@ -17,7 +17,14 @@ export default function Register() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "password" || name === "repeat_password") {
+      // Видаляємо пробіли з пароля та повторного пароля
+      const noSpacesValue = value.replace(/\s/g, "");
+      setFormData((prev) => ({ ...prev, [name]: noSpacesValue }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const toggleShowPassword = () => setShowPassword((prev) => !prev);
@@ -37,7 +44,7 @@ export default function Register() {
       return false;
     }
     const emailName = email.split("@")[0];
-    return /^[a-zA-Z0-9._+\-]+$/.test(emailName);
+    return /^[a-zA-Z0-9._+-]+$/.test(emailName);
   };
 
   const validateForm = () => {
@@ -50,13 +57,18 @@ export default function Register() {
       return "Please enter the correct email address.";
     }
     const emailName = email.split("@")[0];
-    if (!/^[a-zA-Z0-9._+\-]+$/.test(emailName)) {
+    if (!/^[a-zA-Z0-9._+-]+$/.test(emailName)) {
       return "Email name part can only contain letters, digits, '.', '_', '+', '-' characters.";
     }
     if (!password) {
       return "Password is required";
     }
-    if (!passwordChecks.length || !passwordChecks.uppercase || !passwordChecks.digit || !passwordChecks.special) {
+    if (
+      !passwordChecks.length ||
+      !passwordChecks.uppercase ||
+      !passwordChecks.digit ||
+      !passwordChecks.special
+    ) {
       return `Your password must contain:
 - At least 8 characters;
 - At least one uppercase letter (A-Z);
@@ -165,15 +177,15 @@ export default function Register() {
               onChange={handleChange}
               placeholder="Enter your email"
               required
-              disabled={loading}
               onInvalid={(e) => {
-                e.preventDefault();
-                Swal.fire({
-                  icon: "error",
-                  title: "Validation Error",
-                  text: "Please enter the correct email address.",
-                });
+                e.target.setCustomValidity(
+                  "Please enter the correct email address."
+                );
               }}
+              onInput={(e) => {
+                e.target.setCustomValidity(""); // очищаємо повідомлення при введенні
+              }}
+              disabled={loading}
             />
           </div>
 
@@ -187,6 +199,12 @@ export default function Register() {
                 onChange={handleChange}
                 placeholder="Create a password"
                 required
+                onInvalid={(e) => {
+                  e.target.setCustomValidity("Password is required");
+                }}
+                onInput={(e) => {
+                  e.target.setCustomValidity(""); // очищаємо повідомлення при введенні
+                }}
                 disabled={loading}
                 onCopy={(e) => e.preventDefault()}
                 onCut={(e) => e.preventDefault()}
@@ -213,6 +231,12 @@ export default function Register() {
                 onChange={handleChange}
                 placeholder="Repeat your password"
                 required
+                onInvalid={(e) => {
+                  e.target.setCustomValidity("Password is required");
+                }}
+                onInput={(e) => {
+                  e.target.setCustomValidity(""); // очищаємо повідомлення при введенні
+                }}
                 disabled={loading}
                 onCopy={(e) => e.preventDefault()}
                 onCut={(e) => e.preventDefault()}

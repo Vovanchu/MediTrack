@@ -25,6 +25,7 @@
 
   &_header {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%; // тепер по ширині блоку
@@ -58,13 +59,13 @@
     }
 
     @include tablet {
-      flex-direction: column;
+      flex-direction: row;
       align-items: flex-start;
       gap: 1rem;
     }
 
     @include mobile-small {
-      flex-direction: column;
+      flex-direction: row;
       gap: 1rem;
     }
   }

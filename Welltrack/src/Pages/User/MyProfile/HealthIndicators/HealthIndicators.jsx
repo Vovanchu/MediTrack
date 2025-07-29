@@ -6,49 +6,114 @@ import Footer from "../../components/Footer/Footer";
 
 export default function HealthIndicators() {
   const [metrics, setMetrics] = useState({
-    pulse: "72",
-    bloodPressure: "120/80",
-    temperature: "98.6",
-    weight: "150",
-    height: "5'8\"",
+    pulse: "",
+    bloodPressure: "",
+    temperature: "",
+    weight: "",
+    height: "",
   });
+
+  const [showRecommendations, setShowRecommendations] = useState(false);
 
   const handleChange = (field, value) => {
     setMetrics({ ...metrics, [field]: value });
   };
 
   const handleSave = () => {
-    console.log("Saving health metrics:", metrics);
+    setShowRecommendations(true);
     alert("Health data saved!");
+  };
+
+  const generateRecommendations = () => {
+    const recs = [];
+
+    const pulse = parseInt(metrics.pulse);
+    if (pulse) {
+      if (pulse < 50 || pulse > 120) {
+        recs.push({
+          title: "Pulse Alert",
+          text: "Your pulse is at a dangerous level. Seek medical attention.",
+          danger: true,
+        });
+      } else {
+        recs.push({
+          title: "Heart Health",
+          text: "Your pulse rate is within normal range. Continue regular exercise.",
+        });
+      }
+    }
+
+    const [systolic, diastolic] = metrics.bloodPressure
+      .split("/")
+      .map((v) => parseInt(v));
+    if (systolic && diastolic) {
+      if (systolic > 160 || diastolic > 100) {
+        recs.push({
+          title: "High Blood Pressure",
+          text: "Your blood pressure is critically high. Please consult a doctor.",
+          danger: true,
+        });
+      } else {
+        recs.push({
+          title: "Blood Pressure",
+          text: "Excellent blood pressure reading! Keep up your healthy habits.",
+        });
+      }
+    }
+
+    const temperature = parseFloat(metrics.temperature);
+    if (temperature) {
+      if (temperature > 38) {
+        recs.push({
+          title: "High Temperature",
+          text: "You have a fever. Monitor your condition and consult a doctor if needed.",
+          danger: true,
+        });
+      } else {
+        recs.push({
+          title: "Body Temperature",
+          text: "Normal body temperature. No concerns detected.",
+        });
+      }
+    }
+
+    const weight = parseFloat(metrics.weight);
+    if (weight) {
+      if (weight > 150) {
+        recs.push({
+          title: "Weight Alert",
+          text: "Your weight is significantly above normal. Consult a nutritionist or doctor.",
+          danger: true,
+        });
+      } else {
+        recs.push({
+          title: "Weight Management",
+          text: "Consider tracking your weight weekly for better health monitoring.",
+        });
+      }
+    }
+
+    return recs;
   };
 
   return (
     <>
       <NavBar />
-
-      <section
-        className="health-indicators"
-        style={{ backgroundColor: "#e6f2ff" }}
-      >
+      <section className="health-indicators">
         <div className="health-indicators__container">
-          {/* Заголовок з кнопкою Назад */}
           <div className="health-header">
             <div className="health-header__text">
               <h2 className="page-title">Health Indicators</h2>
               <p className="page-description">
-                Track your vital signs and health metrics
+                Track your vital signs and get personalized tips
               </p>
             </div>
-
             <BtnBack />
           </div>
 
-          {/* Дві колонки */}
           <div className="health-sections-wrapper">
-            {/* Ліва колонка */}
             <div className="health-section">
               <h3 className="section-title">Current Health Metrics</h3>
-              <p>Enter your latest health measurements</p>
               <ul className="metrics-list">
                 <li>
                   <strong>Pulse (BPM)</strong>
@@ -69,7 +134,7 @@ export default function HealthIndicators() {
                   />
                 </li>
                 <li>
-                  <strong>Temperature (°F)</strong>
+                  <strong>Temperature (°C)</strong>
                   <input
                     type="number"
                     step="0.1"
@@ -80,7 +145,7 @@ export default function HealthIndicators() {
                   />
                 </li>
                 <li>
-                  <strong>Weight (lbs)</strong>
+                  <strong>Weight (kg)</strong>
                   <input
                     type="number"
                     value={metrics.weight}
@@ -88,7 +153,7 @@ export default function HealthIndicators() {
                   />
                 </li>
                 <li>
-                  <strong>Height</strong>
+                  <strong>Height (sm)</strong>
                   <input
                     type="text"
                     value={metrics.height}
@@ -101,41 +166,31 @@ export default function HealthIndicators() {
               </button>
             </div>
 
-            {/* Права колонка */}
             <div className="health-section">
-              <h3 className="section-title">Health Trends</h3>
-              <ul className="trends-list">
-                <li>
-                  <strong>Average Pulse</strong> <span>74 BPM</span>
-                </li>
-                <li>
-                  <strong>Blood Pressure Trend</strong> <span>Stable</span>
-                </li>
-                <li>
-                  <strong>Weight Change</strong> <span>-2 lbs this month</span>
-                </li>
-              </ul>
-
-              <div className="tips-block">
-                <h3 className="tips-title">Health Monitoring Tips</h3>
-                <ul className="tips-list">
-                  <li>
-                    Take measurements at the same time each day for consistency
-                  </li>
-                  <li>
-                    Rest for 5 minutes before taking blood pressure readings
-                  </li>
-                  <li>
-                    Weigh yourself without clothes for accurate measurements
-                  </li>
-                  <li>Consult your doctor if you notice significant changes</li>
-                </ul>
-              </div>
+              <h3 className="section-title">Health Recommendations</h3>
+              {showRecommendations ? (
+                <div className="recommendations">
+                  {generateRecommendations().map((rec, index) => (
+                    <div
+                      key={index}
+                      className={`recommendation-card ${
+                        rec.danger ? "danger" : ""
+                      }`}
+                    >
+                      <h4>{rec.title}</h4>
+                      <p>{rec.text}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="recommendations-placeholder">
+                  Save your data to see personalized tips.
+                </p>
+              )}
             </div>
           </div>
         </div>
       </section>
-
       <Footer />
     </>
   );
