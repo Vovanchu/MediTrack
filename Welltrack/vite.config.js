@@ -14,4 +14,13 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://dr-reminder-backend-test.onrender.com",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });

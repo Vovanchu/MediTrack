@@ -1,26 +1,41 @@
-import api from "./api"; 
+import api from "./api";
 
-// Отримати список акаунтів (тільки якщо тобі треба для тесту)
-export function fetchAccounts() {
-  return api.get("/");
-}
-
-// Реєстрація нового користувача
 export function registerUser(data) {
-  return api.post("/register/", data);
+  return api.post("/accounts/register/", data);
 }
 
-// Логін користувача
 export function loginUser(data) {
-  return api.post("/login/", data);
+  return api.post("/accounts/login/", data);
 }
 
-// Отримати всі події (health records)
+export function logoutUser() {
+  return api.post("/accounts/logout/");
+}
+
+export function fetchProfile() {
+  return api.get("/accounts/profile/");
+}
+
+export function resetPassword(email) {
+  return api.post("/accounts/reset-password/", { email });
+}
+
+export function resetPasswordConfirm(data) {
+  return api.post("/accounts/reset-password-confirm/", data);
+}
+
+export function verifyToken(token) {
+  return api.post("/accounts/token/verify/", { token });
+}
+
+export function fetchServices() {
+  return api.get("/services/");
+}
+
 export function fetchRecords() {
-  return api.get("/events/"); // => http://127.0.0.1:8001/api/events/
+  return api.get("/events/");
 }
 
-// Додати новий запис
 export function addRecord(record) {
-  return api.post("/events/", record); // axios автоматично додасть токен
+  return api.post("/events/", record);
 }

@@ -116,9 +116,7 @@ export default function Login() {
               placeholder="Enter your email"
               required
               onInvalid={(e) => {
-                e.target.setCustomValidity(
-                  "Please enter the correct email address."
-                );
+                e.target.setCustomValidity("Email is required");
               }}
               onInput={(e) => {
                 e.target.setCustomValidity(""); // очищаємо повідомлення при введенні
