@@ -1,0 +1,20 @@
+.btn-back {
+  background-color: transparent;
+  border: none;
+  color: #3b82f6; /* яскравий блакитний */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 0;
+  transition: color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    color: #2563eb; /* темніший синій при ховері */
+  }
+
+  &:disabled {
+    color: #a5b4fc; /* світліший для неактивного */
+    cursor: not-allowed;
+  }
+}

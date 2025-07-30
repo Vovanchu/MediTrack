@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { loginUser } from "../../../API/accounts";
+import BtnBack from "../components/BtnBack/BtnBack";
 import "./LogIn.scss";
 
 export default function Login() {
@@ -97,14 +98,7 @@ export default function Login() {
         <p className="auth-subtitle">Log in to your account to continue</p>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <button
-            className="btn-back"
-            onClick={() => navigate("/")}
-            disabled={loading}
-            type="button"
-          >
-            ← Back
-          </button>
+          <BtnBack />
 
           <div className="form-group">
             <label>Email</label>

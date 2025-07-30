@@ -6,7 +6,7 @@ export default function MainPage() {
   return (
     <>
       <Header />
-      <Body/>
+      <Body />
     </>
   );
 }

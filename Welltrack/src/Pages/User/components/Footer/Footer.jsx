@@ -3,10 +3,9 @@ import { Link } from "react-router-dom"; // якщо хочеш SPA-навіга
 import "./Footer.scss";
 
 const nav_links = [
+  { label: "Home", href: "/home" },
   { label: "Services", href: "/services" },
   { label: "My Events", href: "/my-events" },
-  { label: "Symptom Diary", href: "/symptom-diary" },
-  { label: "Health Plan", href: "/health-plan" },
   { label: "My Profile", href: "/my-profile" },
 ];
 

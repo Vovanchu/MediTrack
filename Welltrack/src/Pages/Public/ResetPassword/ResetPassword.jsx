@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
+import BtnBack from "../components/BtnBack/BtnBack";
+import { resetPassword } from "../../../API/accounts"; // імпорт функції
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -15,15 +16,16 @@ export default function ResetPassword() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:8000/api/accounts/reset-password/", {
-        email,
-      });
+      const response = await resetPassword(email); // використання API-функції
       setMessage(
-        response.data.detail || `If an account with ${email} exists, a reset link has been sent.`
+        response.data.detail ||
+          `If an account with ${email} exists, a reset link has been sent.`
       );
       setSent(true);
     } catch (err) {
-      setError(err.response?.data?.detail || "Something went wrong. Please try again.");
+      setError(
+        err.response?.data?.detail || "Something went wrong. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -33,7 +35,11 @@ export default function ResetPassword() {
     <div className="auth-container">
       <div className="auth-box">
         <h1 className="auth-title">Reset Password</h1>
-        <p className="auth-subtitle">Enter your email to receive a password reset link.</p>
+        <p className="auth-subtitle">
+          Enter your email to receive a password reset link.
+        </p>
+
+        <BtnBack />
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
@@ -53,8 +59,22 @@ export default function ResetPassword() {
           </button>
         </form>
 
-        {message && <p className="auth-message" style={{ color: "green", marginTop: "15px" }}>{message}</p>}
-        {error && <p className="auth-message" style={{ color: "red", marginTop: "15px" }}>{error}</p>}
+        {message && (
+          <p
+            className="auth-message"
+            style={{ color: "green", marginTop: "15px" }}
+          >
+            {message}
+          </p>
+        )}
+        {error && (
+          <p
+            className="auth-message"
+            style={{ color: "red", marginTop: "15px" }}
+          >
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { registerUser } from "../../../API/accounts";
 import "./SignUp.scss";
+import BtnBack from "../components/BtnBack/BtnBack";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -158,15 +159,7 @@ export default function Register() {
         <p className="auth-subtitle">Join us to access all features</p>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <button
-            className="btn-back"
-            onClick={() => navigate("/")}
-            disabled={loading}
-            aria-label="Go back"
-            type="button"
-          >
-            ← Back
-          </button>
+          <BtnBack />
 
           <div className="form-group">
             <label>Email</label>

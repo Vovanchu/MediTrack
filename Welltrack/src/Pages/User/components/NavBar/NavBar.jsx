@@ -4,10 +4,9 @@ import heart from "@/assets/images/heart.svg";
 import "./NavBar.scss";
 
 const nav_links = [
+  { name: "Home", path: "/home" },
   { name: "Services", path: "/services" },
   { name: "My Events", path: "/my-events" },
-  { name: "Symptom Diary", path: "/symptom-diary" },
-  { name: "Health Plan", path: "/health-plan" },
   { name: "My Profile", path: "/my-profile" },
 ];
 

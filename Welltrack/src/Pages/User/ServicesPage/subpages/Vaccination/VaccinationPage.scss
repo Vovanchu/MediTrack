@@ -1,0 +1,331 @@
+@use "@/styles/mixins" as *;
+
+.vaccination-page {
+  background: #f8fbff;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+
+  &__title {
+    text-align: center;
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+
+  &__description {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 1rem;
+  }
+
+  .container {
+    display: flex;
+    gap: 2rem;
+    max-width: 960px;
+    margin: 0 auto;
+
+    @include mobile-small {
+      flex-direction: column;
+    }
+  }
+
+  &__vaccine-list {
+    flex: 1;
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .badges {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .badge {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+      font-weight: 600;
+      user-select: none;
+
+      strong {
+        display: block;
+        margin-bottom: 0.4rem;
+        font-size: 1.1rem;
+        color: #1e40af;
+      }
+
+      p {
+        margin: 0;
+        font-weight: 400;
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      &:hover,
+      &:focus {
+        background: #dbeafe;
+        border-color: #3b82f6;
+        outline: none;
+      }
+    }
+  }
+
+  &__calendar-section {
+    flex: 1;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #1e3a8a;
+      text-align: center;
+    }
+
+    .calendar-info {
+      font-style: italic;
+      font-size: 0.95rem;
+      color: #444;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      max-height: 250px;
+      overflow-y: auto;
+
+      li {
+        padding: 0.35rem 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        strong {
+          color: #2563eb;
+        }
+      }
+    }
+  }
+}
+
+/* Модальне вікно */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(30, 41, 59, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.modal {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / 0.2);
+  position: relative;
+  animation: slideUp 0.3s ease forwards;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.75rem;
+    color: #1e3a8a;
+  }
+
+  p {
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #444;
+    margin-bottom: 0.8rem;
+  }
+
+  .info {
+    font-weight: 600;
+    color: #2563eb;
+    margin-bottom: 1.5rem;
+  }
+
+  .event-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    label {
+      font-weight: 600;
+      color: #334155;
+      font-size: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+
+      input[type="text"],
+      input[type="date"] {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.6rem;
+        font-size: 1rem;
+        color: #1e293b;
+        transition: border-color 0.25s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 5px #3b82f6aa;
+        }
+      }
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+
+      button {
+        padding: 0.6rem 1.4rem;
+        border-radius: 0.6rem;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.3s ease;
+
+        &.btn-primary {
+          background-color: #2563eb;
+          color: white;
+
+          &:hover {
+            background-color: #1e40af;
+          }
+        }
+
+        &.btn-secondary {
+          background-color: #e2e8f0;
+          color: #475569;
+
+          &:hover {
+            background-color: #cbd5e1;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Календар */
+.calendar {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  user-select: none;
+  background: #f9fafb;
+  box-shadow: inset 0 0 8px #e2e8f0;
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    button {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #2563eb;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #1e40af;
+      }
+
+      &:focus {
+        outline: none;
+        color: #1e40af;
+      }
+    }
+
+    span {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1e293b;
+    }
+  }
+
+  &-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  &-day {
+    width: 34px;
+    height: 34px;
+    border-radius: 0.5rem;
+    background: #fff;
+    border: 1px solid transparent;
+    font-weight: 600;
+    color: #2563eb;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: #dbeafe;
+      border-color: #3b82f6;
+      color: #1e40af;
+    }
+
+    &.selected {
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 0 6px #2563ebaa;
+    }
+  }
+}
+
+/* Анімації */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -11,6 +11,7 @@ import MyProfileRoutes from "./my_profile/UserInformationRoutes.jsx";
 import ServicesPageSubpages from "./ServicesPageSubpages/ServicesPageSubpages.jsx";
 
 // Інші сторінки
+import Home from "../Home/Home.jsx";
 import Services from "../ServicesPage/ServicesPage.jsx";
 import MyEvents from "../MyEvents/MyEvents.jsx";
 import SymptomDiary from "../SymptomDiary/SymptomDiary.jsx";
@@ -30,6 +31,7 @@ export default function AuthRoutes() {
         <Route path="/services/*" element={<ServicesPageSubpages />} />
 
         {/* Інші сторінки */}
+        <Route path="/home" element={<Home />} />
         <Route path="/services" element={<Services />} />
         <Route path="/my-events" element={<MyEvents />} />
         <Route path="/symptom-diary" element={<SymptomDiary />} />

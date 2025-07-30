@@ -4,9 +4,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; // дозволяє переносити блоки
   padding: 0.9rem 2.5rem;
   background: linear-gradient(to right, #e8f1ff, #ffffff);
-  border-bottom: 0.0625rem solid #d9e2f1;
+  border-bottom: 1px solid #d9e2f1;
+
+  @include mobile-medium {
+    padding: 0.75rem 1.5rem;
+  }
+
+  @include mobile-small {
+    padding: 0.6rem 1rem;
+  }
+
+  @media (max-width: 320px) {
+    padding: 0.5rem 0.75rem;
+  }
 
   &_logo {
     display: flex;
@@ -31,6 +44,7 @@
       font-size: 1.5rem;
       font-weight: bold;
       color: #1f3a7d;
+      white-space: nowrap;
 
       @include tablet {
         font-size: 1.5rem;
@@ -50,8 +64,18 @@
     display: flex;
     gap: 0.75rem;
 
-    @include mobile-small {
+    @include mobile-medium {
       gap: 0.5rem;
+    }
+
+    @media (max-width: 420px) {
+      flex-direction: column;
+      width: 100%;
+      margin-top: 0.75rem;
+
+      .btn {
+        width: 100%;
+      }
     }
 
     .btn {
@@ -63,24 +87,24 @@
       transition: all 0.3s ease;
 
       @include tablet {
-        padding: 0.625rem 1.25rem;
         font-size: 1rem;
+        padding: 0.625rem 1.25rem;
       }
 
       @include mobile-medium {
-        padding: 0.5rem 1rem;
         font-size: 0.9rem;
+        padding: 0.5rem 1rem;
       }
 
       @include mobile-small {
-        padding: 0.4rem 0.8rem;
         font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
       }
 
       &.btn_login {
         background: transparent;
         color: #1f3a7d;
-        border: 0.06rem solid #1f3a7d;
+        border: 1px solid #1f3a7d;
 
         &:hover {
           background: #1f3a7d;
@@ -97,13 +121,5 @@
         }
       }
     }
-  }
-
-  @include mobile-small {
-    padding: 0.6rem 1rem;
-  }
-
-  @media (max-width: 320px) {
-    padding: 0.5rem 0.75rem;
   }
 }

@@ -1,19 +1,32 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: "https://dr-reminder-backend-test.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Додаємо токен автоматично
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
+
+    const publicEndpoints = [
+      "/accounts/register/",
+      "/accounts/login/",
+      "/accounts/reset-password/",
+      "/accounts/reset-password-confirm/",
+      "/accounts/token/verify/",
+    ];
+
+    const isPublic = publicEndpoints.some((endpoint) =>
+      config.url.includes(endpoint)
+    );
+
+    if (token && !isPublic) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error)

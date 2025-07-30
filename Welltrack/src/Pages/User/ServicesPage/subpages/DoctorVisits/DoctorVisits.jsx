@@ -3,6 +3,8 @@ import Swal from "sweetalert2";
 import { Heart, Plus } from "lucide-react";
 import "./DoctorVisits.scss";
 import NavBar from "../../../components/NavBar/NavBar";
+import { addRecord } from "@/API/accounts";
+
 
 export default function DoctorVisitPage() {
   const [selectedSpecialty, setSelectedSpecialty] = useState(null);
@@ -34,15 +36,23 @@ export default function DoctorVisitPage() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Тут можна додати логіку відправки даних на бек (поки що імітація)
-    // Показуємо SweetAlert2
-    Swal.fire({
-      icon: "success",
-      title: "Appointment added!",
-      html: `
+    const record = {
+      title: `Doctor Visit: ${selectedSpecialty}`,
+      date: formData.date, // формат YYYY-MM-DD
+      time: formData.time,
+      category: "doctor_visit", // якщо в API є категорії
+      description: formData.notes,
+    };
+
+    try {
+      await addRecord(record);
+      Swal.fire({
+        icon: "success",
+        title: "Appointment added!",
+        html: `
         <p><strong>Specialty:</strong> ${selectedSpecialty}</p>
         <p><strong>Date:</strong> ${formData.date}</p>
         <p><strong>Time:</strong> ${formData.time}</p>
@@ -52,12 +62,20 @@ export default function DoctorVisitPage() {
             : ""
         }
       `,
-      confirmButtonText: "OK",
-      timer: 5000,
-    });
+        confirmButtonText: "OK",
+        timer: 5000,
+      });
 
-    setIsModalOpen(false);
-    setFormData({ date: "", time: "", notes: "" });
+      setIsModalOpen(false);
+      setFormData({ date: "", time: "", notes: "" });
+    } catch (error) {
+      console.error("Failed to add doctor visit", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Could not add appointment. Try again later.",
+      });
+    }
   };
 
   return (
