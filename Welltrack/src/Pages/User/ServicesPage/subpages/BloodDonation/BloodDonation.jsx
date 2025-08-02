@@ -1,0 +1,409 @@
+import React, { useState } from "react";
+import NavBar from "../../../components/NavBar/NavBar";
+import Footer from "../../../components/Footer/Footer";
+import "./BloodDonation.scss";
+import {
+  Droplets,
+  Plus,
+  AlertTriangle,
+  Heart,
+  CheckCircle,
+} from "lucide-react";
+import Swal from "sweetalert2";
+
+export default function BloodDonation() {
+  const [showDialogIndex, setShowDialogIndex] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    center: "",
+    date: "",
+    time: "",
+  });
+  const [errors, setErrors] = useState({});
+
+  const showAdviceModal = () => setIsModalOpen(true);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setErrors({});
+    setFormData({ center: "", date: "", time: "" });
+  };
+
+  const validateField = (name, value) => {
+    if (!value || value.trim() === "") {
+      switch (name) {
+        case "center":
+          return "Please select a donation center";
+        case "date":
+          return "Please select a date";
+        case "time":
+          return "Please select a time";
+        default:
+          return "";
+      }
+    }
+
+    if (name === "date") {
+      const selectedDate = new Date(value);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        return "Date cannot be in the past";
+      }
+    }
+
+    return "";
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value),
+    }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    Object.entries(formData).forEach(([key, value]) => {
+      const error = validateField(key, value);
+      if (error) newErrors[key] = error;
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      await Swal.fire({
+        icon: "error",
+        title: "Invalid input",
+        text: "Please fix the errors in the form before submitting.",
+      });
+      return;
+    }
+
+    await Swal.fire({
+      icon: "success",
+      title: "Scheduled!",
+      html: `Your donation is scheduled at <b>${formData.center}</b><br/>on <b>${formData.date}</b> at <b>${formData.time}</b>.`,
+      confirmButtonText: "OK",
+    });
+
+    closeModal();
+  };
+
+  const infoSections = [
+    {
+      title: "Risks",
+      colorClass: "risks",
+      Icon: AlertTriangle,
+      contentParagraphs: [
+        "Blood donation is generally safe, but there are some minor risks to be aware of:",
+      ],
+      contentList: [
+        "Temporary dizziness or lightheadedness",
+        "Minor bruising at the needle site",
+        "Rare allergic reactions to antiseptics",
+        "Very rare risk of nerve damage or infection",
+      ],
+      emphasisText:
+        "These risks are minimal and serious complications are extremely rare when proper procedures are followed.",
+    },
+    {
+      title: "How to prepare",
+      colorClass: "prepare",
+      Icon: Heart,
+      contentParagraphs: [
+        "Follow these steps to prepare for your blood donation:",
+      ],
+      contentList: [
+        "Get a good night's sleep (7-8 hours)",
+        "Eat a healthy meal 2-3 hours before donating",
+        "Drink plenty of water throughout the day",
+        "Avoid alcohol for 24 hours before donation",
+        "Bring a valid ID and list of medications",
+        "Wear comfortable clothing with sleeves that roll up easily",
+      ],
+      emphasisText:
+        "Being well-prepared helps ensure a smooth donation experience.",
+    },
+    {
+      title: "What you can expect",
+      colorClass: "expect",
+      Icon: CheckCircle,
+      contentParagraphs: [
+        "Here's what happens during your blood donation visit:",
+      ],
+      contentList: [
+        "Registration (10 min): Check-in and review donation history",
+        "Health screening (15 min): Mini-physical and health questionnaire",
+        "Donation (8-10 min): The actual blood collection process",
+        "Recovery (10-15 min): Rest and enjoy refreshments",
+      ],
+      emphasisText:
+        "Total time is usually 45-60 minutes. You'll donate about 1 pint of blood.",
+    },
+  ];
+
+  return (
+    <div className="blood-donation-page">
+      <NavBar />
+      <main>
+        <section className="hero">
+          <div className="hero-icon">
+            <Droplets className="droplets-icon" />
+          </div>
+          <h1>Blood Donation</h1>
+          <p>
+            Save lives by donating blood. Learn about the process and schedule
+            your next donation.
+          </p>
+        </section>
+
+        <section className="highlight">
+          <h2>Every Donation Saves Lives</h2>
+          <p>
+            One blood donation can help save up to three lives. Your
+            contribution makes a real difference in your community.
+          </p>
+          <button onClick={showAdviceModal} className="btn btn--primary">
+            <Plus className="plus-icon" />
+            Schedule Donation
+          </button>
+        </section>
+
+        {isModalOpen && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modalTitle"
+            >
+              <h2 id="modalTitle">Schedule Blood Donation</h2>
+              <p>Add a blood donation appointment to your calendar</p>
+              <form
+                onSubmit={handleSubmit}
+                className="schedule-form"
+                noValidate
+              >
+                <label>
+                  Donation Center
+                  <select
+                    name="center"
+                    value={formData.center}
+                    onChange={handleChange}
+                    aria-invalid={!!errors.center}
+                    aria-describedby="center-error"
+                    required
+                    className={errors.center ? "error" : ""}
+                  >
+                    <option value="">Select a location</option>
+                    <option value="Red Cross Center - Downtown">
+                      Red Cross Center - Downtown
+                    </option>
+                    <option value="Community Blood Bank - Westside">
+                      Community Blood Bank - Westside
+                    </option>
+                    <option value="Hospital Blood Drive - Memorial">
+                      Hospital Blood Drive - Memorial
+                    </option>
+                  </select>
+                  {errors.center && (
+                    <small id="center-error" className="error-msg">
+                      {errors.center}
+                    </small>
+                  )}
+                </label>
+
+                <label>
+                  Preferred Date
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    aria-invalid={!!errors.date}
+                    aria-describedby="date-error"
+                    required
+                    className={errors.date ? "error" : ""}
+                  />
+                  {errors.date && (
+                    <small id="date-error" className="error-msg">
+                      {errors.date}
+                    </small>
+                  )}
+                </label>
+
+                <label>
+                  Preferred Time
+                  <select
+                    name="time"
+                    value={formData.time}
+                    onChange={handleChange}
+                    aria-invalid={!!errors.time}
+                    aria-describedby="time-error"
+                    required
+                    className={errors.time ? "error" : ""}
+                  >
+                    <option value="">Select time</option>
+                    <option value="9:00 AM">9:00 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="1:00 PM">1:00 PM</option>
+                    <option value="3:00 PM">3:00 PM</option>
+                    <option value="5:00 PM">5:00 PM</option>
+                  </select>
+                  {errors.time && (
+                    <small id="time-error" className="error-msg">
+                      {errors.time}
+                    </small>
+                  )}
+                </label>
+
+                <button type="submit" className="submit-btn btn btn--primary">
+                  Add to my events
+                </button>
+                <button
+                  type="button"
+                  className="close-btn btn btn--outline"
+                  onClick={closeModal}
+                >
+                  Close
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        <section className="info-sections">
+          {infoSections.map((section, index) => {
+            const Icon = section.Icon;
+            return (
+              <div
+                key={index}
+                className={`info-card ${section.colorClass}`}
+                onClick={() => setShowDialogIndex(index)}
+                tabIndex={0}
+                role="button"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ")
+                    setShowDialogIndex(index);
+                }}
+              >
+                <div className="icon-wrapper">
+                  <Icon />
+                </div>
+                <h3>{section.title}</h3>
+              </div>
+            );
+          })}
+        </section>
+
+        {showDialogIndex !== null &&
+          (() => {
+            const section = infoSections[showDialogIndex];
+            const ModalIcon = section.Icon;
+
+            return (
+              <div
+                className="custom-modal-overlay"
+                onClick={() => setShowDialogIndex(null)}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="customModalTitle"
+              >
+                <div
+                  className="custom-modal"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className={`modal-header ${section.colorClass}`}>
+                    <div className="icon-wrapper">
+                      <ModalIcon
+                        size={24}
+                        strokeWidth={2}
+                        className={`${section.colorClass}`}
+                      />
+                    </div>
+                    <h2
+                      id="customModalTitle"
+                      className={`modal-title-${section.colorClass}`}
+                    >
+                      {section.title}
+                    </h2>
+                  </div>
+                  <div className="modal-content_info">
+                    {section.contentParagraphs.map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                    <ul>
+                      {section.contentList.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                    <p className={`emphasis emphasis-${section.colorClass}`}>
+                      {section.emphasisText}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowDialogIndex(null)}
+                    className="close-btn_info btn btn--outline"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
+        <section className="quick-facts">
+          <h2 className="quick-facts__title">Blood Donation Facts</h2>
+          <div className="quick-facts__grid">
+            <div className="quick-facts__item quick-facts__item--eligibility">
+              <strong className="quick-facts__item-title">Eligibility</strong>
+              <p className="quick-facts__item-description">
+                Must be 17+ years old, weigh at least 110 lbs, and be in good
+                health
+              </p>
+            </div>
+            <div className="quick-facts__item quick-facts__item--impact">
+              <strong className="quick-facts__item-title">Impact</strong>
+              <p className="quick-facts__item-description">
+                One donation can help save up to 3 lives
+              </p>
+            </div>
+            <div className="quick-facts__item quick-facts__item--frequency">
+              <strong className="quick-facts__item-title">Frequency</strong>
+              <p className="quick-facts__item-description">
+                Can donate whole blood every 56 days (8 weeks)
+              </p>
+            </div>
+            <div className="quick-facts__item quick-facts__item--need">
+              <strong className="quick-facts__item-title">Need</strong>
+              <p className="quick-facts__item-description">
+                Someone needs blood every 2 seconds in the US
+              </p>
+            </div>
+            <div className="quick-facts__item quick-facts__item--recovery">
+              <strong className="quick-facts__item-title">Recovery</strong>
+              <p className="quick-facts__item-description">
+                Your body replaces the donated blood within 24–48 hours
+              </p>
+            </div>
+            <div className="quick-facts__item quick-facts__item--types">
+              <strong className="quick-facts__item-title">Types</strong>
+              <p className="quick-facts__item-description">
+                O-negative is the universal donor type
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

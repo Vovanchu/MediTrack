@@ -118,7 +118,7 @@ export default function Register() {
       });
 
       setTimeout(() => {
-        navigate("/login");
+        navigate("/complete-profile");
       }, 2000);
     } catch (err) {
       let message = "Failed to register. Try again.";
@@ -196,7 +196,7 @@ export default function Register() {
                   e.target.setCustomValidity("Password is required");
                 }}
                 onInput={(e) => {
-                  e.target.setCustomValidity(""); // очищаємо повідомлення при введенні
+                  e.target.setCustomValidity("");
                 }}
                 disabled={loading}
                 onCopy={(e) => e.preventDefault()}

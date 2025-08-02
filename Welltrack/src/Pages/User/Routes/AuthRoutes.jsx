@@ -14,8 +14,6 @@ import ServicesPageSubpages from "./ServicesPageSubpages/ServicesPageSubpages.js
 import Home from "../Home/Home.jsx";
 import Services from "../ServicesPage/ServicesPage.jsx";
 import MyEvents from "../MyEvents/MyEvents.jsx";
-import SymptomDiary from "../SymptomDiary/SymptomDiary.jsx";
-import HealthPlan from "../HealthPlan/HealthPlan.jsx";
 
 export default function AuthRoutes() {
   return (
@@ -34,8 +32,6 @@ export default function AuthRoutes() {
         <Route path="/home" element={<Home />} />
         <Route path="/services" element={<Services />} />
         <Route path="/my-events" element={<MyEvents />} />
-        <Route path="/symptom-diary" element={<SymptomDiary />} />
-        <Route path="/health-plan" element={<HealthPlan />} />
       </Route>
     </Routes>
   );

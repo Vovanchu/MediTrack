@@ -22,10 +22,12 @@ export default function NavBar() {
 
   return (
     <header className="navbar">
-      <div className="navbar-logo">
-        <img src={heart} alt="Heart Logo" className="navbar-logo-image" />
-        <h1 className="navbar-title">HealthCare</h1>
-      </div>
+      <Link to="/home" className="navbar-logo-link">
+        <div className="navbar-logo">
+          <img src={heart} alt="Heart Logo" className="navbar-logo-image" />
+          <h1 className="navbar-title">HealthCare</h1>
+        </div>
+      </Link>
 
       {/* Звичайні лінки (desktop) */}
       <nav className="navbar-links">

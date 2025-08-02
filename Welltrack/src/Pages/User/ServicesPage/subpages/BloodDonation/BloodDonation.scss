@@ -1,0 +1,565 @@
+@use "@/styles/mixins" as *;
+
+.error-msg {
+  color: #e53e3e; // яскраво-червоний колір помилки
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+select.error,
+input.error {
+  border-color: #e53e3e;
+  outline-color: #e53e3e;
+}
+
+.blood-donation-page {
+  background-color: #e6f2ff;
+
+  .hero {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .droplets-icon {
+      font-size: 4rem;
+      color: #ef4444;
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      margin: 0 auto 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background-color: #fee2e2;
+      box-shadow: 0 4px 6px rgba(254, 226, 226, 0.6),
+        0 1px 3px rgba(254, 226, 226, 0.8);
+
+      @include mobile-small {
+        width: 60px;
+        height: 60px;
+        font-size: 3rem;
+        border-radius: 15px;
+        margin-bottom: 0.75rem;
+      }
+
+      @include mobile-medium {
+        width: 70px;
+        height: 70px;
+        font-size: 3.5rem;
+        border-radius: 18px;
+      }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin: 1rem 0;
+
+      @include mobile-small {
+        font-size: 1.8rem;
+      }
+      @include mobile-medium {
+        font-size: 2rem;
+      }
+      @include tablet {
+        font-size: 2.2rem;
+      }
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #444;
+
+      @include mobile-small {
+        font-size: 1rem;
+      }
+      @include mobile-medium {
+        font-size: 1.05rem;
+      }
+    }
+  }
+
+  .highlight {
+    margin: 2rem auto;
+    padding: 2rem;
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    text-align: center;
+    border-radius: 1rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 70%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @include mobile-small {
+      width: 90%;
+      padding: 1.5rem;
+      margin: 1.5rem auto;
+    }
+
+    @include tablet {
+      width: 80%;
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: white;
+
+      @include mobile-small {
+        font-size: 1.5rem;
+      }
+
+      @include tablet {
+        font-size: 1.8rem;
+      }
+    }
+
+    p {
+      margin: 1rem 0;
+      font-size: 1.1rem;
+      color: white;
+
+      @include mobile-small {
+        font-size: 1rem;
+      }
+    }
+
+    button {
+      background-color: white;
+      color: #c00;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+
+      svg.plus-icon {
+        width: 1rem;
+        height: 1rem;
+      }
+
+      @include hover-large {
+        &:hover {
+          background-color: darkred;
+          color: wheat;
+
+          svg.plus-icon {
+            color: wheat;
+          }
+        }
+      }
+
+      @include mobile-small {
+        padding: 0.6rem 1.2rem;
+
+        svg.plus-icon {
+          width: 0.85rem;
+          height: 0.85rem;
+        }
+      }
+    }
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 2rem 2.5rem;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+
+    @include mobile-small {
+      padding: 1.5rem 1.8rem;
+      max-width: 95%;
+    }
+
+    @include tablet {
+      max-width: 420px;
+    }
+  }
+
+  .schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #333;
+
+      select,
+      input[type="date"] {
+        margin-top: 0.3rem;
+        padding: 0.4rem 0.6rem;
+        font-size: 1rem;
+        border: 1.5px solid #ccc;
+        border-radius: 6px;
+        transition: border-color 0.2s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #d22b2b;
+          box-shadow: 0 0 4px rgba(210, 43, 43, 0.5);
+        }
+
+        @include mobile-small {
+          font-size: 0.9rem;
+          padding: 0.35rem 0.5rem;
+        }
+      }
+    }
+
+    .submit-btn {
+      background-color: #d22b2b;
+      color: white;
+      font-weight: 600;
+      border: none;
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+
+      &:hover {
+        background-color: #b02020;
+      }
+
+      @include mobile-small {
+        padding: 0.6rem 0.9rem;
+        font-size: 0.9rem;
+      }
+    }
+
+    .close-btn {
+      margin-top: 0.5rem;
+      background: transparent;
+      border: none;
+      color: #d22b2b;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      padding: 0.5rem 0;
+
+      @include mobile-small {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .info-sections {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    .info-card {
+      cursor: pointer;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      width: 250px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      .icon-wrapper {
+        margin-bottom: 0.75rem;
+        display: flex;
+        justify-content: center;
+        svg {
+          width: 30px;
+          height: 30px;
+          stroke-width: 3;
+        }
+
+        @include mobile-small {
+          svg {
+            width: 24px;
+            height: 24px;
+          }
+        }
+      }
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      @include mobile-small {
+        width: 100%;
+        padding: 1rem 1rem;
+      }
+
+      @include mobile-medium {
+        width: 45%;
+      }
+
+      @include tablet {
+        width: 30%;
+      }
+    }
+
+    .risks {
+      background-color: #dc2626;
+      color: #fef2f2;
+    }
+    .prepare {
+      background-color: #2563eb;
+      color: #eff6ff;
+    }
+    .expect {
+      background-color: #f0fdf4;
+      color: #16a34a;
+    }
+  }
+
+  .custom-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    position: relative;
+
+    &-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    &.risks {
+      color: #b91c1c; /* deep red */
+    }
+
+    &.prepare {
+      color: #2c7a7b; /* teal */
+    }
+
+    &.expect {
+      color: #2f855a; /* green */
+    }
+  }
+
+  .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-title {
+    &-risks {
+      color: #b91c1c; /* червоний */
+    }
+
+    &-prepare {
+      color: #2b6cb0; /* синій */
+    }
+
+    &-expect {
+      color: #2f855a; /* зелений */
+    }
+  }
+
+  .modal-content_info {
+    ul {
+      list-style-type: disc; // класичні кружечки
+      padding-left: 1.5rem; // відступ зліва для маркерів
+      margin-bottom: 1rem; // відступ знизу після списку
+
+      li {
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+        color: #333;
+        font-size: 1rem;
+      }
+    }
+
+    p {
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+  }
+
+  .emphasis {
+    font-weight: 600;
+    cursor: default;
+
+    &-risks {
+      color: #b91c1c; /* червоний */
+    }
+
+    &-prepare {
+      color: #2b6cb0; /* синій */
+    }
+
+    &-expect {
+      color: #2f855a; /* зелений */
+    }
+  }
+
+  .close-btn_info {
+    background: #b02020;
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .quick-facts {
+    padding: 2rem 1rem;
+    background-color: #f7fafc; // світло-сірий фон
+    border-radius: 12px;
+    max-width: 1200px;
+    margin: 2rem auto;
+
+    &__title {
+      font-size: 2rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #2d3748;
+
+      @include mobile-small {
+        font-size: 1.6rem;
+      }
+      @include mobile-medium {
+        font-size: 1.75rem;
+      }
+    }
+
+    &__grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+
+      @include mobile-medium {
+        grid-template-columns: repeat(1, 1fr);
+      }
+      @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      @include laptop-small {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    &__item {
+      background: white;
+      padding: 1.5rem 1rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+
+      @include hover-large {
+        &:hover,
+        &:focus-within {
+          box-shadow: 0 6px 15px rgb(0 0 0 / 0.15);
+          transform: translateY(-3px);
+        }
+      }
+    }
+
+    // Кольорові варіанти фону і тексту
+    &__item--eligibility {
+      background-color: #e3f2fd;
+      color: #0d47a1;
+
+      .quick-facts__item-title,
+      .quick-facts__item-description {
+        color: inherit;
+      }
+    }
+
+    &__item--impact {
+      background-color: #e8f5e9;
+      color: #1b5e20;
+
+      .quick-facts__item-title,
+      .quick-facts__item-description {
+        color: inherit;
+      }
+    }
+
+    &__item--frequency {
+      background-color: #fffde7;
+      color: #f9a825;
+
+      .quick-facts__item-title,
+      .quick-facts__item-description {
+        color: inherit;
+      }
+    }
+
+    &__item--need {
+      background-color: #ffebee;
+      color: #b71c1c;
+
+      .quick-facts__item-title,
+      .quick-facts__item-description {
+        color: inherit;
+      }
+    }
+
+    &__item--recovery {
+      background-color: #fafafa;
+      color: #616161;
+
+      .quick-facts__item-title,
+      .quick-facts__item-description {
+        color: inherit;
+      }
+    }
+
+    &__item--types {
+      background-color: #ffffff;
+      color: #d32f2f;
+
+      .quick-facts__item-title,
+      .quick-facts__item-description {
+        color: inherit;
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+.schedule-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #7c3aed; // purple-600
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #6d28d9; // purple-700
+  }
+
+  .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}

@@ -6,8 +6,13 @@ import "./Features.scss";
 export default function Features() {
   const navigate = useNavigate();
 
-  const handleClick = () => {
-    navigate("/login");
+  const handleClick = (href) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate(href); // якщо залогінений — на сторінку сервісу
+    } else {
+      navigate("/login"); // якщо не залогінений — на логін
+    }
   };
 
   return (
@@ -16,7 +21,7 @@ export default function Features() {
         <div
           key={index}
           className="feature-card"
-          onClick={handleClick}
+          onClick={() => handleClick(feature.href)} // передаємо посилання сюди
           style={{ cursor: "pointer" }}
         >
           <div className="feature-card__image-wrapper">

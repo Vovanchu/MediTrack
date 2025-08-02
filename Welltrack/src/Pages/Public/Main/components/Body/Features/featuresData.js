@@ -11,7 +11,7 @@ const featuresData = [
     title: "Doctor Visits",
     description:
       "Schedule & track your doctor appointments and save prescriptions and consultation records all in one place.",
-    href: "/services/visit-to-the-doctor",
+    href: "/services/doctor-visits",
   },
   {
     image: syringe,
@@ -32,7 +32,7 @@ const featuresData = [
     title: "Health Tracking",
     description:
       "Record your vitals, generate reports, and notice health trends that may require your attention.",
-    href: "/services/health-tracking",
+    href: "/services/analysis",
   },
   {
     image: blood,

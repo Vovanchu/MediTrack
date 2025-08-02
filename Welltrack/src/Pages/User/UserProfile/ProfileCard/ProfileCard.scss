@@ -104,6 +104,26 @@
     }
   }
 
+  .avatar-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+
+    .remove-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 6px;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #f0f0f0;
+      }
+    }
+  }
+
   .username {
     font-size: 1.5rem;
     font-weight: bold;

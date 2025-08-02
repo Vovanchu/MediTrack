@@ -14,13 +14,14 @@ api.interceptors.request.use(
     const publicEndpoints = [
       "/accounts/register/",
       "/accounts/login/",
+      "/accounts/logout/",
       "/accounts/reset-password/",
       "/accounts/reset-password-confirm/",
       "/accounts/token/verify/",
     ];
 
     const isPublic = publicEndpoints.some((endpoint) =>
-      config.url.includes(endpoint)
+      config.url.endsWith(endpoint)
     );
 
     if (token && !isPublic) {

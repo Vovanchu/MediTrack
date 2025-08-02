@@ -6,6 +6,7 @@ import "./main.scss";
 import Home from "./Pages/Public/Main/Main.jsx";
 import Login from "./Pages/Public/LogIn/LogIn.jsx";
 import SignUp from "./Pages/Public/SignUp/SignUp.jsx";
+import CompleteProfile from "./Pages/Public/CompleteProfile/CompleteProfile.jsx";
 import ResetPassword from "./Pages/Public/ResetPassword/ResetPassword.jsx";
 
 import AuthRoutes from "./Pages/User/Routes/AuthRoutes.jsx";
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/complete-profile" element={<CompleteProfile />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Приватні маршрути */}

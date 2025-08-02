@@ -1,55 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./VaccinationPage.scss";
 
-import { addRecord } from "@/API/accounts";
+import { fetchVaccinations, addRecord } from "../../../../../API/accounts";
 
 import NavBar from "../../../components/NavBar/NavBar";
 import Footer from "../../../components/Footer/Footer";
-
-const vaccines = [
-  {
-    name: "Influenza (Flu)",
-    description:
-      "Annual vaccination to protect against seasonal influenza viruses. Recommended for everyone 6 months and older.",
-    info: "The flu vaccine is updated annually to protect against the strains most likely to spread during the upcoming season.",
-    recommendedAge: "6 months and older",
-  },
-  {
-    name: "COVID-19",
-    description:
-      "Vaccination to protect against coronavirus disease 2019. Includes initial series and boosters as recommended.",
-    info: "COVID-19 vaccines help protect against severe illness, hospitalization, and death from COVID-19.",
-    recommendedAge: "All ages (as recommended)",
-  },
-  {
-    name: "Measles, Mumps, Rubella (MMR)",
-    description:
-      "Combined vaccine protecting against three serious viral infections. Usually given in childhood with boosters.",
-    info: "MMR vaccine provides long-lasting protection against measles, mumps, and rubella (German measles).",
-    recommendedAge: "12-15 months (1st dose), 4-6 years (2nd dose)",
-  },
-  {
-    name: "Tetanus, Diphtheria, Pertussis (Tdap)",
-    description:
-      "Protects against tetanus, diphtheria, and whooping cough. Booster recommended every 10 years.",
-    info: "Tdap vaccine is especially important for adults who will be around babies to prevent whooping cough transmission.",
-    recommendedAge: "Booster every 10 years",
-  },
-  {
-    name: "Hepatitis B",
-    description:
-      "Protects against hepatitis B virus infection which can cause liver disease. Usually given as a series.",
-    info: "Hepatitis B vaccine provides long-term protection against hepatitis B virus infection and liver cancer.",
-    recommendedAge: "Birth, 1-2 months, 6-18 months",
-  },
-  {
-    name: "Pneumococcal",
-    description:
-      "Protects against pneumococcal disease including pneumonia and meningitis. Recommended for certain age groups.",
-    info: "Pneumococcal vaccines help prevent serious infections caused by pneumococcus bacteria.",
-    recommendedAge: "Children under 2, adults 65+",
-  },
-];
 
 function SimpleCalendar({ selectedDate, onChange }) {
   const [month, setMonth] = useState(selectedDate.getMonth());
@@ -61,7 +16,6 @@ function SimpleCalendar({ selectedDate, onChange }) {
   useEffect(() => {
     const newDate = new Date(year, month, selectedDate.getDate());
     if (onChange) onChange(newDate);
-    // eslint-disable-next-line
   }, [month, year]);
 
   function selectDay(day) {
@@ -89,18 +43,14 @@ function SimpleCalendar({ selectedDate, onChange }) {
   return (
     <div className="calendar">
       <div className="calendar-header">
-        <button onClick={prevMonth} aria-label="Previous month">
-          &lt;
-        </button>
+        <button onClick={prevMonth}>&lt;</button>
         <span>
           {new Date(year, month).toLocaleString("default", {
             month: "long",
             year: "numeric",
           })}
         </span>
-        <button onClick={nextMonth} aria-label="Next month">
-          &gt;
-        </button>
+        <button onClick={nextMonth}>&gt;</button>
       </div>
       <div className="calendar-days">
         {daysArray.map((day) => (
@@ -114,13 +64,6 @@ function SimpleCalendar({ selectedDate, onChange }) {
                 : ""
             }`}
             onClick={() => selectDay(day)}
-            aria-current={
-              selectedDate.getDate() === day &&
-              selectedDate.getMonth() === month &&
-              selectedDate.getFullYear() === year
-                ? "date"
-                : undefined
-            }
           >
             {day}
           </button>
@@ -134,11 +77,14 @@ export default function VaccinationPage() {
   const [selectedVaccine, setSelectedVaccine] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [eventName, setEventName] = useState("");
+  const [selectedTime, setSelectedTime] = useState("10:00");
+  const [shortDescription, setShortDescription] = useState("");
+  const [vaccinesFromDB, setVaccinesFromDB] = useState([]);
 
   const openModal = (vaccine) => {
     setSelectedVaccine(vaccine);
-    setEventName(`Vaccination against ${vaccine.name}`);
+    setShortDescription("");
+    setSelectedTime("10:00");
     setModalOpen(true);
   };
 
@@ -146,16 +92,18 @@ export default function VaccinationPage() {
     setModalOpen(false);
     setSelectedVaccine(null);
     setSelectedDate(new Date());
+    setSelectedTime("10:00");
+    setShortDescription("");
   };
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
 
     const record = {
-      title: eventName,
-      date: selectedDate.toISOString().split("T")[0], // YYYY-MM-DD
-      category: "vaccination", // якщо є категорії на бекенді
-      description: selectedVaccine.description,
+      vaccine_id: selectedVaccine.id,
+      start_date: selectedDate.toISOString().split("T")[0], // 'YYYY-MM-DD'
+      start_time: selectedTime, // 'HH:mm' саме з input time
+      notes: shortDescription,
     };
 
     try {
@@ -167,6 +115,19 @@ export default function VaccinationPage() {
       alert("Error: couldn't add record. Try again later.");
     }
   };
+
+  useEffect(() => {
+    async function getVaccines() {
+      try {
+        const response = await fetchVaccinations();
+        setVaccinesFromDB(response.data);
+      } catch (error) {
+        console.error("Failed to fetch vaccines", error);
+      }
+    }
+
+    getVaccines();
+  }, []);
 
   return (
     <>
@@ -182,19 +143,14 @@ export default function VaccinationPage() {
           <section className="vaccination-page__vaccine-list">
             <h2>Available Vaccines</h2>
             <div className="badges">
-              {vaccines.map((vaccine, idx) => (
+              {vaccinesFromDB.map((vaccine) => (
                 <div
-                  key={idx}
+                  key={vaccine.id}
                   className="badge"
                   onClick={() => openModal(vaccine)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") openModal(vaccine);
-                  }}
                 >
                   <strong>{vaccine.name}</strong>
-                  <p>{vaccine.description.substring(0, 60)}...</p>
+                  <p>{vaccine.description?.substring(0, 60)}...</p>
                 </div>
               ))}
             </div>
@@ -206,9 +162,9 @@ export default function VaccinationPage() {
               Approximate recommended ages for vaccinations:
             </p>
             <ul>
-              {vaccines.map((v) => (
-                <li key={v.name}>
-                  <strong>{v.name}:</strong> {v.recommendedAge}
+              {vaccinesFromDB.map((v) => (
+                <li key={v.id}>
+                  <strong>{v.name}:</strong> {v.recommendedAge || "N/A"}
                 </li>
               ))}
             </ul>
@@ -221,14 +177,8 @@ export default function VaccinationPage() {
 
         {modalOpen && selectedVaccine && (
           <div className="modal-overlay" onClick={closeModal}>
-            <div
-              className="modal"
-              onClick={(e) => e.stopPropagation()}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="modal-title"
-            >
-              <h3 id="modal-title">{selectedVaccine.name}</h3>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <h3>{selectedVaccine.name}</h3>
               <p>{selectedVaccine.description}</p>
               <p className="info">{selectedVaccine.info}</p>
 
@@ -237,9 +187,8 @@ export default function VaccinationPage() {
                   Name of the event:
                   <input
                     type="text"
-                    value={eventName}
+                    value={`Vaccination against ${selectedVaccine.name}`}
                     readOnly
-                    className="event-name-input"
                   />
                 </label>
 
@@ -247,9 +196,28 @@ export default function VaccinationPage() {
                   Choose date:
                   <input
                     type="date"
-                    value={selectedDate.toISOString().substring(0, 10)}
+                    value={selectedDate.toISOString().split("T")[0]}
                     onChange={(e) => setSelectedDate(new Date(e.target.value))}
                     required
+                  />
+                </label>
+
+                <label>
+                  Choose time:
+                  <input
+                    type="time"
+                    value={selectedTime}
+                    onChange={(e) => setSelectedTime(e.target.value)}
+                    required
+                  />
+                </label>
+
+                <label>
+                  Short description (optional):
+                  <textarea
+                    value={shortDescription}
+                    onChange={(e) => setShortDescription(e.target.value)}
+                    placeholder="Short description of the event"
                   />
                 </label>
 
@@ -270,7 +238,6 @@ export default function VaccinationPage() {
           </div>
         )}
       </div>
-
       <Footer />
     </>
   );
