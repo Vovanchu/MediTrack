@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./VaccinationPage.scss";
 
+import Swal from "sweetalert2";
+
 import { fetchVaccinations, addRecord } from "../../../../../API/accounts";
 
 import NavBar from "../../../components/NavBar/NavBar";
@@ -14,9 +16,18 @@ function SimpleCalendar({ selectedDate, onChange }) {
   const daysArray = [...Array(daysInMonth).keys()].map((d) => d + 1);
 
   useEffect(() => {
-    const newDate = new Date(year, month, selectedDate.getDate());
-    if (onChange) onChange(newDate);
-  }, [month, year]);
+    if (
+      selectedDate.getMonth() !== month ||
+      selectedDate.getFullYear() !== year
+    ) {
+      const newDate = new Date(year, month, selectedDate.getDate());
+      if (newDate.getDate() !== selectedDate.getDate()) {
+        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+        newDate.setDate(lastDayOfMonth);
+      }
+      onChange(newDate);
+    }
+  }, [month, year, selectedDate, onChange]);
 
   function selectDay(day) {
     const newDate = new Date(year, month, day);
@@ -75,11 +86,15 @@ function SimpleCalendar({ selectedDate, onChange }) {
 
 export default function VaccinationPage() {
   const [selectedVaccine, setSelectedVaccine] = useState(null);
+
   const [modalOpen, setModalOpen] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState("10:00");
   const [shortDescription, setShortDescription] = useState("");
+
   const [vaccinesFromDB, setVaccinesFromDB] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const openModal = (vaccine) => {
     setSelectedVaccine(vaccine);
@@ -99,20 +114,72 @@ export default function VaccinationPage() {
   const handleAddEvent = async (e) => {
     e.preventDefault();
 
+    // === Валідація дати ===
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDateOnly = new Date(selectedDate);
+    selectedDateOnly.setHours(0, 0, 0, 0);
+
+    if (selectedDateOnly < today) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Date",
+        text: "You cannot select a past date for a new vaccination record.",
+      });
+      return;
+    }
+
+    // === Валідація часу ===
+    if (selectedTime) {
+      const [hours, minutes] = selectedTime.split(":").map(Number);
+      if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Time",
+          text: "Vaccination appointments are allowed only between 08:00 and 18:00.",
+        });
+        return;
+      }
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Time Required",
+        text: "Please select a time for the vaccination.",
+      });
+      return;
+    }
+
     const record = {
-      vaccine_id: selectedVaccine.id,
-      start_date: selectedDate.toISOString().split("T")[0], // 'YYYY-MM-DD'
-      start_time: selectedTime, // 'HH:mm' саме з input time
-      notes: shortDescription,
+      vaccination_id: selectedVaccine?.id,
+      start_date: selectedDate.toISOString().split("T")[0],
+      start_time: selectedTime,
+      short_description: shortDescription || "",
     };
 
     try {
       await addRecord(record);
-      alert("Vaccination record added successfully!");
+      Swal.fire({
+        icon: "success",
+        title: "Vaccination record added!",
+        html: `
+          <p><strong>Vaccine:</strong> ${selectedVaccine.name}</p>
+          <p><strong>Date:</strong> ${record.start_date}</p>
+          <p><strong>Time:</strong> ${record.start_time}</p>
+          ${
+            record.notes ? `<p><strong>Notes:</strong> ${record.notes}</p>` : ""
+          }
+        `,
+        confirmButtonText: "OK",
+        timer: 5000,
+      });
       closeModal();
     } catch (error) {
       console.error("Failed to add vaccination record", error);
-      alert("Error: couldn't add record. Try again later.");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Couldn't add record. Please try again later.",
+      });
     }
   };
 
@@ -123,11 +190,22 @@ export default function VaccinationPage() {
         setVaccinesFromDB(response.data);
       } catch (error) {
         console.error("Failed to fetch vaccines", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load vaccines. Please try refreshing the page.",
+        });
+      } finally {
+        setLoading(false);
       }
     }
 
     getVaccines();
   }, []);
+
+  if (loading) {
+    return <p>Loading vaccines...</p>;
+  }
 
   return (
     <>

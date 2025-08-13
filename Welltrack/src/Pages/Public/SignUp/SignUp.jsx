@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { registerUser } from "../../../API/accounts";
+import { registerUser, loginUser } from "../../../API/accounts";
 import "./SignUp.scss";
 import BtnBack from "../components/BtnBack/BtnBack";
 
@@ -107,12 +107,23 @@ export default function Register() {
     setLoading(true);
 
     try {
+      // 1. Зареєструвати користувача
       await registerUser(formData);
 
+      // 2. Залогінитись щоб отримати токен
+      const loginResponse = await loginUser({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      // 3. Зберегти токен у localStorage
+      localStorage.setItem("accessToken", loginResponse.data.access);
+
+      // 4. Показати повідомлення і перейти на сторінку дозаповнення профілю
       Swal.fire({
         icon: "success",
         title: "Success!",
-        text: "Registration successful! Redirecting to login...",
+        text: "Registration successful! Redirecting to complete profile...",
         timer: 2000,
         showConfirmButton: false,
       });

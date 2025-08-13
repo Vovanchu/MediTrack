@@ -1,14 +1,20 @@
 @use "@/styles/mixins" as *;
 
+$user-text: #1e293b;
+$user-muted: #475569;
+$user-border: #e2e8f0;
+$user-bg: #f8fafc;
+$user-accent: #38bdf8;
+$user-accent-hover: #0ea5e9;
+
 .user-info-container {
   max-width: 1100px;
   margin: 0 auto;
   padding: 2rem;
   font-family: Arial, sans-serif;
-  color: #1e293b;
+  color: $user-text;
 }
 
-/* Заголовок */
 .user-info-header {
   display: flex;
   justify-content: space-between;
@@ -32,12 +38,10 @@
   }
 }
 
-/* Дві вузькі колонки по центру */
 .user-sections-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
-  justify-content: center;
   margin: 0 auto;
 
   @media (max-width: 768px) {
@@ -45,12 +49,11 @@
   }
 }
 
-/* Картки */
 .user-section {
-  background: #f8fafc;
+  background: $user-bg;
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid $user-border;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   position: relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -71,7 +74,7 @@
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
-    background: #38bdf8;
+    background: $user-accent;
     color: #fff;
     border: none;
     padding: 0.5rem 1rem;
@@ -81,10 +84,9 @@
     transition: background 0.3s;
 
     &:hover {
-      background: #0ea5e9;
+      background: $user-accent-hover;
     }
 
-    // На планшетах і менше – ставимо кнопку під заголовком
     @include tablet {
       position: static;
       display: inline-block;
@@ -92,18 +94,12 @@
     }
 
     @include mobile-medium {
-      position: static;
-      display: block;
-      margin: 0.8rem 0 0 0;
       width: 100%;
+      margin-top: 0.8rem;
       text-align: center;
     }
 
     @include mobile-small {
-      position: static;
-      display: block;
-      width: 100%;
-      margin-top: 0.8rem;
       font-size: 0.85rem;
     }
   }
@@ -115,36 +111,63 @@
 
     li {
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
       padding: 0.6rem 0;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid $user-border;
 
       strong {
-        color: #1e293b;
-        margin-right: 1rem;
+        width: 40%;
+        min-width: 140px;
+        color: $user-text;
+        font-weight: 600;
       }
 
       span {
-        color: #475569;
+        color: $user-muted;
+        text-align: right;
+        flex: 1;
+
+        // Спеціальні стилі для відображення телефону
+        &.phone-display {
+          font-weight: 500;
+          letter-spacing: 0.5px;
+        }
       }
 
       input,
       .edit-input {
         flex: 1;
+        text-align: right;
         max-width: 60%;
-        padding: 0.4rem 0.6rem;
         border: 1px solid #cbd5e1;
         border-radius: 6px;
-        background: #ffffff;
+        background: #fff;
         font-size: 0.95rem;
-        color: #1e293b;
+        color: $user-text;
+        padding: 6px 10px;
+        margin-left: auto;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
         &:focus {
-          border-color: #38bdf8;
+          border-color: $user-accent;
           box-shadow: 0 0 4px rgba(56, 189, 248, 0.5);
           outline: none;
+        }
+
+        // Спеціальні стилі для поля телефону
+        &.phone-input {
+          letter-spacing: 0.5px;
+
+          &::placeholder {
+            color: #94a3b8;
+            font-style: italic;
+          }
+
+          &:focus {
+            border-color: $user-accent;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+          }
         }
       }
     }
@@ -162,8 +185,7 @@
   padding: 1.5rem;
   background: #f1f5f9;
   border-radius: 10px;
-  font-size: 0.95rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid $user-border;
 
   h3 {
     font-size: 1.2rem;
@@ -173,7 +195,129 @@
   }
 
   p {
-    color: #475569;
+    color: $user-muted;
     line-height: 1.5;
   }
+}
+
+/* react-phone-input-2 стилізація (якщо потрібна) */
+.react-tel-input {
+  width: 100%;
+
+  .form-control {
+    width: 100%;
+    padding: 8px 12px 8px 48px;
+    font-size: 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    transition: border-color 0.3s;
+
+    &:focus {
+      border-color: $user-accent;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+  }
+
+  .flag-dropdown {
+    border: none;
+    background: transparent;
+    border-right: 1px solid #ccc;
+    border-radius: 0.5rem 0 0 0.5rem;
+  }
+
+  .selected-flag {
+    padding-left: 12px;
+  }
+}
+
+/* Покращена стилізація radio group */
+.sex-radio-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+
+  label {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    color: $user-text;
+    cursor: pointer;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(56, 189, 248, 0.1);
+    }
+
+    input {
+      margin-right: 6px;
+      accent-color: $user-accent;
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+/* Адаптивність для мобільних пристроїв */
+@media (max-width: 768px) {
+  .user-info-container {
+    padding: 1rem;
+  }
+
+  .user-section {
+    .user-details li {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+
+      strong {
+        width: 100%;
+        min-width: auto;
+      }
+
+      span,
+      input,
+      .edit-input {
+        width: 100%;
+        max-width: 100%;
+        text-align: left;
+        margin-left: 0;
+      }
+    }
+  }
+
+  .sex-radio-group {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* Додаткові стилі для покращення UX */
+.edit-input {
+  &:disabled {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &:invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1);
+  }
+}
+
+/* Анімація для smooth переходів */
+.user-section,
+.edit-input,
+.btn-change {
+  transition: all 0.2s ease;
+}
+
+/* Focus стилі для accessibility */
+.btn-change:focus,
+.edit-input:focus {
+  outline: 2px solid $user-accent;
+  outline-offset: 2px;
 }

@@ -3,7 +3,6 @@
 .analysis {
   font-family: Arial, sans-serif;
   background: #e6f2ff;
-  min-height: 100vh;
   padding: 2rem;
 
   &__header {
@@ -265,6 +264,13 @@
           transition: transform 0.3s ease;
 
           &.rotated {
+            transform: rotate(180deg);
+          }
+        }
+
+        &.open {
+          background-color: #e2e6f0;
+          .icon-chevron {
             transform: rotate(180deg);
           }
         }

@@ -1,0 +1,273 @@
+@use "@/styles/_mixins" as *;
+
+.medications {
+  padding: 2rem 1rem;
+  background: linear-gradient(to bottom, #f0f4ff, #ffffff);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  &__header {
+    text-align: center;
+    margin-bottom: 2rem;
+    max-width: 800px;
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 1rem 0 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #475569;
+    }
+
+    & > .medications__icon {
+      width: 70px;
+      height: 70px;
+      background: #fef3c7;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+  }
+
+  &__content {
+    width: 100%;
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+
+    @include tablet {
+      grid-template-columns: 1fr;
+    }
+
+    @include mobile-medium {
+      grid-template-columns: 1fr;
+    }
+
+    @include mobile-small {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__form-section,
+  &__plans-section {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2rem;
+
+    h2 {
+      font-size: 1.5rem;
+      color: #1e293b;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      font-weight: 600;
+      color: #334155;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+
+      select {
+        margin-top: 0.3rem;
+        padding: 0.45rem 0.75rem;
+        border: 1.5px solid #cbd5e1; // світло-сірий
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        color: #1e293b; // темніший текст
+        background-color: #f8fafc; // дуже світлий фон
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #f97316; // помаранчевий акцент
+          box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+          background-color: #fff;
+        }
+
+        &:disabled {
+          background-color: #e2e8f0;
+          color: #94a3b8;
+          cursor: not-allowed;
+        }
+      }
+
+      option {
+        color: #1e293b;
+        background-color: #fff;
+      }
+
+      input,
+      textarea {
+        margin-top: 0.5rem;
+        padding: 0.6rem 1rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 1rem;
+        resize: none;
+
+        &:focus {
+          outline: 2px solid #f97316;
+          border-color: transparent;
+        }
+      }
+
+      textarea {
+        min-height: 80px;
+      }
+    }
+
+    button {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background-color: #f97316;
+      color: white;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+
+      @include hover-large {
+        &:hover {
+          background-color: #ea580c;
+        }
+      }
+    }
+  }
+
+  &__form-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @include mobile-medium {
+      grid-template-columns: 1fr;
+    }
+
+    @include mobile-small {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__plans-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .medications__reminder {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: #f97316;
+      font-weight: 500;
+    }
+  }
+
+  &__plan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__plan {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: box-shadow 0.2s ease;
+
+    @include hover-large {
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+    }
+
+    &-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 0.5rem;
+
+      h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-top: 0.2rem;
+      }
+
+      button {
+        background: transparent;
+        border: none;
+        color: #ef4444;
+        cursor: pointer;
+        transition: color 0.2s;
+
+        @include hover-large {
+          &:hover {
+            color: #dc2626;
+          }
+        }
+      }
+    }
+
+    &-dates {
+      font-size: 0.85rem;
+      color: #475569;
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+    }
+  }
+
+  &__empty {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    color: #94a3b8;
+
+    h3 {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #64748b;
+    }
+
+    p {
+      font-size: 0.9rem;
+      margin-top: 0.2rem;
+    }
+  }
+}

@@ -10,14 +10,15 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { addRecord } from "../../../../../API/accounts";
 
 export default function BloodDonation() {
   const [showDialogIndex, setShowDialogIndex] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    center: "",
     date: "",
     time: "",
+    notes: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -25,7 +26,7 @@ export default function BloodDonation() {
   const closeModal = () => {
     setIsModalOpen(false);
     setErrors({});
-    setFormData({ center: "", date: "", time: "" });
+    setFormData({ center: "", date: "", time: "", notes: "" });
   };
 
   const validateField = (name, value) => {
@@ -43,11 +44,18 @@ export default function BloodDonation() {
     }
 
     if (name === "date") {
-      const selectedDate = new Date(value);
+      const selectedDate = new Date(value + "T00:00:00");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (selectedDate < today) {
         return "Date cannot be in the past";
+      }
+    }
+
+    if (name === "time") {
+      const [hours, minutes] = value.split(":").map(Number);
+      if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
+        return "Appointments are allowed only between 08:00 and 18:00";
       }
     }
 
@@ -66,9 +74,11 @@ export default function BloodDonation() {
 
   const validateForm = () => {
     const newErrors = {};
-    Object.entries(formData).forEach(([key, value]) => {
-      const error = validateField(key, value);
-      if (error) newErrors[key] = error;
+    // Валідуємо тільки обов'язкові поля
+    const requiredFields = ["center", "date", "time"];
+    requiredFields.forEach((field) => {
+      const error = validateField(field, formData[field]);
+      if (error) newErrors[field] = error;
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -76,6 +86,7 @@ export default function BloodDonation() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validateForm()) {
       await Swal.fire({
         icon: "error",
@@ -85,14 +96,73 @@ export default function BloodDonation() {
       return;
     }
 
-    await Swal.fire({
-      icon: "success",
-      title: "Scheduled!",
-      html: `Your donation is scheduled at <b>${formData.center}</b><br/>on <b>${formData.date}</b> at <b>${formData.time}</b>.`,
-      confirmButtonText: "OK",
-    });
+    // Підготовка даних для відправки на сервер
+    const record = {
+      start_date: formData.date,
+      start_time: formData.time,
+      short_description: `Blood Donation at ${formData.center}${
+        formData.notes ? `. Notes: ${formData.notes}` : ""
+      }`,
+      // Якщо у вас є спеціальний ID для донорства крові, додайте його тут
+      // medical_specialty_id: BLOOD_DONATION_ID,
+    };
 
-    closeModal();
+    try {
+      const response = await addRecord(record);
+
+      console.log("Backend response:", response);
+
+      if (response && (response.status === 200 || response.status === 201)) {
+        await Swal.fire({
+          icon: "success",
+          title: "Donation Scheduled!",
+          html: `
+            <p><strong>Center:</strong> ${formData.center}</p>
+            <p><strong>Date:</strong> ${formData.date}</p>
+            <p><strong>Time:</strong> ${formData.time}</p>
+            ${
+              formData.notes
+                ? `<p><strong>Notes:</strong> ${formData.notes}</p>`
+                : ""
+            }
+          `,
+          confirmButtonText: "OK",
+          timer: 5000,
+        });
+
+        closeModal();
+      } else {
+        console.error("Unexpected response status:", response.status);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Unexpected response from server.",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to add blood donation appointment", error);
+      if (error.response && error.response.data) {
+        console.error("Server response data:", error.response.data);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          html: Object.entries(error.response.data)
+            .map(
+              ([key, val]) =>
+                `<p><strong>${key}:</strong> ${
+                  Array.isArray(val) ? val.join(", ") : val
+                }</p>`
+            )
+            .join(""),
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Could not schedule donation. Try again later.",
+        });
+      }
+    }
   };
 
   const infoSections = [
@@ -221,7 +291,7 @@ export default function BloodDonation() {
                 </label>
 
                 <label>
-                  Preferred Date
+                  Date:
                   <input
                     type="date"
                     name="date"
@@ -240,8 +310,9 @@ export default function BloodDonation() {
                 </label>
 
                 <label>
-                  Preferred Time
-                  <select
+                  Time:
+                  <input
+                    type="time"
                     name="time"
                     value={formData.time}
                     onChange={handleChange}
@@ -249,14 +320,7 @@ export default function BloodDonation() {
                     aria-describedby="time-error"
                     required
                     className={errors.time ? "error" : ""}
-                  >
-                    <option value="">Select time</option>
-                    <option value="9:00 AM">9:00 AM</option>
-                    <option value="11:00 AM">11:00 AM</option>
-                    <option value="1:00 PM">1:00 PM</option>
-                    <option value="3:00 PM">3:00 PM</option>
-                    <option value="5:00 PM">5:00 PM</option>
-                  </select>
+                  />
                   {errors.time && (
                     <small id="time-error" className="error-msg">
                       {errors.time}
@@ -265,7 +329,8 @@ export default function BloodDonation() {
                 </label>
 
                 <button type="submit" className="submit-btn btn btn--primary">
-                  Add to my events
+                  <Plus className="btn-icon" />
+                  Add to My Events
                 </button>
                 <button
                   type="button"

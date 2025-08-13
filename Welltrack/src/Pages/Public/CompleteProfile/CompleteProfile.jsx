@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { updateOrCreateProfile } from "../../../API/accounts";
 import Swal from "sweetalert2";
 import "./CompleteProfile.scss";
+import BtnBack from "../components/BtnBack/BtnBack";
 
 export default function CompleteProfile() {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ export default function CompleteProfile() {
     phone_number: "",
     birth_date: "",
     sex: "male",
+    country: "",
+    city: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -24,7 +27,9 @@ export default function CompleteProfile() {
       newErrors.username = "Username must be at least 3 characters.";
     }
 
-    if (formData.phone_number) {
+    if (!formData.phone_number.trim()) {
+      newErrors.phone_number = "Phone number is required.";
+    } else {
       const phoneRegex = /^\+?[0-9]{7,15}$/;
       if (!phoneRegex.test(formData.phone_number)) {
         newErrors.phone_number =
@@ -32,20 +37,29 @@ export default function CompleteProfile() {
       }
     }
 
-    if (formData.birth_date) {
+    if (!formData.birth_date) {
+      newErrors.birth_date = "Birth date is required.";
+    } else {
       const today = new Date().toISOString().split("T")[0];
       if (formData.birth_date > today) {
         newErrors.birth_date = "Birth date cannot be in the future.";
       }
     }
 
+    if (!formData.country.trim()) {
+      newErrors.country = "Country is required.";
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = "City is required.";
+    }
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return newErrors;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -55,9 +69,21 @@ export default function CompleteProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validate()) return;
+    const validationErrors = validate();
 
-    console.log("Data to send:", formData);
+    if (Object.keys(validationErrors).length > 0) {
+      const errorList = Object.entries(validationErrors)
+        .map(([key, msg]) => `${key}: ${msg}`)
+        .join("<br>");
+
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        html: errorList,
+      });
+
+      return;
+    }
 
     try {
       await updateOrCreateProfile(formData);
@@ -72,7 +98,7 @@ export default function CompleteProfile() {
 
       setTimeout(() => navigate("/my-profile"), 1500);
     } catch (err) {
-      console.error("Failed to complete profile:", err);
+      console.error("Failed to update profile:", err);
 
       const errorMessage =
         err.response?.data && typeof err.response.data === "object"
@@ -82,7 +108,7 @@ export default function CompleteProfile() {
                   `${key}: ${Array.isArray(value) ? value.join(", ") : value}`
               )
               .join("\n")
-          : "Failed to complete profile. Please try again.";
+          : "Failed to update profile. Please try again.";
 
       Swal.fire({
         icon: "error",
@@ -95,6 +121,8 @@ export default function CompleteProfile() {
   return (
     <section className="complete-profile">
       <h2>Complete Your Profile</h2>
+
+      <BtnBack />
       <form onSubmit={handleSubmit} noValidate>
         <label>
           Username*
@@ -109,13 +137,14 @@ export default function CompleteProfile() {
         </label>
 
         <label>
-          Phone Number
+          Phone Number*
           <input
             type="tel"
             name="phone_number"
             placeholder="+380501234567"
             value={formData.phone_number}
             onChange={handleChange}
+            required
           />
           {errors.phone_number && (
             <span className="error">{errors.phone_number}</span>
@@ -123,12 +152,13 @@ export default function CompleteProfile() {
         </label>
 
         <label>
-          Birth Date
+          Birth Date*
           <input
             type="date"
             name="birth_date"
             value={formData.birth_date}
             onChange={handleChange}
+            required
           />
           {errors.birth_date && (
             <span className="error">{errors.birth_date}</span>
@@ -143,7 +173,31 @@ export default function CompleteProfile() {
           </select>
         </label>
 
-        {errors.form && <p className="error form-error">{errors.form}</p>}
+        <label>
+          Country*
+          <input
+            type="text"
+            name="country"
+            value={formData.country}
+            onChange={handleChange}
+            required
+            placeholder="Country"
+          />
+          {errors.country && <span className="error">{errors.country}</span>}
+        </label>
+
+        <label>
+          City*
+          <input
+            type="text"
+            name="city"
+            value={formData.city}
+            onChange={handleChange}
+            required
+            placeholder="City/Village"
+          />
+          {errors.city && <span className="error">{errors.city}</span>}
+        </label>
 
         <button type="submit">Save and Continue</button>
       </form>

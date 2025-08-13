@@ -5,7 +5,7 @@ import ProfileCard from "./ProfileCard/ProfileCard";
 import "./UserProfile.scss";
 import ProfileSections from "./ProfileSections/ProfileSections";
 import ProfileStats from "./ProfileStats/ProfileStats";
-import { fetchProfile } from "../../../API/accounts"; // або звідки в тебе йде імпорт функції API
+import { fetchMe } from "../../../API/accounts"; 
 
 export default function Profile() {
   const [userProfile, setUserProfile] = useState(null);
@@ -13,7 +13,7 @@ export default function Profile() {
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const response = await fetchProfile();
+        const response = await fetchMe();
         setUserProfile(response.data);
       } catch (err) {
         console.error("Failed to fetch profile:", err);

@@ -1,11 +1,13 @@
 @use "../ProfileContainer" as *;
+@use "@/styles/_mixins" as *;
 
 .profile-stats {
-    @include profile-container;
+  @include profile-container;
 
   display: flex;
   justify-content: center;
   gap: 2rem;
+  flex-wrap: wrap; // щоб картки переносились на менших екранах
 
   .stat-card {
     flex: 1 1 280px;
@@ -43,6 +45,43 @@
     &__label {
       font-size: 1rem;
       color: #475569;
+    }
+  }
+
+  // Мобільні телефони — менший відступ і менші шрифти
+  @include mobile-small {
+    gap: 1rem;
+
+    .stat-card {
+      min-width: 100%;
+      padding: 1rem;
+
+      &__value {
+        font-size: 2rem;
+      }
+
+      &__label {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  // Середні мобільні — 2 картки в ряд
+  @include mobile-medium {
+    gap: 1.2rem;
+    flex-wrap: wrap;
+
+    .stat-card {
+      flex: 1 1 calc(50% - 1.2rem);
+      max-width: calc(50% - 1.2rem);
+    }
+  }
+
+  // Планшети — 3 картки в ряд
+  @include tablet {
+    .stat-card {
+      flex: 1 1 calc(33.333% - 2rem);
+      max-width: calc(33.333% - 2rem);
     }
   }
 }

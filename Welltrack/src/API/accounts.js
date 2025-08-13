@@ -25,8 +25,26 @@ export function verifyToken(token) {
 /* ============ PASSWORD RECOVERY ============ */
 
 // Запит на скидання паролю
-export function resetPassword(email) {
-  return api.post("/accounts/reset-password/", { email });
+export async function resetPassword(email) {
+  const response = await fetch(
+    "https://dr-reminder-backend-test.onrender.com/api/accounts/reset-password/",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    const error = new Error("Error resetting password");
+    error.response = { data: errorData };
+    throw error;
+  }
+
+  return response.json();
 }
 
 // Підтвердження скидання паролю
@@ -46,10 +64,57 @@ export function updateOrCreateProfile(data) {
   return api.post("/accounts/profile/", data);
 }
 
-// Отримати поточного користувача (коротка інфа)
+// Отримати поточного користувача
 export function fetchMe() {
-  return api.get("/accounts/me/");
+  const token = localStorage.getItem("accessToken");
+  return api.get("/accounts/me/", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
+
+// Оновити поточного користувача (часткове оновлення, включно з фото)
+export function updateMe(data) {
+  const formData = new FormData();
+
+  for (const key in data) {
+    if (data[key] !== null && data[key] !== undefined) {
+      formData.append(key, data[key]);
+    }
+  }
+
+  return api.patch("/accounts/me/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
+// Оновити поточного користувача (часткове оновлення, без фото)
+export function patchMe(data) {
+  return api.patch("/accounts/me/", data);
+}
+
+// Отримати поточного користувача
+export function fetchHealthIndicators() {
+  return api.get("/accounts/health-indicators/");
+}
+
+// Оновити поточного користувача
+export const updateHealthIndicators = async (data) => {
+  try {
+    const response = await api.post("/accounts/health-indicators/", data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("API Error:", error.response?.data);
+    throw error;
+  }
+};
 
 /* ============== SERVICES ================== */
 
@@ -61,13 +126,25 @@ export function fetchServices() {
 /* ============== EVENTS ==================== */
 
 // Отримати всі записи подій (вакцинація, візити тощо)
-export function fetchRecords() {
-  return api.get("/services/events/");
+export async function fetchRecords() {
+  try {
+    const response = await api.get("/services/events/");
+
+    // Additional check for 401 even after interceptor
+    if (response.status === 401) {
+      throw new Error("Unauthorized");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching records:", error);
+    throw error; // Re-throw for React Query to handle
+  }
 }
 
 // Додати новий запис (подію)
-export function addRecord(record) {
-  return api.post("/services/events/", record);
+export function addRecord(data) {
+  return api.post("/services/events/", data);
 }
 
 /* ============== VACCINATIONS ============== */

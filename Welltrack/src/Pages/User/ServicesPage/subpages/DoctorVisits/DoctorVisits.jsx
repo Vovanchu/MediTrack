@@ -51,14 +51,43 @@ export default function DoctorVisitPage() {
       return;
     }
 
+    // Валідація дати - не можна в минуле
+    const today = new Date();
+    const selectedDate = new Date(formData.date + "T00:00:00");
+    if (selectedDate < new Date(today.toDateString())) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Date",
+        text: "You cannot select a past date.",
+      });
+      return;
+    }
+
+    // Валідація часу - тільки з 08:00 до 18:00
+    if (formData.time) {
+      const [hours, minutes] = formData.time.split(":").map(Number);
+      if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Time",
+          text: "Appointments are allowed only between 08:00 and 18:00.",
+        });
+        return;
+      }
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Time Required",
+        text: "Please select a time for the appointment.",
+      });
+      return;
+    }
+
     const record = {
-      title: `Doctor Visit: ${selectedSpecialty.title || selectedSpecialty}`,
-      date: formData.date,
-      time: formData.time,
-      category: "doctor_visit",
-      description: formData.notes,
-      // Можна додати поле з id спеціальності, якщо потрібно:
-      medical_specialty: selectedSpecialty.id || null,
+      start_date: formData.date,
+      start_time: formData.time,
+      short_description: formData.notes || "",
+      medical_specialty_id: selectedSpecialty?.id,
     };
 
     try {
@@ -71,17 +100,17 @@ export default function DoctorVisitPage() {
           icon: "success",
           title: "Appointment added!",
           html: `
-            <p><strong>Specialty:</strong> ${
-              selectedSpecialty.title || selectedSpecialty
-            }</p>
-            <p><strong>Date:</strong> ${formData.date}</p>
-            <p><strong>Time:</strong> ${formData.time}</p>
-            ${
-              formData.notes
-                ? `<p><strong>Notes:</strong> ${formData.notes}</p>`
-                : ""
-            }
-          `,
+          <p><strong>Specialty:</strong> ${
+            selectedSpecialty.title || selectedSpecialty
+          }</p>
+          <p><strong>Date:</strong> ${formData.date}</p>
+          <p><strong>Time:</strong> ${formData.time}</p>
+          ${
+            formData.notes
+              ? `<p><strong>Notes:</strong> ${formData.notes}</p>`
+              : ""
+          }
+        `,
           confirmButtonText: "OK",
           timer: 5000,
         });
@@ -98,11 +127,25 @@ export default function DoctorVisitPage() {
       }
     } catch (error) {
       console.error("Failed to add doctor visit", error);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Could not add appointment. Try again later.",
-      });
+      if (error.response && error.response.data) {
+        console.error("Server response data:", error.response.data);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          html: Object.entries(error.response.data)
+            .map(
+              ([key, val]) =>
+                `<p><strong>${key}:</strong> ${val.join(", ")}</p>`
+            )
+            .join(""),
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Could not add appointment. Try again later.",
+        });
+      }
     }
   };
 
@@ -131,7 +174,7 @@ export default function DoctorVisitPage() {
                 className="doctor-visit__badge"
                 onClick={() => handleSelect(specialty)}
               >
-                {specialty.title}
+                {specialty.title || specialty}
               </div>
             ))}
           </div>
@@ -141,6 +184,7 @@ export default function DoctorVisitPage() {
           <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <h2>Add Event: {selectedSpecialty.title || selectedSpecialty}</h2>
+              <p>{selectedSpecialty.description || selectedSpecialty}</p>
               <form onSubmit={handleSubmit} className="modal-form">
                 <label>
                   Date:

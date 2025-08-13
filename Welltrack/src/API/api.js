@@ -2,10 +2,21 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: "https://dr-reminder-backend-test.onrender.com/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  timeout: 10000,
 });
+
+// Add response interceptor to handle 401 errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle token expiration
+      localStorage.removeItem("accessToken");
+      window.location.href = "/login"; // Redirect to login
+    }
+    return Promise.reject(error);
+  }
+);
 
 api.interceptors.request.use(
   (config) => {
@@ -21,11 +32,17 @@ api.interceptors.request.use(
     ];
 
     const isPublic = publicEndpoints.some((endpoint) =>
-      config.url.endsWith(endpoint)
+      config.url.includes(endpoint)
     );
 
     if (token && !isPublic) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    if (config.data instanceof FormData) {
+      config.headers["Content-Type"] = "multipart/form-data";
+    } else {
+      config.headers["Content-Type"] = "application/json";
     }
 
     return config;

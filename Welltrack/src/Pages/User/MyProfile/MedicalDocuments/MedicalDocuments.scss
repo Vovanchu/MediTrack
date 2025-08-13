@@ -28,7 +28,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 100%; // тепер по ширині блоку
+    width: 100%;
     gap: 4rem;
     margin-bottom: 4rem;
 
@@ -104,7 +104,13 @@
       border-radius: 1rem;
       padding: 3rem;
       text-align: center;
-      transition: border-color 0.3s ease, background-color 0.3s ease;
+      transition: all 0.3s ease;
+
+      &.drag-over {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+        transform: scale(1.02);
+      }
 
       @include hover-large {
         &:hover {
@@ -130,7 +136,7 @@
 
         input[type="file"] {
           position: absolute;
-          left: -9999px; // повністю ховаємо
+          left: -9999px;
         }
 
         label {
@@ -142,7 +148,7 @@
           border-radius: 0.75rem;
           cursor: pointer;
           font-weight: 600;
-          transition: background-color 0.3s ease, transform 0.2s ease;
+          transition: all 0.2s ease;
           box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
 
           @include hover-large {
@@ -173,4 +179,197 @@
       padding: 1.5rem;
     }
   }
+
+  // Нові стилі для відображення файлів
+  &_files {
+    margin-top: 2rem;
+    padding: 2rem;
+    background-color: #f8fafc;
+    border-radius: 1rem;
+    border: 1px solid #e2e8f0;
+
+    &-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &::before {
+        content: "📋";
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  &_file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    @include mobile-small {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &_file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+
+    &:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      min-width: 0; // для правильного truncate
+    }
+
+    .file-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .file-details {
+      flex: 1;
+      min-width: 0;
+
+      .file-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0 0 0.25rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .file-size {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0 0 0.25rem 0;
+      }
+
+      .file-type {
+        font-size: 0.75rem;
+        color: #9ca3af;
+        margin: 0;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+    }
+
+    .file-remove-btn {
+      background-color: #fee2e2;
+      color: #dc2626;
+      border: none;
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        background-color: #fecaca;
+        color: #b91c1c;
+        transform: scale(1.1);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+    }
+  }
+
+  &_actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+
+    @include mobile-small {
+      flex-direction: column;
+    }
+
+    .btn-upload-all {
+      background-color: #10b981;
+      color: #fff;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+
+      &:hover {
+        background-color: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+
+    .btn-clear-all {
+      background-color: #f3f4f6;
+      color: #6b7280;
+      border: 1px solid #d1d5db;
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: #e5e7eb;
+        color: #4b5563;
+        border-color: #9ca3af;
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+  }
+}
+
+// Анімації
+@keyframes fileAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-medicaldocuments_file-item {
+  animation: fileAppear 0.3s ease;
 }
