@@ -25,8 +25,8 @@ export default function HealthIndicators() {
 
   const loadHealthIndicators = useCallback(async () => {
     try {
-      const response = await fetchHealthIndicators(7); // передаємо id
-      const data = response.data;
+      const response = await fetchHealthIndicators(7);
+      const data = response.data[0]; // <-- важливо
 
       setMetrics({
         pulse: data.pulse || "",
@@ -170,15 +170,22 @@ export default function HealthIndicators() {
       const data = response.data ?? response;
       console.log("Extracted data:", data);
 
-      const recommendationsArray = data.recommendations || [];
+      let recs = [];
+      if (Array.isArray(data.recommendations)) {
+        recs = data.recommendations;
+      } else if (data.recommendations) {
+        recs = [data.recommendations];
+      }
+
+      console.log("API raw recommendations:", data.recommendations);
+
       setRecommendations(
-        recommendationsArray.map((rec) => ({
-          title: "Рекомендація",
+        recs.map((rec) => ({
+          title: "Recommendation",
           text: rec,
           danger: /low|high|alert|fever|hypo|hyper/i.test(rec),
         }))
       );
-
       setShowRecommendations(true);
 
       await Swal.fire({
