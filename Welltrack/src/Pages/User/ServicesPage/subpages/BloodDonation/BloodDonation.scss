@@ -1,7 +1,7 @@
 @use "@/styles/mixins" as *;
 
 .error-msg {
-  color: #e53e3e; // яскраво-червоний колір помилки
+  color: #e53e3e;
   font-size: 0.875rem;
   margin-top: 0.25rem;
   display: block;
@@ -215,7 +215,8 @@ input.error {
       color: #333;
 
       select,
-      input[type="date"] {
+      input[type="date"],
+      input[type="time"] {
         margin-top: 0.3rem;
         padding: 0.4rem 0.6rem;
         font-size: 1rem;

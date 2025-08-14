@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Swal from "sweetalert2";
-import { fetchRecords, addRecord } from "../../../API/accounts";
+import { fetchRecords, addRecord, deleteRecord } from "../../../API/accounts";
 import "./MyEvents.scss";
 
 import NavBar from "../components/NavBar/NavBar";
 import Footer from "../components/Footer/Footer";
 
-// Event type constants
 const EVENT_TYPES = {
   VISIT: "visit",
   VACCINATION: "vaccination",
@@ -25,7 +24,7 @@ const EVENT_TYPE_LABELS = {
 };
 
 export default function EventsPage() {
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["events"],
     queryFn: fetchRecords,
     retry: (failureCount, error) => {
@@ -41,7 +40,7 @@ export default function EventsPage() {
     startDate: "",
     finishDate: "",
     startTime: "",
-    eventType: EVENT_TYPES.VISIT, // Default to Doctor Visit
+    eventType: EVENT_TYPES.VISIT,
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -110,7 +109,7 @@ export default function EventsPage() {
     return event.event_type === activeFilter;
   });
 
-  const handleDelete = (event) => {
+  const handleDelete = (id) => {
     Swal.fire({
       icon: "warning",
       title: "Delete Event",
@@ -121,13 +120,14 @@ export default function EventsPage() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await addRecord({ id: event.id, completed: true });
+          await deleteRecord(id);
           Swal.fire({
             icon: "success",
             title: "Event deleted successfully!",
             showConfirmButton: false,
-            timer: 2000,
+            timer: 1000,
           });
+          await refetch();
         } catch (error) {
           Swal.fire({
             icon: "error",
@@ -247,42 +247,46 @@ export default function EventsPage() {
           <p>No events found for this filter.</p>
         ) : (
           <ul className="event-list">
-            {filteredEvents.map((event) => (
-              <li key={event.id} className="event-item">
-                <div className="event-header">
-                  <h3 className="event-title">{event.name || "Untitled"}</h3>
-                  <span className="event-date-time">
-                    {event.start_date || "no date specified"}
-                    {event.start_time && `, ${event.start_time.slice(0, 5)}`}
-                  </span>
-                </div>
-
-                <div className="event-type-badge">
-                  {EVENT_TYPE_LABELS[event.event_type] || "Other"}
-                </div>
-
-                {event.medical_specialty && (
-                  <div className="event-specialty">
-                    <span>Specialty: </span>
-                    <strong>
-                      {event.medical_specialty.title || event.name}
-                    </strong>
+            {filteredEvents
+              .slice()
+              .reverse()
+              .map((event) => (
+                <li key={event.id} className="event-item">
+                  <div className="event-header">
+                    <h3 className="event-title">{event.name || "Untitled"}</h3>
+                    <span className="event-date-time">
+                      {event.start_date || "no date specified"}
+                      {event.start_time && `, ${event.start_time.slice(0, 5)}`}
+                    </span>
                   </div>
-                )}
 
-                {event.short_description && (
-                  <p className="event-description">{event.short_description}</p>
-                )}
+                  <div className="event-type-badge">
+                    {EVENT_TYPE_LABELS[event.event_type] || "Other"}
+                  </div>
 
-                {/* Кнопка видалення */}
-                <button
-                  className="btn-delete-event"
-                  onClick={() => handleDelete(event.id)}
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
+                  {event.medical_specialty && (
+                    <div className="event-specialty">
+                      <span>Specialty: </span>
+                      <strong>
+                        {event.medical_specialty.title || event.name}
+                      </strong>
+                    </div>
+                  )}
+
+                  {event.short_description && (
+                    <p className="event-description">
+                      {event.short_description}
+                    </p>
+                  )}
+
+                  <button
+                    className="btn-delete-event"
+                    onClick={() => handleDelete(event.id)}
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
           </ul>
         )}
       </div>

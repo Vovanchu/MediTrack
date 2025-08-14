@@ -1,113 +1,128 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   FileText,
   Calendar,
+  Heart,
+  Syringe,
   Activity,
   Pill,
-  Syringe,
-  Heart,
   Plus,
 } from "lucide-react";
 import "./HealthRecord.scss";
+
 import NavBar from "../../components/NavBar/NavBar";
+import Footer from "../../components/Footer/Footer";
 import BtnBack from "../../components/ui/BtnBack/BtnBack";
-import { fetchRecords, addRecord } from "../../../../API/accounts";
+
+import { fetchRecords } from "../../../../API/accounts"; // API-запити
 
 const recordTypes = [
   { value: "all", label: "All Records" },
   { value: "visit", label: "Doctor Visit" },
-  { value: "test", label: "Test / Lab" },
   { value: "vaccination", label: "Vaccination" },
-  { value: "medication", label: "Medication" },
-  { value: "symptom", label: "Symptom" },
-  { value: "vital", label: "Vital Sign" },
+  { value: "analysis", label: "Analysis & Tests" },
+  { value: "blood_donation", label: "Blood Donation" },
+  { value: "medication", label: "Taking Medications" },
 ];
 
 const iconsMap = {
   visit: <Heart className="icon-blue" />,
-  test: <FileText className="icon-purple" />,
   vaccination: <Syringe className="icon-green" />,
+  analysis: <Activity className="icon-purple" />,
+  blood_donation: <Activity className="icon-red" />,
   medication: <Pill className="icon-orange" />,
-  symptom: <Activity className="icon-red" />,
-  vital: <Activity className="icon-teal" />,
   all: <FileText className="icon-gray" />,
 };
 
 const colorsMap = {
   visit: "badge-blue",
-  test: "badge-purple",
   vaccination: "badge-green",
+  analysis: "badge-purple",
+  blood_donation: "badge-red",
   medication: "badge-orange",
-  symptom: "badge-red",
-  vital: "badge-teal",
 };
 
 export default function HealthRecord() {
-  const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
-  const [showForm, setShowForm] = useState(false);
-  const [newRecord, setNewRecord] = useState({
-    type: "visit",
-    title: "",
-    description: "",
-    provider: "",
-    value: "",
-    unit: "",
-    date: "",
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["healthRecords"],
+    queryFn: fetchRecords,
+    retry: 2,
   });
 
-  // Завантажуємо всі записи
-  useEffect(() => {
-    async function loadRecords() {
-      try {
-        const { data } = await fetchRecords();
-        setRecords(data);
-      } catch (error) {
-        console.error("Failed to fetch records:", error);
-        alert("Error loading health records");
-      } finally {
-        setLoading(false);
-      }
+  const mapOtherType = (record) => {
+    let type = record.event_type?.toLowerCase().replace(/\s+/g, "_");
+
+    // Якщо це не "other", одразу нормалізуємо
+    if (type && type !== "other") {
+      if (type === "blood") return "blood_donation";
+      return type;
     }
-    loadRecords();
-  }, []);
+
+    // Для "other" пробуємо визначити по назві
+    const name = record.name?.toLowerCase() || "";
+    if (name.includes("analysis") || name.includes("test")) return "analysis";
+    if (name.includes("blood")) return "blood_donation";
+    if (name.includes("medication")) return "medication";
+
+    return "other"; // fallback
+  };
 
   const filterRecordsByType = (type) => {
-    if (type === "all") return records;
-    return records.filter((record) => record.type === type);
+    if (!data) return [];
+    if (type === "all") return data;
+    return data.filter((record) => mapOtherType(record) === type);
   };
 
-  const handleAddRecord = async (e) => {
-    e.preventDefault();
-    try {
-      const { data: savedRecord } = await addRecord(newRecord);
-      setRecords((prev) => [...prev, savedRecord]);
-      setNewRecord({
-        type: "visit",
-        title: "",
-        description: "",
-        provider: "",
-        value: "",
-        unit: "",
-        date: "",
-      });
-      setShowForm(false);
-    } catch {
-      alert("Error saving record");
+  const renderRecordDetails = (record) => {
+    const type = mapOtherType(record);
+
+    switch (type) {
+      case "visit":
+        return (
+          <p className="record-provider">
+            <strong>Specialty:</strong> {record.medical_specialty || "—"}
+          </p>
+        );
+
+      case "vaccination":
+        return (
+          <p className="record-provider">
+            <strong>Vaccine:</strong> {record.vaccination_name || "—"}
+          </p>
+        );
+
+      case "analysis":
+        return (
+          <p className="record-provider">
+            <strong>Test/Analysis:</strong> {record.analysis_test_name || "—"}
+          </p>
+        );
+
+      case "blood_donation":
+        return (
+          <p className="record-provider">
+            <strong>Blood Donation:</strong> {record.center_name || "—"}
+          </p>
+        );
+
+      case "medication":
+        return (
+          <p className="record-provider">
+            <strong>Medication:</strong> {record.medication_name || "—"}
+          </p>
+        );
+
+      default:
+        return (
+          <p className="record-provider">
+            <strong>Note:</strong> {record.short_description || "—"}
+          </p>
+        );
     }
   };
-
-  if (loading) {
-    return (
-      <>
-        <NavBar />
-        <div className="health-page">
-          <p>Loading health records...</p>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -116,14 +131,14 @@ export default function HealthRecord() {
         <header className="health-header">
           <div className="header-content">
             <div>
-              <h1 className="title">Health Record</h1>
+              <h1 className="title">Health Records</h1>
               <p className="subtitle">
                 Your complete medical history and health timeline
               </p>
             </div>
             <div className="actions">
               <BtnBack />
-              <button className="btn-add" onClick={() => setShowForm(true)}>
+              <button className="btn-add">
                 <Plus /> Add Record
               </button>
             </div>
@@ -147,171 +162,65 @@ export default function HealthRecord() {
           ))}
         </div>
 
-        {/* Модальне вікно додавання */}
-        {showForm && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h2>Add New Record</h2>
-              <form onSubmit={handleAddRecord}>
-                <label>
-                  Type:
-                  <select
-                    name="type"
-                    id="type"
-                    value={newRecord.type}
-                    onChange={(e) =>
-                      setNewRecord({ ...newRecord, type: e.target.value })
-                    }
-                    required
-                  >
-                    {recordTypes
-                      .filter((r) => r.value !== "all")
-                      .map((r) => (
-                        <option key={r.value} value={r.value}>
-                          {r.label}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-                <label>
-                  Title:
-                  <input
-                    type="text"
-                    name="title"
-                    id="title"
-                    value={newRecord.title}
-                    onChange={(e) =>
-                      setNewRecord({ ...newRecord, title: e.target.value })
-                    }
-                    required
-                  />
-                </label>
-                <label>
-                  Description:
-                  <textarea
-                    name="description"
-                    id="description"
-                    value={newRecord.description}
-                    onChange={(e) =>
-                      setNewRecord({
-                        ...newRecord,
-                        description: e.target.value,
-                      })
-                    }
-                  />
-                </label>
-                <label>
-                  Provider:
-                  <input
-                    type="text"
-                    name="provider"
-                    id="provider"
-                    value={newRecord.provider}
-                    onChange={(e) =>
-                      setNewRecord({ ...newRecord, provider: e.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Value:
-                  <input
-                    type="text"
-                    name="value"
-                    id="value"
-                    value={newRecord.value}
-                    onChange={(e) =>
-                      setNewRecord({ ...newRecord, value: e.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Unit:
-                  <input
-                    type="text"
-                    name="unit"
-                    id="unit"
-                    value={newRecord.unit}
-                    onChange={(e) =>
-                      setNewRecord({ ...newRecord, unit: e.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  Date:
-                  <input
-                    type="date"
-                    name="date"
-                    id="date"
-                    value={newRecord.date}
-                    onChange={(e) =>
-                      setNewRecord({ ...newRecord, date: e.target.value })
-                    }
-                    required
-                  />
-                </label>
-                <div className="form-actions">
-                  <button type="submit" className="btn-submit">
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-cancel"
-                    onClick={() => setShowForm(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
         {/* Список записів */}
-        <section className="records-list">
-          {filterRecordsByType(activeTab).length === 0 ? (
-            <div className="no-records">
-              <FileText className="no-records-icon" />
-              <h2>No records found</h2>
-              <p>Records will appear here as you add health information</p>
-            </div>
-          ) : (
-            filterRecordsByType(activeTab)
-              .sort((a, b) => new Date(b.date) - new Date(a.date))
-              .map((record) => (
-                <article key={record.id} className="record-card">
-                  <div className="record-header">
-                    <div className={`icon-wrapper ${colorsMap[record.type]}`}>
-                      {iconsMap[record.type]}
-                    </div>
-                    <div>
-                      <h3 className="record-title">{record.title}</h3>
-                      <div className="record-meta">
-                        <span className={`badge ${colorsMap[record.type]}`}>
-                          {record.type}
-                        </span>
-                        <time className="record-date">
-                          <Calendar className="calendar-icon" />{" "}
-                          {new Date(record.date).toLocaleDateString()}
-                        </time>
+        {isLoading ? (
+          <p>Loading health records...</p>
+        ) : isError ? (
+          <p>Error: {error.message}</p>
+        ) : (
+          <section className="records-list">
+            {filterRecordsByType(activeTab).length === 0 ? (
+              <div className="no-records">
+                <FileText className="no-records-icon" />
+                <h2>No records found</h2>
+                <p>Records will appear here as you add health information</p>
+              </div>
+            ) : (
+              filterRecordsByType(activeTab)
+                .sort(
+                  (a, b) =>
+                    new Date(b.start_date + "T" + b.start_time) -
+                    new Date(a.start_date + "T" + a.start_time)
+                )
+                .map((record) => (
+                  <article key={record.id} className="record-card">
+                    <div className="record-header">
+                      <div
+                        className={`icon-wrapper ${
+                          colorsMap[mapOtherType(record)]
+                        }`}
+                      >
+                        {iconsMap[mapOtherType(record)]}
+                      </div>
+                      <div>
+                        <h3 className="record-title">{record.name}</h3>
+                        <div className="record-meta">
+                          <span
+                            className={`badge ${
+                              colorsMap[mapOtherType(record)]
+                            }`}
+                          >
+                            {mapOtherType(record)}
+                          </span>
+                          <time className="record-date">
+                            <Calendar className="calendar-icon" />{" "}
+                            {new Date(
+                              record.start_date + "T" + record.start_time
+                            ).toLocaleString()}
+                          </time>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <p className="record-desc">{record.description}</p>
-                  {record.provider && (
-                    <p className="record-provider">
-                      <strong>Provider:</strong> {record.provider}
-                    </p>
-                  )}
-                  {record.value && record.unit && (
-                    <p className="record-value">
-                      <strong>Value:</strong> {record.value} {record.unit}
-                    </p>
-                  )}
-                </article>
-              ))
-          )}
-        </section>
+
+                    {/* Додаємо універсальні деталі */}
+                    {renderRecordDetails(record)}
+                  </article>
+                ))
+            )}
+          </section>
+        )}
       </div>
+      <Footer />
     </>
   );
 }

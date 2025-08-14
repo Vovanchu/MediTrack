@@ -25,7 +25,7 @@ export default function HealthIndicators() {
 
   const loadHealthIndicators = useCallback(async () => {
     try {
-      const response = await fetchHealthIndicators();
+      const response = await fetchHealthIndicators(7); // передаємо id
       const data = response.data;
 
       setMetrics({
@@ -44,8 +44,6 @@ export default function HealthIndicators() {
             danger: /low|high|alert|fever|hypo|hyper/i.test(rec),
           }))
         );
-      } else {
-        generateAndSetRecommendations(data);
       }
       setShowRecommendations(true);
     } catch (error) {
@@ -55,7 +53,7 @@ export default function HealthIndicators() {
 
   useEffect(() => {
     loadHealthIndicators();
-  }, [loadHealthIndicators]); // Added dependency
+  }, [loadHealthIndicators]);
 
   const validateField = (field, value) => {
     if (!value || value.toString().trim() === "") {
@@ -139,134 +137,6 @@ export default function HealthIndicators() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const generateAndSetRecommendations = (data) => {
-    const recs = [];
-
-    // Pulse recommendations
-    const pulse = parseInt(data.pulse);
-    if (!isNaN(pulse)) {
-      if (pulse < 60) {
-        recs.push({
-          title: "Low Pulse Alert",
-          text: `Your pulse (${pulse} BPM) is below normal range (60–100). This could indicate bradycardia. Consider consulting a doctor.`,
-          danger: true,
-        });
-      } else if (pulse > 100) {
-        recs.push({
-          title: "High Pulse Alert",
-          text: `Your pulse (${pulse} BPM) is above normal range (60–100). This could indicate tachycardia. Consider consulting a doctor.`,
-          danger: true,
-        });
-      } else {
-        recs.push({
-          title: "Pulse - Normal",
-          text: `Your pulse (${pulse} BPM) is within the normal range. Great job maintaining good cardiovascular health!`,
-        });
-      }
-    }
-
-    // Blood Pressure recommendations
-    const systolic = parseInt(data.blood_pressure);
-    if (!isNaN(systolic)) {
-      if (systolic < 90) {
-        recs.push({
-          title: "Low Blood Pressure Alert",
-          text: `Your systolic blood pressure (${systolic} mmHg) is low. This may cause dizziness or fatigue. Stay hydrated and consider consulting a doctor.`,
-          danger: true,
-        });
-      } else if (systolic > 140) {
-        recs.push({
-          title: "High Blood Pressure Alert",
-          text: `Your systolic blood pressure (${systolic} mmHg) is elevated. This increases cardiovascular risks. Please monitor regularly and consult a doctor.`,
-          danger: true,
-        });
-      } else if (systolic >= 120 && systolic <= 140) {
-        recs.push({
-          title: "Blood Pressure - Elevated",
-          text: `Your systolic blood pressure (${systolic} mmHg) is slightly elevated. Consider lifestyle changes like reducing salt intake and regular exercise.`,
-          danger: false,
-        });
-      } else {
-        recs.push({
-          title: "Blood Pressure - Optimal",
-          text: `Your systolic blood pressure (${systolic} mmHg) is in the optimal range. Keep up the healthy lifestyle!`,
-        });
-      }
-    }
-
-    // Temperature recommendations
-    const temperature = parseFloat(data.temperature);
-    if (!isNaN(temperature)) {
-      if (temperature < 36.0) {
-        recs.push({
-          title: "Low Body Temperature Alert",
-          text: `Your temperature (${temperature}°C) is below normal. This could indicate hypothermia. Stay warm and monitor for symptoms.`,
-          danger: true,
-        });
-      } else if (temperature > 37.5) {
-        recs.push({
-          title: "Fever Alert",
-          text: `Your temperature (${temperature}°C) indicates fever. Rest, stay hydrated, and consider seeking medical attention if it persists.`,
-          danger: true,
-        });
-      } else if (temperature > 37.2) {
-        recs.push({
-          title: "Slightly Elevated Temperature",
-          text: `Your temperature (${temperature}°C) is slightly elevated. Monitor it and stay hydrated.`,
-          danger: false,
-        });
-      } else {
-        recs.push({
-          title: "Temperature - Normal",
-          text: `Your temperature (${temperature}°C) is normal. Your body is maintaining good thermal regulation.`,
-        });
-      }
-    }
-
-    // BMI calculations and recommendations
-    const weight = parseFloat(data.weight);
-    const height = parseFloat(data.height);
-    if (!isNaN(weight) && !isNaN(height) && height > 0) {
-      const heightM = height / 100;
-      const bmi = weight / (heightM * heightM);
-
-      if (bmi < 18.5) {
-        recs.push({
-          title: "BMI - Underweight",
-          text: `Your BMI is ${bmi.toFixed(
-            1
-          )} (underweight). Consider consulting a nutritionist for a balanced diet plan to gain healthy weight.`,
-          danger: true,
-        });
-      } else if (bmi >= 18.5 && bmi < 25) {
-        recs.push({
-          title: "BMI - Healthy Weight",
-          text: `Your BMI is ${bmi.toFixed(
-            1
-          )} (healthy weight). You're maintaining an excellent weight for your height!`,
-        });
-      } else if (bmi >= 25 && bmi < 30) {
-        recs.push({
-          title: "BMI - Overweight",
-          text: `Your BMI is ${bmi.toFixed(
-            1
-          )} (overweight). Consider incorporating regular exercise and a balanced diet to achieve a healthier weight.`,
-          danger: false,
-        });
-      } else {
-        recs.push({
-          title: "BMI - Obesity Alert",
-          text: `Your BMI is ${bmi.toFixed(
-            1
-          )} (obese). This significantly increases health risks. Please consult a healthcare provider for a comprehensive weight management plan.`,
-          danger: true,
-        });
-      }
-    }
-
-    setRecommendations(recs);
-  };
-
   const handleSave = async () => {
     if (!validateForm()) {
       const errorMessages = Object.values(errors).filter((msg) => msg);
@@ -285,8 +155,7 @@ export default function HealthIndicators() {
     setLoading(true);
 
     try {
-      // Видаляємо невикористану змінну response і використовуємо деструктуризацію
-      const { data } = await updateHealthIndicators({
+      const response = await updateHealthIndicators({
         pulse: metrics.pulse ? Number(metrics.pulse) : null,
         blood_pressure: metrics.blood_pressure
           ? Number(metrics.blood_pressure)
@@ -296,24 +165,19 @@ export default function HealthIndicators() {
         height: metrics.height ? Number(metrics.height) : null,
       });
 
-      // Використовуємо data замість response
-      if (data.recommendations) {
-        setRecommendations(
-          data.recommendations.map((rec) => ({
-            title: "Рекомендація",
-            text: rec,
-            danger: /low|high|alert|fever|hypo|hyper/i.test(rec),
-          }))
-        );
-      } else {
-        generateAndSetRecommendations({
-          pulse: metrics.pulse,
-          blood_pressure: metrics.blood_pressure,
-          temperature: metrics.temperature,
-          weight: metrics.weight,
-          height: metrics.height,
-        });
-      }
+      console.log("API response:", response);
+
+      const data = response.data ?? response;
+      console.log("Extracted data:", data);
+
+      const recommendationsArray = data.recommendations || [];
+      setRecommendations(
+        recommendationsArray.map((rec) => ({
+          title: "Рекомендація",
+          text: rec,
+          danger: /low|high|alert|fever|hypo|hyper/i.test(rec),
+        }))
+      );
 
       setShowRecommendations(true);
 

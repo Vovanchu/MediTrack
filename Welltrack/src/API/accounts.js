@@ -130,7 +130,6 @@ export async function fetchRecords() {
   try {
     const response = await api.get("/services/events/");
 
-    // Additional check for 401 even after interceptor
     if (response.status === 401) {
       throw new Error("Unauthorized");
     }
@@ -138,13 +137,17 @@ export async function fetchRecords() {
     return response.data;
   } catch (error) {
     console.error("Error fetching records:", error);
-    throw error; // Re-throw for React Query to handle
+    throw error;
   }
 }
 
 // Додати новий запис (подію)
 export function addRecord(data) {
   return api.post("/services/events/", data);
+}
+
+export function deleteRecord(id) {
+  return api.delete(`/services/events/${id}/`);
 }
 
 /* ============== VACCINATIONS ============== */

@@ -18,150 +18,98 @@ export default function BloodDonation() {
   const [formData, setFormData] = useState({
     date: "",
     time: "",
-    notes: "",
+    center: "",
   });
   const [errors, setErrors] = useState({});
 
   const showAdviceModal = () => setIsModalOpen(true);
+
   const closeModal = () => {
     setIsModalOpen(false);
     setErrors({});
     setFormData({ center: "", date: "", time: "", notes: "" });
   };
 
-  const validateField = (name, value) => {
-    if (!value || value.trim() === "") {
-      switch (name) {
-        case "center":
-          return "Please select a donation center";
-        case "date":
-          return "Please select a date";
-        case "time":
-          return "Please select a time";
-        default:
-          return "";
-      }
-    }
-
-    if (name === "date") {
-      const selectedDate = new Date(value + "T00:00:00");
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (selectedDate < today) {
-        return "Date cannot be in the past";
-      }
-    }
-
-    if (name === "time") {
-      const [hours, minutes] = value.split(":").map(Number);
-      if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
-        return "Appointments are allowed only between 08:00 and 18:00";
-      }
-    }
-
-    return "";
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    setErrors((prev) => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: validateField(name, value),
+      [name]: value,
     }));
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    // Валідуємо тільки обов'язкові поля
-    const requiredFields = ["center", "date", "time"];
-    requiredFields.forEach((field) => {
-      const error = validateField(field, formData[field]);
-      if (error) newErrors[field] = error;
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      await Swal.fire({
-        icon: "error",
-        title: "Invalid input",
-        text: "Please fix the errors in the form before submitting.",
+    // Перевірка на порожні поля
+    if (!formData.date || !formData.time) {
+      Swal.fire({
+        icon: "warning",
+        title: "Помилка",
+        text: "Будь ласка, заповніть дату та час.",
       });
       return;
     }
 
-    // Підготовка даних для відправки на сервер
-    const record = {
+    if (!formData.center) {
+      Swal.fire({
+        icon: "warning",
+        title: "Помилка",
+        text: "Будь ласка, виберіть центр здачі крові.",
+      });
+      return;
+    }
+
+    // Перевірка на минуле
+    const selectedDateTime = new Date(`${formData.date}T${formData.time}`);
+    const now = new Date();
+
+    if (selectedDateTime < now) {
+      Swal.fire({
+        icon: "warning",
+        title: "Помилка",
+        text: "Не можна записатися на минулий час.",
+      });
+      return;
+    }
+
+    // Перевірка часу від 08:00 до 18:00
+    const [hours, minutes] = formData.time.split(":").map(Number);
+    if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Помилка",
+        text: "Можна записатися тільки між 08:00 та 18:00.",
+      });
+      return;
+    }
+
+    const payload = {
       start_date: formData.date,
       start_time: formData.time,
-      short_description: `Blood Donation at ${formData.center}${
-        formData.notes ? `. Notes: ${formData.notes}` : ""
-      }`,
-      // Якщо у вас є спеціальний ID для донорства крові, додайте його тут
-      // medical_specialty_id: BLOOD_DONATION_ID,
+      blood_donation: true,
+      short_description: `You have registered to donate blood at ${formData.center}`,
     };
 
+    console.log("Дані, які записуються в БД:", payload);
+
     try {
-      const response = await addRecord(record);
+      await addRecord(payload);
 
-      console.log("Backend response:", response);
+      Swal.fire({
+        icon: "success",
+        title: "Успіх!",
+        text: "Запис успішно додано.",
+      });
 
-      if (response && (response.status === 200 || response.status === 201)) {
-        await Swal.fire({
-          icon: "success",
-          title: "Donation Scheduled!",
-          html: `
-            <p><strong>Center:</strong> ${formData.center}</p>
-            <p><strong>Date:</strong> ${formData.date}</p>
-            <p><strong>Time:</strong> ${formData.time}</p>
-            ${
-              formData.notes
-                ? `<p><strong>Notes:</strong> ${formData.notes}</p>`
-                : ""
-            }
-          `,
-          confirmButtonText: "OK",
-          timer: 5000,
-        });
-
-        closeModal();
-      } else {
-        console.error("Unexpected response status:", response.status);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Unexpected response from server.",
-        });
-      }
+      setFormData({ date: "", time: "", center: "" });
     } catch (error) {
-      console.error("Failed to add blood donation appointment", error);
-      if (error.response && error.response.data) {
-        console.error("Server response data:", error.response.data);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          html: Object.entries(error.response.data)
-            .map(
-              ([key, val]) =>
-                `<p><strong>${key}:</strong> ${
-                  Array.isArray(val) ? val.join(", ") : val
-                }</p>`
-            )
-            .join(""),
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Could not schedule donation. Try again later.",
-        });
-      }
+      Swal.fire({
+        icon: "error",
+        title: "Помилка",
+        text: "Не вдалося додати запис.",
+      });
+      console.error("Error adding record:", error);
     }
   };
 
