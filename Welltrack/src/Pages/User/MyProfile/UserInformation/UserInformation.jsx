@@ -220,25 +220,25 @@ export default function UserInformation() {
       try {
         setLoading(true);
 
-        let updateData = {};
+        const formData = new FormData();
 
+        // Для секції left (особисті дані)
         if (section === "left") {
-          updateData = {
-            username: userData.username,
-            phone: normalizePhoneForAPI(userData.phone),
-            date_of_birth: userData.dateOfBirth,
-            sex: userData.sex,
-            country: userData.country,
-            city: userData.city,
-          };
-        } else if (section === "right") {
-          updateData = {
-            phone: normalizePhoneForAPI(userData.phone),
-            email: userData.email,
-          };
+          formData.append("username", userData.username);
+          formData.append("phone_number", normalizePhoneForAPI(userData.phone));
+          formData.append("birth_date", userData.dateOfBirth);
+          formData.append("sex", userData.sex);
+          formData.append("country", userData.country);
+          formData.append("city", userData.city);
         }
 
-        await updateMe(updateData);
+        // Для секції right (контактна інформація)
+        if (section === "right") {
+          formData.append("phone_number", normalizePhoneForAPI(userData.phone));
+          formData.append("email", userData.email);
+        }
+
+        await updateMe(formData); // використовуємо FormData для всіх оновлень
 
         Swal.fire({
           icon: "success",

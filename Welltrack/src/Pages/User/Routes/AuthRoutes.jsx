@@ -14,6 +14,9 @@ import ServicesPageSubpages from "./ServicesPageSubpages/ServicesPageSubpages.js
 import Home from "../Home/Home.jsx";
 import Services from "../ServicesPage/ServicesPage.jsx";
 import MyEvents from "../MyEvents/MyEvents.jsx";
+import PrivacyPolicy from "../PrivacyPolicy/PrivacyPolicy.jsx";
+import TermsOfService from "../TermsOfService/TermsOfService.jsx";
+import ComplianceStatements from "../ComplianceStatements/ComplianceStatements.jsx";
 
 export default function AuthRoutes() {
   return (
@@ -32,6 +35,12 @@ export default function AuthRoutes() {
         <Route path="/home" element={<Home />} />
         <Route path="/services" element={<Services />} />
         <Route path="/my-events" element={<MyEvents />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route
+          path="/compliance-statements"
+          element={<ComplianceStatements />}
+        />
       </Route>
     </Routes>
   );

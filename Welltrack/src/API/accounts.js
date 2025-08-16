@@ -3,36 +3,27 @@ import api from "./api";
 /* =================== AUTH =================== */
 
 // Реєстрація нового користувача
-export function registerUser(data) {
-  return api.post("/accounts/register/", data);
-}
+export const registerUser = (data) => api.post("/accounts/register/", data);
 
 // Вхід користувача
-export function loginUser(data) {
-  return api.post("/accounts/login/", data);
-}
+export const loginUser = (data) => api.post("/accounts/login/", data);
 
 // Вихід користувача
-export function logoutUser() {
-  return api.post("/accounts/logout/");
-}
+export const logoutUser = () => api.post("/accounts/logout/");
 
 // Перевірка токена
-export function verifyToken(token) {
-  return api.post("/accounts/token/verify/", { token });
-}
+export const verifyToken = (token) =>
+  api.post("/accounts/token/verify/", { token });
 
 /* ============ PASSWORD RECOVERY ============ */
 
 // Запит на скидання паролю
-export async function resetPassword(email) {
+export const resetPassword = async (email) => {
   const response = await fetch(
     "https://dr-reminder-backend-test.onrender.com/api/accounts/reset-password/",
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     }
   );
@@ -45,69 +36,50 @@ export async function resetPassword(email) {
   }
 
   return response.json();
-}
+};
 
 // Підтвердження скидання паролю
-export function resetPasswordConfirm(data) {
-  return api.post("/accounts/reset-password-confirm/", data);
-}
+export const resetPasswordConfirm = (data) =>
+  api.post("/accounts/reset-password-confirm/", data);
 
 /* ============== USER PROFILE ============== */
 
 // Отримати профіль користувача
-export function fetchProfile() {
-  return api.get("/accounts/profile/");
-}
+export const fetchProfile = () => api.get("/accounts/profile/");
 
-// Оновити або створити профіль
-export function updateOrCreateProfile(data) {
-  return api.post("/accounts/profile/", data);
-}
+// Створити або оновити профіль
+export const updateOrCreateProfile = (data) =>
+  api.post("/accounts/profile/", data);
 
 // Отримати поточного користувача
-export function fetchMe() {
+export const fetchMe = () => {
   const token = localStorage.getItem("accessToken");
   return api.get("/accounts/me/", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
   });
-}
+};
 
-// Оновити поточного користувача (часткове оновлення, включно з фото)
-export function updateMe(data) {
-  const formData = new FormData();
-
-  for (const key in data) {
-    if (data[key] !== null && data[key] !== undefined) {
-      formData.append(key, data[key]);
-    }
-  }
-
+// Часткове оновлення користувача з фото
+export const updateMe = (formData) => {
   return api.patch("/accounts/me/", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+    headers: { "Content-Type": "multipart/form-data" },
   });
-}
+};
 
-// Оновити поточного користувача (часткове оновлення, без фото)
-export function patchMe(data) {
-  return api.patch("/accounts/me/", data);
-}
+// Видалити фото профілю
+export const deleteProfileImage = () => {
+  return api.delete("/accounts/me/photo/");
+};
 
-// Отримати поточного користувача
-export function fetchHealthIndicators() {
-  return api.get("/accounts/health-indicators/");
-}
+/* ============== HEALTH INDICATORS ============== */
 
-// Оновити поточного користувача
+export const fetchHealthIndicators = () =>
+  api.get("/accounts/health-indicators/");
+
 export const updateHealthIndicators = async (data) => {
   try {
     const response = await api.post("/accounts/health-indicators/", data, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
     return response.data;
   } catch (error) {
@@ -116,50 +88,60 @@ export const updateHealthIndicators = async (data) => {
   }
 };
 
+/* ============== MEDICAL DOCUMENTS ================== */
+
+// Отримати всі медичні документи користувача
+export const fetchMedicalDocuments = () =>
+  api.get("/accounts/medical-documents/");
+
+// Додати новий медичний документ
+export const addMedicalDocument = (formData) =>
+  api.post("/accounts/medical-documents/", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+// Часткове оновлення документа
+export const updateMedicalDocument = (id, formData) =>
+  api.patch(`/accounts/medical-documents/${id}/`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+// Видалити медичний документ
+export const deleteMedicalDocument = (id) =>
+  api.delete(`/accounts/medical-documents/${id}/`);
+
 /* ============== SERVICES ================== */
 
 // Отримати список доступних сервісів
-export function fetchServices() {
-  return api.get("/services/");
-}
+export const fetchServices = () => api.get("/services/");
 
 /* ============== EVENTS ==================== */
 
-// Отримати всі записи подій (вакцинація, візити тощо)
-export async function fetchRecords() {
+// Отримати всі записи подій
+export const fetchRecords = async () => {
   try {
     const response = await api.get("/services/events/");
-
-    if (response.status === 401) {
-      throw new Error("Unauthorized");
-    }
-
+    if (response.status === 401) throw new Error("Unauthorized");
     return response.data;
   } catch (error) {
     console.error("Error fetching records:", error);
     throw error;
   }
-}
+};
 
-// Додати новий запис (подію)
-export function addRecord(data) {
-  return api.post("/services/events/", data);
-}
+// Додати нову подію
+export const addRecord = (data) => api.post("/services/events/", data);
 
-export function deleteRecord(id) {
-  return api.delete(`/services/events/${id}/`);
-}
+// Видалити подію
+export const deleteRecord = (id) => api.delete(`/services/events/${id}/`);
 
-/* ============== VACCINATIONS ============== */
+/* ============== VACCINATIONS ================== */
 
 // Отримати всі записи про вакцинацію
-export function fetchVaccinations() {
-  return api.get("/services/vaccinations/");
-}
+export const fetchVaccinations = () => api.get("/services/vaccinations/");
 
-/* ============== DOCTOR VISITS ============= */
+/* ============== DOCTOR VISITS ================== */
 
 // Отримати всі спеціальності лікарів
-export function fetchDoctorVisits() {
-  return api.get("/services/medical-specialties/");
-}
+export const fetchDoctorVisits = () =>
+  api.get("/services/medical-specialties/");

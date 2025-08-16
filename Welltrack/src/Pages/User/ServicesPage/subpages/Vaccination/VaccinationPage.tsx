@@ -8,9 +8,31 @@ import { fetchVaccinations, addRecord } from "../../../../../API/accounts";
 import NavBar from "../../../components/NavBar/NavBar";
 import Footer from "../../../components/Footer/Footer";
 
-function SimpleCalendar({ selectedDate, onChange }) {
-  const [month, setMonth] = useState(selectedDate.getMonth());
-  const [year, setYear] = useState(selectedDate.getFullYear());
+// ================= TYPES =================
+interface Vaccine {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  vaccine_info: string;
+}
+
+interface VaccinationRecord {
+  vaccination_id: number;
+  start_date: string; // YYYY-MM-DD
+  start_time: string; // HH:mm
+  short_description: string;
+}
+
+interface SimpleCalendarProps {
+  selectedDate: Date;
+  onChange: (date: Date) => void;
+}
+
+// ================= CALENDAR =================
+function SimpleCalendar({ selectedDate, onChange }: SimpleCalendarProps) {
+  const [month, setMonth] = useState<number>(selectedDate.getMonth());
+  const [year, setYear] = useState<number>(selectedDate.getFullYear());
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysArray = [...Array(daysInMonth).keys()].map((d) => d + 1);
@@ -29,7 +51,7 @@ function SimpleCalendar({ selectedDate, onChange }) {
     }
   }, [month, year, selectedDate, onChange]);
 
-  function selectDay(day) {
+  function selectDay(day: number) {
     const newDate = new Date(year, month, day);
     onChange(newDate);
   }
@@ -37,17 +59,18 @@ function SimpleCalendar({ selectedDate, onChange }) {
   function prevMonth() {
     if (month === 0) {
       setMonth(11);
-      setYear(year - 1);
+      setYear((prev) => prev - 1);
     } else {
-      setMonth(month - 1);
+      setMonth((prev) => prev - 1);
     }
   }
+
   function nextMonth() {
     if (month === 11) {
       setMonth(0);
-      setYear(year + 1);
+      setYear((prev) => prev + 1);
     } else {
-      setMonth(month + 1);
+      setMonth((prev) => prev + 1);
     }
   }
 
@@ -84,19 +107,20 @@ function SimpleCalendar({ selectedDate, onChange }) {
   );
 }
 
+// ================= MAIN PAGE =================
 export default function VaccinationPage() {
-  const [selectedVaccine, setSelectedVaccine] = useState(null);
+  const [selectedVaccine, setSelectedVaccine] = useState<Vaccine | null>(null);
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [selectedTime, setSelectedTime] = useState("10:00");
-  const [shortDescription, setShortDescription] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedTime, setSelectedTime] = useState<string>("10:00");
+  const [shortDescription, setShortDescription] = useState<string>("");
 
-  const [vaccinesFromDB, setVaccinesFromDB] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [vaccinesFromDB, setVaccinesFromDB] = useState<Vaccine[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const openModal = (vaccine) => {
+  const openModal = (vaccine: Vaccine) => {
     setSelectedVaccine(vaccine);
     setShortDescription("");
     setSelectedTime("10:00");
@@ -111,7 +135,7 @@ export default function VaccinationPage() {
     setShortDescription("");
   };
 
-  const handleAddEvent = async (e) => {
+  const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // === Валідація дати ===
@@ -149,8 +173,8 @@ export default function VaccinationPage() {
       return;
     }
 
-    const record = {
-      vaccination_id: selectedVaccine?.id,
+    const record: VaccinationRecord = {
+      vaccination_id: selectedVaccine?.id as number,
       start_date: selectedDate.toISOString().split("T")[0],
       start_time: selectedTime,
       short_description: shortDescription || "",
@@ -162,11 +186,13 @@ export default function VaccinationPage() {
         icon: "success",
         title: "Vaccination record added!",
         html: `
-          <p><strong>Vaccine:</strong> ${selectedVaccine.name}</p>
+          <p><strong>Vaccine:</strong> ${selectedVaccine?.title}</p>
           <p><strong>Date:</strong> ${record.start_date}</p>
           <p><strong>Time:</strong> ${record.start_time}</p>
           ${
-            record.notes ? `<p><strong>Notes:</strong> ${record.notes}</p>` : ""
+            record.short_description
+              ? `<p><strong>Notes:</strong> ${record.short_description}</p>`
+              : ""
           }
         `,
         confirmButtonText: "OK",
@@ -187,7 +213,7 @@ export default function VaccinationPage() {
     async function getVaccines() {
       try {
         const response = await fetchVaccinations();
-        setVaccinesFromDB(response.data);
+        setVaccinesFromDB(response.data as Vaccine[]);
       } catch (error) {
         console.error("Failed to fetch vaccines", error);
         Swal.fire({
@@ -227,7 +253,7 @@ export default function VaccinationPage() {
                   className="badge"
                   onClick={() => openModal(vaccine)}
                 >
-                  <strong>{vaccine.name}</strong>
+                  <strong>{vaccine.title}</strong>
                   <p>{vaccine.description?.substring(0, 60)}...</p>
                 </div>
               ))}
@@ -242,7 +268,7 @@ export default function VaccinationPage() {
             <ul>
               {vaccinesFromDB.map((v) => (
                 <li key={v.id}>
-                  <strong>{v.name}:</strong> {v.recommendedAge || "N/A"}
+                  <strong>{v.title}:</strong>
                 </li>
               ))}
             </ul>
@@ -256,16 +282,16 @@ export default function VaccinationPage() {
         {modalOpen && selectedVaccine && (
           <div className="modal-overlay" onClick={closeModal}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h3>{selectedVaccine.name}</h3>
+              <h3>{selectedVaccine.title}</h3>
               <p>{selectedVaccine.description}</p>
-              <p className="info">{selectedVaccine.info}</p>
+              <p className="info">{selectedVaccine.vaccine_info}</p>
 
               <form onSubmit={handleAddEvent} className="event-form">
                 <label>
                   Name of the event:
                   <input
                     type="text"
-                    value={`Vaccination against ${selectedVaccine.name}`}
+                    value={`Vaccination against ${selectedVaccine.title}`}
                     readOnly
                   />
                 </label>

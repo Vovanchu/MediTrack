@@ -1,74 +1,115 @@
 import React, { useState, useEffect } from "react";
 import { Upload, User, Trash2 } from "lucide-react";
-import { fetchMe, updateMe } from "../../../../API/accounts"; // імпортуємо API
+import Swal from "sweetalert2";
+import {
+  fetchMe,
+  updateMe,
+  deleteProfileImage,
+} from "../../../../API/accounts";
 import "./ProfileCard.scss";
 
 const ProfileCard = () => {
   const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const getUserData = async () => {
+    const loadUser = async () => {
       try {
         const { data } = await fetchMe();
-        setProfileImage(data.profile_image_url || null); // заміни на своє поле
+        updateProfileImage(data.image_profile);
       } catch (error) {
-        setProfileImage(null);
-        console.error("Failed to fetch user data", error);
+        console.error("Error loading user:", error);
+        Swal.fire(
+          "Помилка",
+          "Не вдалося завантажити дані користувача",
+          "error"
+        );
       }
     };
-
-    getUserData();
+    loadUser();
   }, []);
 
-  const handleImageUpload = async (e) => {
+  const updateProfileImage = (imageUrl) => {
+    if (imageUrl) {
+      setProfileImage(`${imageUrl}?t=${Date.now()}`);
+    } else {
+      setProfileImage(null);
+    }
+  };
+
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image_profile", file);
+
+    const tempUrl = URL.createObjectURL(file);
+    setProfileImage(tempUrl);
+
+    try {
+      await updateMe(formData);
+      const { data } = await fetchMe();
+      updateProfileImage(data.image_profile);
+      Swal.fire("Успіх", "Фото успішно завантажено", "success");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setProfileImage(tempUrl);
+      Swal.fire("Помилка", "Не вдалося завантажити фото", "error");
+    }
+  };
+
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
-      alert("Непідтримуваний формат. Завантажуйте лише PNG, JPG або JPEG.");
+      Swal.fire("Помилка", "Непідтримуваний формат. PNG, JPG, JPEG.", "error");
       return;
     }
-
     if (file.size > 8 * 1024 * 1024) {
-      alert("Файл перевищує 8MB. Будь ласка, оберіть менший файл.");
+      Swal.fire("Помилка", "Файл більше 8MB.", "error");
       return;
     }
 
     setLoading(true);
-
     try {
-      // Формуємо FormData з файлом
-      const formData = new FormData();
-      formData.append("profile_image", file); // ім'я поля уточни по API!
-
-      // Відправляємо PATCH запит з FormData
-      await updateMe(formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      // Оновлюємо локальний стан, щоб відобразити нове фото
-      const imageUrl = URL.createObjectURL(file);
-      setProfileImage(imageUrl);
-    } catch (error) {
-      alert("Помилка при завантаженні фото.");
-      console.error(error);
+      await uploadImage(file);
     } finally {
       setLoading(false);
+      e.target.value = "";
     }
   };
 
   const handleRemoveImage = async () => {
+    const result = await Swal.fire({
+      title: "Видалити фото профілю?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Так",
+      cancelButtonText: "Ні",
+    });
+
+    if (!result.isConfirmed) return;
+
     setLoading(true);
     try {
-      // Відправляємо PATCH з null або порожнім полем
-      await updateMe({ profile_image: null });
-
-      setProfileImage(null);
+      await deleteProfileImage();
+      updateProfileImage(null);
+      const { data } = await fetchMe();
+      setUserData(data);
+      Swal.fire("Успіх", "Фото видалено", "success");
     } catch (error) {
-      alert("Не вдалося видалити фото.");
-      console.error(error);
+      console.error("DELETE failed, trying fallback:", error);
+      try {
+        await updateMe({ image_profile: null });
+        updateProfileImage(null);
+        const { data } = await fetchMe();
+        setUserData(data);
+        Swal.fire("Успіх", "Фото видалено (fallback)", "success");
+      } catch (patchError) {
+        console.error("Fallback PATCH failed:", patchError);
+        Swal.fire("Помилка", "Не вдалося видалити фото", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -82,6 +123,8 @@ const ProfileCard = () => {
             className="avatar"
             style={{
               backgroundImage: profileImage ? `url(${profileImage})` : "none",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           >
             {!profileImage && (
@@ -94,37 +137,36 @@ const ProfileCard = () => {
           <div className="avatar-actions">
             <label
               htmlFor="profile-upload"
-              className="upload-btn"
-              aria-disabled={loading}
+              className={`upload-btn ${loading ? "disabled" : ""}`}
+              title="Upload new photo"
             >
               <Upload size={16} />
+              <input
+                id="profile-upload"
+                type="file"
+                accept="image/png,image/jpeg,image/jpg"
+                onChange={handleImageChange}
+                className="hidden-input"
+                disabled={loading}
+              />
             </label>
 
             {profileImage && (
               <button
                 onClick={handleRemoveImage}
                 className="remove-btn"
-                title="Видалити фото"
                 disabled={loading}
+                title="Remove photo"
               >
                 <Trash2 size={16} />
               </button>
             )}
           </div>
-
-          <input
-            id="profile-upload"
-            type="file"
-            accept="image/png, image/jpeg, image/jpg"
-            onChange={handleImageUpload}
-            className="hidden-input"
-            disabled={loading}
-          />
         </div>
 
         <div className="upload-info">
           <Upload size={16} className="icon" />
-          Upload images up to 8 MB (PNG, JPG, JPEG)
+          {loading ? "Uploading..." : "Max 8MB (PNG, JPG)"}
         </div>
       </div>
     </div>

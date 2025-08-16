@@ -10,15 +10,16 @@ const nav_links = [
 ];
 
 const legal_links = [
-  { label: "Privacy Policy", href: "/my-profile" },
-  { label: "Terms of Service", href: "/my-profile" },
+  { label: "Privacy Policy", href: "/privacy-policy" },
+  { label: "Terms of Service", href: "/terms-of-service" },
+  { label: "ComplianceStatements", href: "/compliance-statements" },
   { label: "Contact Us", href: "/my-profile" },
 ];
 
 function capitalizeWords(str = "") {
   return str
     .split(" ")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 }
 
@@ -26,7 +27,6 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
-
         {/* Сервісні посилання */}
         <div className="footer-section">
           <h4 className="footer-title">Our Services</h4>

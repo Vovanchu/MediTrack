@@ -1,0 +1,136 @@
+@use "@/styles/_mixins" as *;
+
+.terms-of-service {
+  padding: 60px 20px;
+  background: linear-gradient(to bottom, #dbeafe, #eef5ff);
+  font-family: "Arial", sans-serif;
+  color: #222;
+  line-height: 1.6;
+
+  .wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  h1 {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #2c3e50;
+  }
+
+  .effective-date {
+    text-align: center;
+    margin-bottom: 30px;
+    font-style: italic;
+    color: #666;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin: 25px 0 10px;
+    color: #34495e;
+  }
+
+  p {
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+
+  ul {
+    margin: 0 0 20px 20px;
+    padding-left: 20px;
+
+    li {
+      margin-bottom: 8px;
+      list-style: disc;
+    }
+  }
+
+  a {
+    color: #3498db;
+    text-decoration: none;
+
+    @include hover-large {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  // 🔹 Mobile-small (до 480px)
+  @include mobile-small {
+    .wrapper {
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+    }
+
+    p,
+    li {
+      font-size: 0.9rem;
+    }
+  }
+
+  // 🔹 Mobile-medium (481px - 600px)
+  @include mobile-medium {
+    .wrapper {
+      padding: 25px;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+
+  // 🔹 Tablet (601px - 900px)
+  @include tablet {
+    .wrapper {
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+    }
+  }
+
+  // 🔹 Laptop-small (901px - 1024px)
+  @include laptop-small {
+    h1 {
+      font-size: 2.3rem;
+    }
+  }
+
+  // 🔹 Laptop (1025px - 1440px)
+  @include laptop {
+    h1 {
+      font-size: 2.4rem;
+    }
+  }
+
+  // 🔹 Desktop-large (1441px+)
+  @include desktop-large {
+    .wrapper {
+      max-width: 1100px;
+      padding: 50px;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+    }
+  }
+}

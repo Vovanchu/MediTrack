@@ -13,8 +13,10 @@ export default function CompleteProfile() {
     sex: "male",
     country: "",
     city: "",
+    image_profile: null,
   });
 
+  const [previewImage, setPreviewImage] = useState(null);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
@@ -66,11 +68,18 @@ export default function CompleteProfile() {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setFormData((prev) => ({ ...prev, image_profile: file }));
+    setPreviewImage(URL.createObjectURL(file));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const validationErrors = validate();
-
     if (Object.keys(validationErrors).length > 0) {
       const errorList = Object.entries(validationErrors)
         .map(([key, msg]) => `${key}: ${msg}`)
@@ -81,12 +90,20 @@ export default function CompleteProfile() {
         title: "Validation Error",
         html: errorList,
       });
-
       return;
     }
 
     try {
-      await updateOrCreateProfile(formData);
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) {
+          formDataToSend.append(key, value);
+        }
+      });
+
+      await updateOrCreateProfile(formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       Swal.fire({
         icon: "success",
@@ -197,6 +214,19 @@ export default function CompleteProfile() {
             placeholder="City/Village"
           />
           {errors.city && <span className="error">{errors.city}</span>}
+        </label>
+
+        <label>
+          Profile Image
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+          {previewImage && (
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="image-preview"
+              width={120}
+            />
+          )}
         </label>
 
         <button type="submit">Save and Continue</button>

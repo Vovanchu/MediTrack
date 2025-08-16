@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 import DoctorVisits from "../../ServicesPage/subpages/DoctorVisits/DoctorVisits";
-import Vaccination from "../../ServicesPage/subpages/Vaccination/VaccinationPage";
+import Vaccination from "../../ServicesPage/subpages/Vaccination/VaccinationPage.tsx";
 import Analysis from "../../ServicesPage/subpages/Analysis/Analysis";
 import BloodDonation from "../../ServicesPage/subpages/BloodDonation/BloodDonation";
 import MedicationsPage from "../../ServicesPage/subpages/Taking Medications/Medications";

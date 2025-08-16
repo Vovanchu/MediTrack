@@ -77,6 +77,21 @@
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
     width: 100%;
 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .file-card.uploaded {
+      background: #eef6ff;
+    }
+
+    .file-card-download {
+      margin-left: 10px;
+      font-size: 18px;
+      color: #1890ff;
+      text-decoration: none;
+    }
+
     &-title {
       font-size: 2rem;
       margin-bottom: 1rem;
