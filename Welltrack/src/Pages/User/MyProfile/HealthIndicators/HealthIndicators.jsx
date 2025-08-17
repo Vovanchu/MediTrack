@@ -59,58 +59,58 @@ export default function HealthIndicators() {
     if (!value || value.toString().trim() === "") {
       switch (field) {
         case "pulse":
-          return "Будь ласка, введіть ваш пульс";
+          return "Please enter your pulse";
         case "blood_pressure":
-          return "Будь ласка, введіть ваш тиск";
+          return "Please enter your blood pressure";
         case "temperature":
-          return "Будь ласка, введіть вашу температуру";
+          return "Please enter your temperature";
         case "weight":
-          return "Будь ласка, введіть вашу вагу";
+          return "Please enter your weight";
         case "height":
-          return "Будь ласка, введіть ваш зріст";
+          return "Please enter your height";
         default:
-          return "Це поле обов'язкове для заповнення";
+          return "This field is required";
       }
     }
 
     switch (field) {
       case "pulse": {
         const pulseNum = Number(value);
-        if (isNaN(pulseNum)) return "Пульс має бути числом";
-        if (pulseNum < 30) return "Пульс не може бути менше 30 уд/хв";
-        if (pulseNum > 220) return "Пульс не може бути більше 220 уд/хв";
+        if (isNaN(pulseNum)) return "Pulse must be a number";
+        if (pulseNum < 30) return "Pulse cannot be less than 30 BPM"; // фізіологічний мінімум
+        if (pulseNum > 220) return "Pulse cannot be more than 220 BPM"; // max при екстримальних навантаженнях
         break;
       }
 
       case "blood_pressure": {
         const bpNum = Number(value);
-        if (isNaN(bpNum)) return "Тиск має бути числом";
-        if (bpNum < 50) return "Тиск не може бути менше 50 мм рт.ст.";
-        if (bpNum > 250) return "Тиск не може бути більше 250 мм рт.ст.";
+        if (isNaN(bpNum)) return "Blood pressure must be a number";
+        if (bpNum < 50) return "Blood pressure cannot be less than 50 mmHg";
+        if (bpNum > 250) return "Blood pressure cannot be more than 250 mmHg";
         break;
       }
 
       case "temperature": {
         const tempNum = Number(value);
-        if (isNaN(tempNum)) return "Температура має бути числом";
-        if (tempNum < 30) return "Температура не може бути нижчою за 30°C";
-        if (tempNum > 45) return "Температура не може бути вищою за 45°C";
+        if (isNaN(tempNum)) return "Temperature must be a number";
+        if (tempNum < 36.6) return "Temperature cannot be lower than 36.6°C"; // глибока гіпотермія
+        if (tempNum > 45) return "Temperature cannot be higher than 45°C"; // несумісна з життям
         break;
       }
 
       case "weight": {
         const weightNum = Number(value);
-        if (isNaN(weightNum)) return "Вага має бути числом";
-        if (weightNum < 20) return "Вага не може бути меншою за 20 кг";
-        if (weightNum > 300) return "Вага не може бути більшою за 300 кг";
+        if (isNaN(weightNum)) return "Weight must be a number";
+        if (weightNum < 20) return "Weight cannot be less than 20 kg";
+        if (weightNum > 300) return "Weight cannot be more than 300 kg";
         break;
       }
 
       case "height": {
         const heightNum = Number(value);
-        if (isNaN(heightNum)) return "Зріст має бути числом";
-        if (heightNum < 50) return "Зріст не може бути меншим за 50 см";
-        if (heightNum > 250) return "Зріст не може бути більшим за 250 см";
+        if (isNaN(heightNum)) return "Height must be a number";
+        if (heightNum < 50) return "Height cannot be less than 50 cm";
+        if (heightNum > 250) return "Height cannot be more than 250 cm";
         break;
       }
     }
@@ -134,19 +134,21 @@ export default function HealthIndicators() {
     });
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return { isValid: Object.keys(newErrors).length === 0, newErrors };
   };
 
   const handleSave = async () => {
-    if (!validateForm()) {
-      const errorMessages = Object.values(errors).filter((msg) => msg);
+    const { isValid, newErrors } = validateForm();
+
+    if (!isValid) {
+      const errorMessages = Object.values(newErrors).filter((msg) => msg);
       await Swal.fire({
         icon: "error",
-        title: "Помилки валідації",
+        title: "Validation Errors",
         html: `<div style="text-align: left;">
-        <p>Будь ласка, виправте наступні помилки:</p>
-        <ul>${errorMessages.map((msg) => `<li>${msg}</li>`).join("")}</ul>
-      </div>`,
+      <p>Please fix the following errors:</p>
+      <ul>${errorMessages.map((msg) => `<li>${msg}</li>`).join("")}</ul>
+    </div>`,
         confirmButtonColor: "#3b82f6",
       });
       return;
@@ -190,8 +192,8 @@ export default function HealthIndicators() {
 
       await Swal.fire({
         icon: "success",
-        title: "Дані збережено!",
-        text: "Ваші показники оновлено та рекомендації сформовано",
+        title: "Data Saved!",
+        text: "Your health indicators have been updated and recommendations generated",
         timer: 2000,
         showConfirmButton: false,
       });
@@ -210,7 +212,7 @@ export default function HealthIndicators() {
 
       await Swal.fire({
         icon: "error",
-        title: "Помилка",
+        title: "Error",
         text: errorMessage,
         confirmButtonColor: "#3b82f6",
       });

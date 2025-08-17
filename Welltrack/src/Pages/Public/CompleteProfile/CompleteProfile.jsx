@@ -25,8 +25,8 @@ export default function CompleteProfile() {
 
     if (!formData.username.trim()) {
       newErrors.username = "Username is required.";
-    } else if (formData.username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters.";
+    } else if (formData.username.length < 3 || formData.username.length > 25) {
+      newErrors.username = "Username must be between 3 and 25 characters.";
     }
 
     if (!formData.phone_number.trim()) {

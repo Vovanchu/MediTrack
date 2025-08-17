@@ -96,7 +96,14 @@ const validateFields = (data, section) => {
   const errors = {};
 
   if (section === "left") {
-    if (!data.username?.trim()) errors.username = "Username is required.";
+    if (!data.username?.trim()) {
+      errors.username = "Username is required.";
+    } else if (data.username.length < 3 || data.username.length > 25) {
+      errors.username = "Username must be between 3 and 25 characters.";
+    } else if (!/^[A-Za-zА-Яа-яІіЇїЄєҐґ]+$/.test(data.username)) {
+      errors.username = "Username can contain only letters.";
+    }
+    console.log(data.username, data.username.length);
 
     if (!data.phone?.trim()) {
       errors.phone = "Phone is required.";

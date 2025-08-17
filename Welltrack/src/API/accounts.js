@@ -159,7 +159,10 @@ export const fetchMedications = () =>
 export const deleteMedication = (id) =>
   api.delete(`/services/treatment-plans/${id}/`);
 
-/* ============== BLOOD PRESSURE ================== */
+/* ============== BLOOD DONATIONS ================== */
 
 export const fetchBloodCenters = () =>
   api.get("/services/donation-centers/").then((res) => res.data);
+
+export const addBloodService = (data) =>
+  api.post("/services/blood-donations/", data);
