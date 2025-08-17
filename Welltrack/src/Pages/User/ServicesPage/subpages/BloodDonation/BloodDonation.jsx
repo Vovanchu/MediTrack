@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import NavBar from "../../../components/NavBar/NavBar";
 import Footer from "../../../components/Footer/Footer";
 import "./BloodDonation.scss";
@@ -10,32 +10,35 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { addRecord } from "../../../../../API/accounts";
+import { addRecord, fetchBloodCenters } from "../../../../../API/accounts";
 
 export default function BloodDonation() {
   const [showDialogIndex, setShowDialogIndex] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    date: "",
-    time: "",
-    center: "",
-  });
+  const [centres, setCentres] = useState([]);
+  const [formData, setFormData] = useState({ center: "", date: "", time: "" });
   const [errors, setErrors] = useState({});
 
   const showAdviceModal = () => setIsModalOpen(true);
+
+  useEffect(() => {
+    fetchBloodCenters()
+      .then((data) => {
+        console.log("Fetched centres:", data);
+        setCentres(data);
+      })
+      .catch((err) => console.error("Error fetching centres:", err));
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setErrors({});
     setFormData({ center: "", date: "", time: "", notes: "" });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   const handleSubmit = async (e) => {
@@ -102,8 +105,13 @@ export default function BloodDonation() {
         text: "Запис успішно додано.",
       });
 
-      setFormData({ date: "", time: "", center: "" });
+      setFormData({ date: "", time: "", center: "", notes: "" });
+      setErrors({});
+      closeModal(); // Закриваємо модальне вікно після успішного додавання
     } catch (error) {
+      if (error.response?.data) {
+        setErrors(error.response.data);
+      }
       Swal.fire({
         icon: "error",
         title: "Помилка",
@@ -215,27 +223,15 @@ export default function BloodDonation() {
                     name="center"
                     value={formData.center}
                     onChange={handleChange}
-                    aria-invalid={!!errors.center}
-                    aria-describedby="center-error"
                     required
-                    className={errors.center ? "error" : ""}
                   >
-                    <option value="">Select a location</option>
-                    <option value="Red Cross Center - Downtown">
-                      Red Cross Center - Downtown
-                    </option>
-                    <option value="Community Blood Bank - Westside">
-                      Community Blood Bank - Westside
-                    </option>
-                    <option value="Hospital Blood Drive - Memorial">
-                      Hospital Blood Drive - Memorial
-                    </option>
+                    <option value="">Select a center</option>
+                    {centres.map((c) => (
+                      <option key={c.id} value={c.title}>
+                        {c.title} ({c.city})
+                      </option>
+                    ))}
                   </select>
-                  {errors.center && (
-                    <small id="center-error" className="error-msg">
-                      {errors.center}
-                    </small>
-                  )}
                 </label>
 
                 <label>

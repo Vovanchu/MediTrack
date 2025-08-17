@@ -158,3 +158,8 @@ export const fetchMedications = () =>
 // Видалити план за ID
 export const deleteMedication = (id) =>
   api.delete(`/services/treatment-plans/${id}/`);
+
+/* ============== BLOOD PRESSURE ================== */
+
+export const fetchBloodCenters = () =>
+  api.get("/services/donation-centers/").then((res) => res.data);
