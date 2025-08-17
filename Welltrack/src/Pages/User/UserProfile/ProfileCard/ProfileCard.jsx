@@ -17,7 +17,12 @@ const ProfileCard = () => {
     const loadUser = async () => {
       try {
         const { data } = await fetchMe();
-        updateProfileImage(data.image_profile);
+        setUserData(data); // зберігаємо дані користувача
+        if (data.image_profile) {
+          setProfileImage(`${data.image_profile}?t=${Date.now()}`);
+        } else {
+          setProfileImage(null);
+        }
       } catch (error) {
         console.error("Error loading user:", error);
         Swal.fire(
@@ -27,6 +32,7 @@ const ProfileCard = () => {
         );
       }
     };
+
     loadUser();
   }, []);
 

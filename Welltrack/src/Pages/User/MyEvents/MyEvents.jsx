@@ -19,7 +19,7 @@ const EVENT_TYPE_LABELS = {
   [EVENT_TYPES.VISIT]: "Doctor Visits",
   [EVENT_TYPES.VACCINATION]: "Vaccination",
   [EVENT_TYPES.ANALYSIS]: "Analysis & Tests",
-  [EVENT_TYPES.BLOOD_DONATION]: "Blood Donation",
+  [EVENT_TYPES.BLOOD_DONATION]: "Blood donation",
   [EVENT_TYPES.MEDICATION]: "Taking Medications",
 };
 
@@ -103,8 +103,12 @@ export default function EventsPage() {
     }
   };
 
-  // Filter events based on active filter
-  const filteredEvents = (data || []).filter((event) => {
+  const normalizedEvents = (data || []).map((event) => ({
+    ...event,
+    event_type: event.event_type.replace(" ", "_"),
+  }));
+
+  const filteredEvents = normalizedEvents.filter((event) => {
     if (activeFilter === "all") return true;
     return event.event_type === activeFilter;
   });
@@ -174,29 +178,23 @@ export default function EventsPage() {
             <div className="modal">
               <h3>Add New Event</h3>
               <form onSubmit={handleSubmit}>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  placeholder="Event Name"
-                  onChange={handleInputChange}
-                  required
-                />
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  placeholder="Event Description"
-                  onChange={handleInputChange}
-                />
-
                 <select
                   name="eventType"
                   value={formData.eventType}
                   onChange={handleInputChange}
                   className="event-type-select"
+                  required
                 >
+                  <option value="" disabled>
+                    Choose some types of events
+                  </option>
+
                   {Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>
+                    <option
+                      key={value}
+                      value={value === EVENT_TYPES.DEFAULT ? "" : value}
+                      disabled={value === EVENT_TYPES.DEFAULT}
+                    >
                       {label}
                     </option>
                   ))}
@@ -208,12 +206,6 @@ export default function EventsPage() {
                   value={formData.startDate}
                   onChange={handleInputChange}
                   required
-                />
-                <input
-                  type="date"
-                  name="finishDate"
-                  value={formData.finishDate}
-                  onChange={handleInputChange}
                 />
                 <input
                   type="time"
