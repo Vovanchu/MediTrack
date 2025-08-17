@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import BtnBack from "../../components/ui/BtnBack/BtnBack";
 import NavBar from "../../components/NavBar/NavBar";
+import Footer from "../../components/Footer/Footer";
 import {
   fetchMedicalDocuments,
   addMedicalDocument,
+  deleteMedicalDocument,
 } from "../../../../API/accounts";
 import "./MedicalDocuments.scss";
 
@@ -13,6 +15,15 @@ export default function MedicalDocuments() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const allowedTypes = [
+    "image/png",
+    "application/pdf",
+    "application/x-pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-word.document.macroEnabled.12",
+  ];
 
   useEffect(() => {
     const loadDocuments = async () => {
@@ -27,26 +38,38 @@ export default function MedicalDocuments() {
     loadDocuments();
   }, []);
 
+  // Для input
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    addFiles(files);
+    addFiles(Array.from(e.target.files));
   };
 
   const addFiles = (files) => {
-    const validFiles = files.filter((file) => {
-      const isValidType = [
-        "image/png",
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ].includes(file.type);
+    const newValidFiles = [];
+
+    files.forEach((file) => {
+      // Перевірка MIME
+      const isValidType = allowedTypes.includes(file.type);
+
+      // Перевірка розміру
       const isValidSize = file.size <= 8 * 1024 * 1024; // 8MB
-      if (!isValidType)
+
+      // Перевірка дубліката
+      const isDuplicate = selectedFiles.some((f) => f.name === file.name);
+
+      if (!isValidType) {
         Swal.fire("Error", `Непідтримуваний формат: ${file.name}`, "error");
-      if (!isValidSize)
+      } else if (!isValidSize) {
         Swal.fire("Error", `Файл перевищує 8MB: ${file.name}`, "error");
-      return isValidType && isValidSize;
+      } else if (isDuplicate) {
+        Swal.fire("Warning", `Файл вже доданий: ${file.name}`, "warning");
+      } else {
+        newValidFiles.push(file);
+      }
     });
-    setSelectedFiles((prev) => [...prev, ...validFiles]);
+
+    if (newValidFiles.length > 0) {
+      setSelectedFiles((prev) => [...prev, ...newValidFiles]);
+    }
   };
 
   const removeFile = (indexToRemove) => {
@@ -65,11 +88,11 @@ export default function MedicalDocuments() {
     setIsDragOver(false);
   };
 
+  // Для drag-and-drop
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragOver(false);
-    const files = Array.from(e.dataTransfer.files);
-    addFiles(files);
+    addFiles(Array.from(e.dataTransfer.files));
   };
 
   const formatFileSize = (bytes) => {
@@ -91,23 +114,48 @@ export default function MedicalDocuments() {
     if (selectedFiles.length === 0) return;
 
     setLoading(true);
-    try {
-      for (const file of selectedFiles) {
-        const formData = new FormData();
-        formData.append("title", file.name);
-        formData.append("file", file);
-        await addMedicalDocument(formData);
+    const successFiles = [];
+    const failedFiles = [];
+
+    for (const file of selectedFiles) {
+      const formData = new FormData();
+      formData.append("title", file.name);
+      formData.append("file", file);
+
+      try {
+        const response = await addMedicalDocument(formData);
+        successFiles.push(file.name);
+        console.log("Uploaded:", response.data);
+      } catch (error) {
+        console.error("Upload error for", file.name, error.message);
+        failedFiles.push(file.name);
       }
-      Swal.fire("Success", "Файли успішно завантажені", "success");
-      setSelectedFiles([]);
+    }
+
+    let message = "";
+    if (successFiles.length > 0) {
+      message += `Successfully uploaded: ${successFiles.join(", ")}. `;
+    }
+    if (failedFiles.length > 0) {
+      message += `Failed to upload: ${failedFiles.join(", ")}.`;
+    }
+
+    Swal.fire(
+      "Upload Result",
+      message,
+      failedFiles.length > 0 ? "warning" : "success"
+    );
+
+    // Оновити стан
+    setSelectedFiles([]);
+    try {
       const { data } = await fetchMedicalDocuments();
       setUploadedFiles(data);
-    } catch (error) {
-      console.error("Upload error:", error.response?.data || error.message);
-      Swal.fire("Error", "Не вдалося завантажити файли", "error");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching updated documents:", err);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -225,50 +273,84 @@ export default function MedicalDocuments() {
 
             {uploadedFiles.length > 0 && (
               <div className="section-medicaldocuments_uploaded">
-                <h3 className="section-medicaldocuments_uploaded-title">
+                <h3 className="uploaded-title">
                   Uploaded Documents ({uploadedFiles.length})
                 </h3>
-
-                <div className="section-medicaldocuments_uploaded-grid">
-                  {uploadedFiles.map((doc) => {
-                    const fileType =
-                      typeof doc.file_type === "string" ? doc.file_type : "";
-                    const fileSize = doc.file_size || 0;
-                    const fileUrl = doc.file_url || "#";
-
-                    return (
-                      <div key={doc.id} className="file-card uploaded">
-                        <div className="file-card-icon">
-                          {getFileIcon(fileType)}
-                        </div>
-                        <div className="file-card-info">
-                          <p className="file-card-name">
-                            {doc.file_name || "Unnamed file"}
+                <div className="uploaded-grid">
+                  {uploadedFiles.map((doc) => (
+                    <div key={doc.id} className="uploaded-card">
+                      <div className="uploaded-card-icon">
+                        {doc.file?.includes(".pdf")
+                          ? "📄"
+                          : doc.file?.includes(".docx")
+                          ? "📝"
+                          : "🖼️"}
+                      </div>
+                      <div className="uploaded-card-info">
+                        <p className="uploaded-card-name">
+                          {doc.title || "Unnamed file"}
+                        </p>
+                        {doc.uploaded_at && (
+                          <p className="uploaded-card-date">
+                            Uploaded:{" "}
+                            {new Date(doc.uploaded_at).toLocaleDateString()}{" "}
+                            {new Date(doc.uploaded_at).toLocaleTimeString()}
                           </p>
-                          {fileType && fileType.includes("/") && (
-                            <p className="file-card-type">
-                              {fileType.split("/")[1].toUpperCase()}
-                            </p>
-                          )}
-                          {fileSize > 0 && (
-                            <p className="file-card-size">
-                              {formatFileSize(fileSize)}
-                            </p>
-                          )}
-                        </div>
-                        {fileUrl !== "#" && (
+                        )}
+                      </div>
+                      <div className="uploaded-card-actions">
+                        {doc.file && (
                           <a
-                            href={fileUrl}
+                            href={doc.file}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="file-card-download"
+                            className="download-btn"
+                            title="Download"
                           >
                             ⬇️
                           </a>
                         )}
+                        <button
+                          className="delete-btn"
+                          onClick={async () => {
+                            const confirm = await Swal.fire({
+                              icon: "warning",
+                              title: "Delete Document",
+                              text: "Are you sure you want to delete this document?",
+                              showCancelButton: true,
+                              confirmButtonText: "Yes, delete",
+                              cancelButtonText: "Cancel",
+                            });
+                            if (confirm.isConfirmed) {
+                              try {
+                                await deleteMedicalDocument(doc.id);
+                                Swal.fire(
+                                  "Deleted!",
+                                  "Document has been deleted.",
+                                  "success"
+                                );
+                                const { data } = await fetchMedicalDocuments();
+                                setUploadedFiles(data);
+                              } catch (error) {
+                                console.error(
+                                  "Error deleting document:",
+                                  error
+                                );
+                                Swal.fire(
+                                  "Error",
+                                  "Не вдалося видалити документ",
+                                  "error"
+                                );
+                              }
+                            }
+                          }}
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

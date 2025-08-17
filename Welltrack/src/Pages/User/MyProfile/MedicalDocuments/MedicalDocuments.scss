@@ -76,21 +76,9 @@
     padding: 3rem 2.5rem;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
     width: 100%;
-
     display: flex;
     flex-direction: column;
     gap: 10px;
-
-    .file-card.uploaded {
-      background: #eef6ff;
-    }
-
-    .file-card-download {
-      margin-left: 10px;
-      font-size: 18px;
-      color: #1890ff;
-      text-decoration: none;
-    }
 
     &-title {
       font-size: 2rem;
@@ -195,7 +183,6 @@
     }
   }
 
-  // Нові стилі для відображення файлів
   &_files {
     margin-top: 2rem;
     padding: 2rem;
@@ -252,7 +239,7 @@
       align-items: center;
       gap: 1rem;
       flex: 1;
-      min-width: 0; // для правильного truncate
+      min-width: 0;
     }
 
     .file-icon {
@@ -371,20 +358,117 @@
       }
     }
   }
-}
 
-// Анімації
-@keyframes fileAppear {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  // Анімації
+  @keyframes fileAppear {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-.section-medicaldocuments_file-item {
-  animation: fileAppear 0.3s ease;
+  .section-medicaldocuments_file-item {
+    animation: fileAppear 0.3s ease;
+  }
+
+  // ------------------------
+  // Секція завантажених файлів (новий стиль)
+  // ------------------------
+  &_uploaded {
+    margin-top: 3rem;
+
+    .uploaded-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #1e293b;
+      text-align: center;
+    }
+
+    .uploaded-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+
+      @include mobile-small {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .uploaded-card {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      position: relative;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .uploaded-card-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      .uploaded-card-info {
+        text-align: center;
+
+        .uploaded-card-name {
+          font-weight: 600;
+          font-size: 1.1rem;
+          color: #0f172a;
+          margin-bottom: 0.25rem;
+          word-break: break-word;
+        }
+
+        .uploaded-card-date {
+          font-size: 0.85rem;
+          color: #6b7280;
+        }
+      }
+
+      .uploaded-card-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.75rem;
+
+        .download-btn,
+        .delete-btn {
+          padding: 0.5rem 0.75rem;
+          font-size: 1.2rem;
+          border-radius: 0.5rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .download-btn {
+          background-color: #3b82f6;
+          color: #fff;
+
+          &:hover {
+            background-color: #2563eb;
+          }
+        }
+
+        .delete-btn {
+          background-color: #f87171;
+          color: #fff;
+
+          &:hover {
+            background-color: #ef4444;
+          }
+        }
+      }
+    }
+  }
 }

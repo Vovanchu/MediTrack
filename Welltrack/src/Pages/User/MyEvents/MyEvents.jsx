@@ -12,7 +12,6 @@ const EVENT_TYPES = {
   VACCINATION: "vaccination",
   ANALYSIS: "analysis_test",
   BLOOD_DONATION: "blood_donation",
-  MEDICATION: "medication",
 };
 
 const EVENT_TYPE_LABELS = {
@@ -20,7 +19,6 @@ const EVENT_TYPE_LABELS = {
   [EVENT_TYPES.VACCINATION]: "Vaccination",
   [EVENT_TYPES.ANALYSIS]: "Analysis & Tests",
   [EVENT_TYPES.BLOOD_DONATION]: "Blood donation",
-  [EVENT_TYPES.MEDICATION]: "Taking Medications",
 };
 
 export default function EventsPage() {
@@ -111,6 +109,12 @@ export default function EventsPage() {
   const filteredEvents = normalizedEvents.filter((event) => {
     if (activeFilter === "all") return true;
     return event.event_type === activeFilter;
+  });
+
+  const sortedEvents = filteredEvents.slice().sort((a, b) => {
+    const dateA = new Date(`${a.start_date}T${a.start_time || "00:00"}`);
+    const dateB = new Date(`${b.start_date}T${b.start_time || "00:00"}`);
+    return dateA - dateB; // зростання
   });
 
   const handleDelete = (id) => {
@@ -239,46 +243,37 @@ export default function EventsPage() {
           <p>No events found for this filter.</p>
         ) : (
           <ul className="event-list">
-            {filteredEvents
-              .slice()
-              .reverse()
-              .map((event) => (
-                <li key={event.id} className="event-item">
-                  <div className="event-header">
-                    <h3 className="event-title">{event.name || "Untitled"}</h3>
-                    <span className="event-date-time">
-                      {event.start_date || "no date specified"}
-                      {event.start_time && `, ${event.start_time.slice(0, 5)}`}
-                    </span>
+            {sortedEvents.map((event) => (
+              <li key={event.id} className="event-item">
+                <div className="event-header">
+                  <h3 className="event-title">{event.name || "Untitled"}</h3>
+                  <span className="event-date-time">
+                    {event.start_date || "no date specified"}
+                    {event.start_time && `, ${event.start_time.slice(0, 5)}`}
+                  </span>
+                </div>
+                <div className="event-type-badge">
+                  {EVENT_TYPE_LABELS[event.event_type] || "Other"}
+                </div>
+                {event.medical_specialty && (
+                  <div className="event-specialty">
+                    <span>Specialty: </span>
+                    <strong>
+                      {event.medical_specialty.title || event.name}
+                    </strong>
                   </div>
-
-                  <div className="event-type-badge">
-                    {EVENT_TYPE_LABELS[event.event_type] || "Other"}
-                  </div>
-
-                  {event.medical_specialty && (
-                    <div className="event-specialty">
-                      <span>Specialty: </span>
-                      <strong>
-                        {event.medical_specialty.title || event.name}
-                      </strong>
-                    </div>
-                  )}
-
-                  {event.short_description && (
-                    <p className="event-description">
-                      {event.short_description}
-                    </p>
-                  )}
-
-                  <button
-                    className="btn-delete-event"
-                    onClick={() => handleDelete(event.id)}
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
+                )}
+                {event.short_description && (
+                  <p className="event-description">{event.short_description}</p>
+                )}
+                <button
+                  className="btn-delete-event"
+                  onClick={() => handleDelete(event.id)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
           </ul>
         )}
       </div>

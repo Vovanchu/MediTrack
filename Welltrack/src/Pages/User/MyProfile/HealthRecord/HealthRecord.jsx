@@ -23,7 +23,6 @@ const recordTypes = [
   { value: "vaccination", label: "Vaccination" },
   { value: "analysis", label: "Analysis & Tests" },
   { value: "blood_donation", label: "Blood Donation" },
-  { value: "medication", label: "Taking Medications" },
 ];
 
 const iconsMap = {
@@ -31,7 +30,6 @@ const iconsMap = {
   vaccination: <Syringe className="icon-green" />,
   analysis: <Activity className="icon-purple" />,
   blood_donation: <Activity className="icon-red" />,
-  medication: <Pill className="icon-orange" />,
   all: <FileText className="icon-gray" />,
 };
 
@@ -40,7 +38,6 @@ const colorsMap = {
   vaccination: "badge-green",
   analysis: "badge-purple",
   blood_donation: "badge-red",
-  medication: "badge-orange",
 };
 
 export default function HealthRecord() {
@@ -65,7 +62,6 @@ export default function HealthRecord() {
     const name = record.name?.toLowerCase() || "";
     if (name.includes("analysis") || name.includes("test")) return "analysis";
     if (name.includes("blood")) return "blood_donation";
-    if (name.includes("medication")) return "medication";
 
     return "other"; // fallback
   };
@@ -105,13 +101,6 @@ export default function HealthRecord() {
         return (
           <p className="record-provider">
             <strong>Blood Donation:</strong> {record.center_name || "—"}
-          </p>
-        );
-
-      case "medication":
-        return (
-          <p className="record-provider">
-            <strong>Medication:</strong> {record.medication_name || "—"}
           </p>
         );
 

@@ -145,3 +145,16 @@ export const fetchVaccinations = () => api.get("/services/vaccinations/");
 // Отримати всі спеціальності лікарів
 export const fetchDoctorVisits = () =>
   api.get("/services/medical-specialties/");
+
+/* ============== TREATMENT PLANS ================== */
+
+// accounts.js
+export const addMedication = (data) =>
+  api.post("/services/treatment-plans/", data);
+
+export const fetchMedications = () =>
+  api.get("/services/treatment-plans/").then((res) => res.data);
+
+// Видалити план за ID
+export const deleteMedication = (id) =>
+  api.delete(`/services/treatment-plans/${id}/`);
