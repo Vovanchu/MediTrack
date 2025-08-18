@@ -1,4 +1,5 @@
 @use "@/styles/mixins" as *;
+@use "sass:color";
 
 .analysis {
   font-family: Arial, sans-serif;
@@ -169,18 +170,36 @@
         color: #e74c3c;
       }
 
-      button[type="submit"] {
+      .btn--primary {
         background-color: #5e72e4;
         color: white;
         padding: 0.75rem 1.5rem;
-        font-weight: 600;
         border-radius: 6px;
         border: none;
         cursor: pointer;
+        font-weight: 600;
         transition: background-color 0.3s ease;
 
         &:hover {
           background-color: #4a60d1;
+        }
+      }
+
+      .btn--outline {
+        background-color: transparent;
+        color: #5e72e4;
+        border: 2px solid #5e72e4;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin-left: 1rem;
+
+        &:hover {
+          background-color: #e0e7ff;
+          color: #4a60d1;
+          border-color: #4a60d1;
         }
       }
     }
@@ -246,15 +265,19 @@
         div {
           display: flex;
           flex-direction: column;
+          align-items: flex-start; // Вирівнювання по лівому краю
 
           h3 {
             margin: 0 0 0.25rem 0;
+            text-align: left; // Назва ліворуч
           }
+
           p {
             margin: 0;
             font-weight: 400;
             font-size: 0.9rem;
             color: #6c757d;
+            text-align: left; // Опис ліворуч
           }
         }
 
@@ -277,19 +300,20 @@
       }
 
       &__content {
-        padding: 1.5rem 2rem; // Збільшено падінги
-        border: 1px solid #ccc; // Додано бордер навколо
-        border-top: none; // Бордер зверху прибрано (щоб не дублювався з header)
-        border-radius: 0 0 6px 6px; // Заокруглення тільки знизу
-        background-color: #ffffff; // Щоб фон залишався білим
-        max-width: 100%; // Максимальна ширина
-        box-sizing: border-box; // Щоб падінги враховувалися у ширину
+        padding: 1.5rem 2rem;
+        border: 1px solid #ccc;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        background-color: #ffffff;
+        max-width: 100%;
+        box-sizing: border-box;
 
         h4 {
           margin-top: 0;
           margin-bottom: 0.75rem;
           font-weight: 600;
           color: #333;
+          text-align: left; // Заголовок також ліворуч
         }
 
         ul {
@@ -299,7 +323,8 @@
 
           li {
             display: flex;
-            align-items: center;
+            align-items: flex-start; // Вирівнюємо блоки по верхньому лівому краю
+            gap: 0.5rem;
             margin-bottom: 0.5rem;
             color: #555;
             font-size: 0.9rem;
@@ -310,7 +335,21 @@
               height: 8px;
               background-color: #5e72e4;
               border-radius: 50%;
-              margin-right: 0.75rem;
+              margin-top: 0.4rem; // Піднімаємо точку до центру тексту
+            }
+
+            div {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start; // Лівий край
+            }
+
+            strong {
+              display: block;
+            }
+
+            p {
+              margin: 0;
             }
           }
         }
@@ -336,6 +375,80 @@
           &:hover {
             background-color: #4a60d1;
           }
+        }
+      }
+    }
+  }
+}
+
+.analysis__tests {
+  margin-top: 3rem;
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+
+  .no-tests {
+    font-size: 1rem;
+    color: #888;
+    text-align: center;
+    padding: 1rem 0;
+  }
+
+  .tests-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+
+    .test-item {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s, box-shadow 0.2s;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #111;
+      }
+
+      p {
+        font-size: 0.95rem;
+        color: #555;
+        margin-bottom: 1rem;
+        flex-grow: 1;
+      }
+
+      .btn--schedule {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        font-size: 0.95rem;
+        padding: 0.55rem 1rem;
+        border-radius: 8px;
+        transition: background 0.2s;
+
+        &:hover {
+          background: color.adjust(#3b82f6, $lightness: -8%);
+        }
+
+        .icon {
+          stroke-width: 2;
         }
       }
     }

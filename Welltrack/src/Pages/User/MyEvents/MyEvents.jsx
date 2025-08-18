@@ -1,8 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Swal from "sweetalert2";
-import { fetchRecords, addRecord, deleteRecord } from "../../../API/accounts";
+import { fetchRecords, deleteRecord } from "../../../API/accounts";
 import "./MyEvents.scss";
+
+// Function to fetch service details by ID
+const fetchServiceById = async (serviceId) => {
+  try {
+    const response = await fetch(`/api/services/events/${serviceId}/`);
+    if (!response.ok) throw new Error("Service not found");
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch service ${serviceId}:`, error);
+    return null;
+  }
+};
 
 import NavBar from "../components/NavBar/NavBar";
 import Footer from "../components/Footer/Footer";
@@ -32,16 +44,36 @@ export default function EventsPage() {
   });
 
   const [activeFilter, setActiveFilter] = useState("all");
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    startDate: "",
-    finishDate: "",
-    startTime: "",
-    eventType: EVENT_TYPES.VISIT,
-  });
 
-  const [showModal, setShowModal] = useState(false);
+  const [serviceDetails, setServiceDetails] = useState({});
+
+  useEffect(() => {
+    const fetchServiceDetails = async () => {
+      if (!data) return;
+
+      const bloodDonationEvents = data.filter(
+        (event) => event.event_type === EVENT_TYPES.BLOOD_DONATION
+      );
+
+      const serviceIds = [
+        ...new Set(bloodDonationEvents.map((e) => e.service)),
+      ];
+      const newServiceDetails = {};
+
+      for (const serviceId of serviceIds) {
+        if (serviceId && !serviceDetails[serviceId]) {
+          const service = await fetchServiceById(serviceId);
+          if (service) newServiceDetails[serviceId] = service;
+        }
+      }
+
+      if (Object.keys(newServiceDetails).length > 0) {
+        setServiceDetails((prev) => ({ ...prev, ...newServiceDetails }));
+      }
+    };
+
+    fetchServiceDetails();
+  }, [data]);
 
   useEffect(() => {
     if (error?.response?.status === 401) {
@@ -55,56 +87,33 @@ export default function EventsPage() {
     }
   }, [error]);
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const normalizedEvents = (data || []).map((event) => {
+    let displayTitle = event.name;
+    let details = null;
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const newEvent = {
-      name: formData.name,
-      description: formData.description,
-      start_date: formData.startDate,
-      finish_date: formData.finishDate,
-      start_time: formData.startTime,
-      event_type: formData.eventType,
-      medical_specialty: formData.id || null,
-      completed: false,
-    };
-
-    try {
-      await addRecord(newEvent);
-
-      Swal.fire({
-        icon: "success",
-        title: "Event saved successfully!",
-        showConfirmButton: false,
-        timer: 2000,
-      });
-
-      setFormData({
-        name: "",
-        description: "",
-        startDate: "",
-        finishDate: "",
-        startTime: "",
-        eventType: EVENT_TYPES.VISIT,
-      });
-      setShowModal(false);
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Failed to save event!",
-      });
+    switch (event.event_type) {
+      case EVENT_TYPES.VISIT:
+        details = event.medical_specialty ?? null;
+        break;
+      case EVENT_TYPES.VACCINATION:
+        displayTitle = event.vaccination?.title || event.name;
+        details = event.vaccination ?? null;
+        break;
+      case EVENT_TYPES.BLOOD_DONATION:
+        displayTitle = event.service?.title || event.name;
+        details = event.donation_center ?? null;
+        break;
+      default:
+        break;
     }
-  };
 
-  const normalizedEvents = (data || []).map((event) => ({
-    ...event,
-    event_type: event.event_type.replace(" ", "_"),
-  }));
+    return {
+      ...event,
+      event_type: event.event_type?.replace(" ", "_").toLowerCase(),
+      displayTitle,
+      details,
+    };
+  });
 
   const filteredEvents = normalizedEvents.filter((event) => {
     if (activeFilter === "all") return true;
@@ -173,67 +182,6 @@ export default function EventsPage() {
           ))}
         </div>
 
-        <button className="btn-open-modal" onClick={() => setShowModal(true)}>
-          Add Event
-        </button>
-
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h3>Add New Event</h3>
-              <form onSubmit={handleSubmit}>
-                <select
-                  name="eventType"
-                  value={formData.eventType}
-                  onChange={handleInputChange}
-                  className="event-type-select"
-                  required
-                >
-                  <option value="" disabled>
-                    Choose some types of events
-                  </option>
-
-                  {Object.entries(EVENT_TYPE_LABELS).map(([value, label]) => (
-                    <option
-                      key={value}
-                      value={value === EVENT_TYPES.DEFAULT ? "" : value}
-                      disabled={value === EVENT_TYPES.DEFAULT}
-                    >
-                      {label}
-                    </option>
-                  ))}
-                </select>
-
-                <input
-                  type="date"
-                  name="startDate"
-                  value={formData.startDate}
-                  onChange={handleInputChange}
-                  required
-                />
-                <input
-                  type="time"
-                  name="startTime"
-                  value={formData.startTime}
-                  onChange={handleInputChange}
-                />
-                <div className="modal-buttons">
-                  <button type="submit" className="btn-save">
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    className="btn-cancel"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
         {/* Events display */}
         {isLoading ? (
           <p>Loading events...</p>
@@ -242,38 +190,69 @@ export default function EventsPage() {
         ) : filteredEvents.length === 0 ? (
           <p>No events found for this filter.</p>
         ) : (
-          <ul className="event-list">
-            {sortedEvents.map((event) => (
-              <li key={event.id} className="event-item">
-                <div className="event-header">
-                  <h3 className="event-title">{event.name || "Untitled"}</h3>
-                  <span className="event-date-time">
-                    {event.start_date || "no date specified"}
-                    {event.start_time && `, ${event.start_time.slice(0, 5)}`}
-                  </span>
-                </div>
-                <div className="event-type-badge">
-                  {EVENT_TYPE_LABELS[event.event_type] || "Other"}
-                </div>
-                {event.medical_specialty && (
-                  <div className="event-specialty">
-                    <span>Specialty: </span>
-                    <strong>
-                      {event.medical_specialty.title || event.name}
-                    </strong>
+          <ul className="events-list">
+            {sortedEvents.map((event) => {
+              const dateTime = `${event.start_date || "No date"}${
+                event.start_time ? `, ${event.start_time.slice(0, 5)}` : ""
+              }`;
+
+              return (
+                <li key={event.id} className="event-item">
+                  {/* Заголовок + дата */}
+                  <div className="event-header">
+                    <h4 className="event-title">{event.displayTitle}</h4>
+                    <span className="event-date">{dateTime}</span>
                   </div>
-                )}
-                {event.short_description && (
-                  <p className="event-description">{event.short_description}</p>
-                )}
-                <button
-                  className="btn-delete-event"
-                  onClick={() => handleDelete(event.id)}
-                >
-                  Delete
-                </button>
-              </li>
-            ))}
+
+                  {/* Тип */}
+                  <div
+                    className={`event-badge event-badge--${event.event_type}`}
+                  >
+                    {EVENT_TYPE_LABELS[event.event_type] || "Other"}
+                  </div>
+
+                  {/* Деталі */}
+                  <div className="event-details">
+                    {event.event_type === EVENT_TYPES.VISIT &&
+                      event.medical_specialty && (
+                        <div>
+                          <strong>Specialty:</strong>{" "}
+                          {event.medical_specialty.title}
+                          <p>{event.medical_specialty.description}</p>
+                        </div>
+                      )}
+
+                    {event.event_type === EVENT_TYPES.VACCINATION &&
+                      event.vaccination && (
+                        <div>
+                          <strong>Vaccine:</strong> {event.vaccination.title}
+                          <p>{event.vaccination.description}</p>
+                        </div>
+                      )}
+
+                    {event.event_type === EVENT_TYPES.BLOOD_DONATION &&
+                      event.donation_center && (
+                        <div>
+                          <strong>Donation Center:</strong>{" "}
+                          {event.donation_center.title},{" "}
+                          {event.donation_center.city}
+                          <p>{event.donation_center.address}</p>
+                        </div>
+                      )}
+                  </div>
+
+                  {/* Дії */}
+                  <div className="event-actions">
+                    <button
+                      className="btn btn--danger btn--small"
+                      onClick={() => handleDelete(event.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

@@ -10,7 +10,11 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Swal from "sweetalert2";
-import { addRecord, fetchBloodCenters } from "../../../../../API/accounts";
+import {
+  addRecord,
+  fetchBloodCenters,
+  addBloodService,
+} from "../../../../../API/accounts";
 
 export default function BloodDonation() {
   const [showDialogIndex, setShowDialogIndex] = useState(null);
@@ -44,7 +48,7 @@ export default function BloodDonation() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Перевірка на порожні поля
+    // Перевірки
     if (!formData.date || !formData.time) {
       Swal.fire({
         icon: "warning",
@@ -63,10 +67,8 @@ export default function BloodDonation() {
       return;
     }
 
-    // Перевірка на минуле
     const selectedDateTime = new Date(`${formData.date}T${formData.time}`);
     const now = new Date();
-
     if (selectedDateTime < now) {
       Swal.fire({
         icon: "warning",
@@ -76,7 +78,6 @@ export default function BloodDonation() {
       return;
     }
 
-    // Перевірка часу від 08:00 до 18:00
     const [hours, minutes] = formData.time.split(":").map(Number);
     if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
       Swal.fire({
@@ -87,17 +88,31 @@ export default function BloodDonation() {
       return;
     }
 
-    const payload = {
-      start_date: formData.date,
-      start_time: formData.time,
-      blood_donation: true,
-      short_description: `You have registered to donate blood at ${formData.center}`,
-    };
-
-    console.log("Дані, які записуються в БД:", payload);
-
     try {
-      await addRecord(payload);
+      const bloodDonationPayload = {
+        user: 5,
+        center: formData.center,
+        date: formData.date,
+        time: formData.time,
+      };
+
+      const bloodDonation = await addBloodService(bloodDonationPayload);
+
+      console.log("Створений запис BloodDonation:", bloodDonation);
+
+      const eventPayload = {
+        start_date: formData.date,
+        start_time: formData.time,
+        blood_donation: bloodDonation.id,
+        short_description: `You have registered to donate blood at ${
+          centres.find((c) => c.id === formData.center)?.title
+        }`,
+        event_type: "blood_donation",
+      };
+
+      console.log("Дані, які підуть у Event:", eventPayload);
+
+      await addRecord(eventPayload);
 
       Swal.fire({
         icon: "success",
@@ -107,7 +122,7 @@ export default function BloodDonation() {
 
       setFormData({ date: "", time: "", center: "", notes: "" });
       setErrors({});
-      closeModal(); // Закриваємо модальне вікно після успішного додавання
+      closeModal();
     } catch (error) {
       if (error.response?.data) {
         setErrors(error.response.data);
@@ -117,7 +132,7 @@ export default function BloodDonation() {
         title: "Помилка",
         text: "Не вдалося додати запис.",
       });
-      console.error("Error adding record:", error);
+      console.error("Error creating blood donation or event:", error);
     }
   };
 
@@ -227,7 +242,7 @@ export default function BloodDonation() {
                   >
                     <option value="">Select a center</option>
                     {centres.map((c) => (
-                      <option key={c.id} value={c.title}>
+                      <option key={c.id} value={c.id}>
                         {c.title} ({c.city})
                       </option>
                     ))}

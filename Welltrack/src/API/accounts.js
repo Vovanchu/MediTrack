@@ -166,3 +166,13 @@ export const fetchBloodCenters = () =>
 
 export const addBloodService = (data) =>
   api.post("/services/blood-donations/", data);
+
+/* ============== ANALYSIS PACKAGES ================== */
+
+// Отримати всі пакети аналізів
+export const fetchAnalysisPackages = () =>
+  api.get("/services/analysis-packages/").then((res) => res.data);
+
+// Отримати всі тести
+export const fetchAnalysisTests = () =>
+  api.get("/services/analysis-tests/").then((res) => res.data);

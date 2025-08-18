@@ -238,6 +238,11 @@ input.error {
     }
 
     .submit-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+
       background-color: #d22b2b;
       color: white;
       font-weight: 600;
@@ -257,18 +262,22 @@ input.error {
       }
     }
 
-    .close-btn {
-      margin-top: 0.5rem;
-      background: transparent;
-      border: none;
-      color: #d22b2b;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      padding: 0.5rem 0;
+    .btn-icon {
+      display: inline-flex;
+      vertical-align: middle; // для додаткового вирівнювання
+    }
 
-      @include mobile-small {
-        font-size: 0.9rem;
+    .close-btn {
+      background-color: #fff;
+      color: #333;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      transition: background-color 0.25s ease;
+
+      &:hover {
+        background-color: #f0f0f0;
       }
     }
   }

@@ -218,14 +218,31 @@ export default function CompleteProfile() {
 
         <label>
           Profile Image
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ display: previewImage ? "none" : "block" }}
+          />
           {previewImage && (
-            <img
-              src={previewImage}
-              alt="Preview"
-              className="image-preview"
-              width={120}
-            />
+            <div className="image-preview-wrapper">
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="image-preview"
+                width={120}
+              />
+              <button
+                type="button"
+                className="remove-image-btn"
+                onClick={() => {
+                  setPreviewImage(null);
+                  setFormData((prev) => ({ ...prev, image_profile: null }));
+                }}
+              >
+                Remove
+              </button>
+            </div>
           )}
         </label>
 

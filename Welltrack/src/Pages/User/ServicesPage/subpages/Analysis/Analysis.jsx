@@ -1,22 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FlaskConical, Plus, ChevronDown, Lightbulb } from "lucide-react";
-import { addRecord } from "../../../../../API/accounts";
+import {
+  addRecord,
+  fetchAnalysisPackages,
+  fetchAnalysisTests,
+} from "../../../../../API/accounts";
 import "./Analysis.scss";
 import Swal from "sweetalert2";
 
 import NavBar from "../../../components/NavBar/NavBar";
 import Footer from "../../../components/Footer/Footer";
-import testPackages from "./testPackagesData";
 
 export default function AnalysisPage() {
   const [openSections, setOpenSections] = useState([]);
   const [showAdviceModal, setShowAdviceModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [testPackages, setTestPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [analysisTests, setAnalysisTests] = useState([]);
 
-  const [testName, setTestName] = useState("");
   const [testDate, setTestDate] = useState("");
-  const [testNotes, setTestNotes] = useState("");
+  const [testTime, setTestTime] = useState("");
   const [errors, setErrors] = useState({});
+
+  // Завантаження тестів з API
+  useEffect(() => {
+    const loadTests = async () => {
+      try {
+        const tests = await fetchAnalysisTests();
+        setAnalysisTests(tests);
+      } catch (error) {
+        console.error("Failed to load analysis tests:", error);
+      }
+    };
+
+    loadTests();
+  }, []);
+
+  // Завантаження пакетів з API
+  useEffect(() => {
+    const loadPackages = async () => {
+      try {
+        setLoading(true);
+        const packages = await fetchAnalysisPackages();
+        setTestPackages(packages);
+      } catch (error) {
+        console.error("Failed to load test packages:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load test packages. Please refresh the page.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPackages();
+  }, []);
 
   const toggleSection = (name) => {
     setOpenSections((prev) =>
@@ -26,28 +68,44 @@ export default function AnalysisPage() {
 
   const validateField = (name, value) => {
     switch (name) {
-      case "testName":
-        if (!value.trim()) return "Test Name is required";
-        return "";
-      case "testDate":
+      case "testDate": {
         if (!value.trim()) return "Date is required";
-        // Додатково можна перевірити дату, наприклад, що дата не в минулому
-        if (new Date(value) < new Date().setHours(0, 0, 0, 0))
+        const selectedDate = new Date(value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (selectedDate < today) {
           return "Date cannot be in the past";
+        }
         return "";
+      }
+
+      case "testTime": {
+        if (!value.trim()) return "Time is required";
+        const [hours, minutes] = value.split(":").map(Number);
+        const timeInMinutes = hours * 60 + minutes;
+        const minTime = 8 * 60;
+        const maxTime = 18 * 60;
+
+        if (timeInMinutes < minTime) {
+          return "Time must be after 8:00 AM";
+        }
+        if (timeInMinutes > maxTime) {
+          return "Time must be before 6:00 PM";
+        }
+        return "";
+      }
+
       default:
         return "";
     }
   };
 
-  // Оновлення стану і валідації при зміні поля
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Оновлюємо відповідний стейт
-    if (name === "testName") setTestName(value);
-    else if (name === "testDate") setTestDate(value);
-    else if (name === "testNotes") setTestNotes(value);
+    if (name === "testDate") setTestDate(value);
+    else if (name === "testTime") setTestTime(value);
 
     // Перевіряємо поле і оновлюємо помилки
     setErrors((prev) => ({
@@ -58,8 +116,8 @@ export default function AnalysisPage() {
 
   const validateForm = () => {
     const errs = {};
-    errs.testName = validateField("testName", testName);
     errs.testDate = validateField("testDate", testDate);
+    errs.testTime = validateField("testTime", testTime);
 
     // Фільтруємо порожні помилки
     Object.keys(errs).forEach((key) => !errs[key] && delete errs[key]);
@@ -80,41 +138,67 @@ export default function AnalysisPage() {
       return;
     }
 
-    try {
-      await addRecord({
-        testName,
-        testDate,
-        testNotes,
+    if (!selectedPackage) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No package selected.",
       });
+      return;
+    }
+
+    const payload = {
+      start_date: testDate,
+      start_time: testTime,
+      short_description: "",
+    };
+
+    if (selectedPackage.test.length > 1) {
+      // це пакет
+      payload.analysis_package_id = selectedPackage.id;
+    } else {
+      // це окремий тест
+      payload.analysis_test_id = selectedPackage.id;
+    }
+
+    try {
+      await addRecord(payload);
 
       Swal.fire({
         icon: "success",
-        title: "Event saved!",
+        title: "Test scheduled successfully!",
         showConfirmButton: false,
         timer: 2000,
       });
 
-      setTestName("");
-      setTestDate("");
-      setTestNotes("");
-      setErrors({});
-      setShowAddModal(false);
+      closeAddModal();
     } catch (error) {
       console.error("API Error:", error.response || error.message);
       Swal.fire({
         icon: "error",
-        title: "Oops...",
-        text: "Something went wrong while saving the event!",
+        title: "Error",
+        text: "Failed to schedule the test. Please try again.",
       });
     }
   };
 
   const closeAddModal = () => {
     setShowAddModal(false);
-    setTestName("");
+    setSelectedPackage(null);
     setTestDate("");
-    setTestNotes("");
+    setTestTime("");
     setErrors({});
+  };
+
+  const openScheduleModal = (pkg) => {
+    setSelectedPackage(pkg);
+    setShowAddModal(true);
+  };
+
+  // Получаем минимальную дату (сегодня)
+  const getMinDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
   };
 
   return (
@@ -141,15 +225,6 @@ export default function AnalysisPage() {
           >
             <Lightbulb className="icon" />
             Generate advice on scheduling tests
-          </button>
-
-          <button
-            className="btn btn--outline"
-            onClick={() => setShowAddModal(true)}
-            type="button"
-          >
-            <Plus className="icon" />
-            Add to my events
           </button>
         </div>
 
@@ -185,39 +260,33 @@ export default function AnalysisPage() {
           </div>
         )}
 
-        {/* Add Event Modal */}
-        {showAddModal && (
+        {/* Schedule Test Modal */}
+        {showAddModal && selectedPackage && (
           <div className="modal-overlay" onClick={closeAddModal}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h2>New Test Event</h2>
-              <p>Add a new medical test or analysis to your calendar</p>
+              <h2>Schedule {selectedPackage.title}</h2>
+              <p>Select date and time for your test appointment</p>
+
+              <div className="package-info">
+                <h4>Included Tests:</h4>
+                <ul>
+                  {selectedPackage.test.map((test) => (
+                    <li key={test.id}>
+                      <strong>{test.title}</strong>
+                      <span> - {test.description}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <form onSubmit={handleSubmit} className="form" noValidate>
-                <label>
-                  Test Name <span className="required">*</span>
-                  <input
-                    type="text"
-                    name="testName"
-                    value={testName}
-                    onChange={handleChange}
-                    className={errors.testName ? "error" : ""}
-                    required
-                    aria-invalid={!!errors.testName}
-                    aria-describedby="testName-error"
-                  />
-                  {errors.testName && (
-                    <small id="testName-error" className="error-msg">
-                      {errors.testName}
-                    </small>
-                  )}
-                </label>
-
                 <label>
                   Date <span className="required">*</span>
                   <input
                     type="date"
                     name="testDate"
                     value={testDate}
+                    min={getMinDate()}
                     onChange={handleChange}
                     className={errors.testDate ? "error" : ""}
                     required
@@ -232,78 +301,133 @@ export default function AnalysisPage() {
                 </label>
 
                 <label>
-                  Notes
-                  <textarea
-                    name="testNotes"
-                    value={testNotes}
+                  Time <span className="required">*</span>
+                  <input
+                    type="time"
+                    name="testTime"
+                    value={testTime}
+                    min="08:00"
+                    max="18:00"
                     onChange={handleChange}
+                    className={errors.testTime ? "error" : ""}
+                    required
+                    aria-invalid={!!errors.testTime}
+                    aria-describedby="testTime-error"
                   />
+                  {errors.testTime && (
+                    <small id="testTime-error" className="error-msg">
+                      {errors.testTime}
+                    </small>
+                  )}
+                  <small className="help-text">
+                    Available time: 8:00 AM - 6:00 PM
+                  </small>
                 </label>
 
-                <button className="btn btn--primary" type="submit">
-                  Save Event
-                </button>
+                <div className="form-buttons">
+                  <button className="btn btn--primary" type="submit">
+                    Schedule Test
+                  </button>
+                  <button
+                    className="btn btn--outline"
+                    onClick={closeAddModal}
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </form>
-
-              <button
-                className="btn btn--outline modal-close-btn"
-                onClick={closeAddModal}
-                type="button"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         )}
 
         {/* Test Packages Accordion */}
         <section className="analysis__packages">
-          <h2>Screening Test Packages</h2>
-          <div className="packages-list">
-            {testPackages.map((pkg, i) => {
-              const isOpen = openSections.includes(pkg.name);
-              return (
-                <div className="package" key={i}>
-                  <button
-                    className={`package__header ${isOpen ? "open" : ""}`}
-                    onClick={() => toggleSection(pkg.name)}
-                    type="button"
-                  >
-                    <div>
-                      <h3>{pkg.name}</h3>
-                      <p>{pkg.description}</p>
-                    </div>
-                    <ChevronDown
-                      className={`icon-chevron ${isOpen ? "rotated" : ""}`}
-                    />
-                  </button>
-                  {isOpen && (
-                    <div className="package__content">
-                      <h4>Included Tests:</h4>
-                      <ul>
-                        {pkg.tests.map((test, idx) => (
-                          <li key={idx}>
-                            <span className="dot" />
-                            {test}
-                          </li>
-                        ))}
-                      </ul>
-                      <button
-                        className="btn btn--primary btn--schedule"
-                        onClick={() => {
-                          setTestName(pkg.name);
-                          setShowAddModal(true);
-                        }}
-                      >
-                        <Plus className="icon" />
-                        Schedule Package
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <h2>Available Test Packages</h2>
+
+          {loading ? (
+            <div className="loading">Loading test packages...</div>
+          ) : testPackages.length === 0 ? (
+            <div className="no-packages">No test packages available</div>
+          ) : (
+            <div className="packages-list">
+              {testPackages.map((pkg) => {
+                const isOpen = openSections.includes(pkg.title);
+                return (
+                  <div className="package" key={pkg.id}>
+                    <button
+                      className={`package__header ${isOpen ? "open" : ""}`}
+                      onClick={() => toggleSection(pkg.title)}
+                      type="button"
+                    >
+                      <div>
+                        <h3>{pkg.title}</h3>
+                        <p>{pkg.test.length} tests included</p>
+                      </div>
+                      <ChevronDown
+                        className={`icon-chevron ${isOpen ? "rotated" : ""}`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="package__content">
+                        <h4>Included Tests:</h4>
+                        <ul>
+                          {pkg.test.map((test) => (
+                            <li key={test.id}>
+                              <span className="dot" />
+                              <div>
+                                <strong>{test.title}</strong>
+                                <p>{test.description}</p>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          className="btn btn--primary btn--schedule"
+                          onClick={() => openScheduleModal(pkg)}
+                        >
+                          <Plus className="icon" />
+                          Schedule Package
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              {/* Individual Analysis Tests */}
+              <section className="analysis__tests">
+                <h2>Available Individual Tests</h2>
+
+                {analysisTests.length === 0 ? (
+                  <div className="no-tests">No tests available</div>
+                ) : (
+                  <div className="tests-list">
+                    {analysisTests.map((test) => (
+                      <div className="test-item" key={test.id}>
+                        <h4>{test.title}</h4>
+                        <p>{test.description}</p>
+                        <button
+                          className="btn btn--primary btn--schedule"
+                          onClick={() => {
+                            // відкриваємо модал з вибраним тестом
+                            setSelectedPackage({
+                              id: test.id,
+                              title: test.title,
+                              test: [test],
+                            });
+                            setShowAddModal(true);
+                          }}
+                        >
+                          <Plus className="icon" /> Schedule Test
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </div>
+          )}
         </section>
       </div>
 
