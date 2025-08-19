@@ -148,21 +148,15 @@ export default function AnalysisPage() {
     }
 
     const payload = {
-      start_date: testDate,
-      start_time: testTime,
-      short_description: "",
+      start_date: testDate, // "2025-08-18"
+      start_time: testTime, // "10:00"
+      analysis_test: selectedPackage.test[0].id, // число
     };
 
-    if (selectedPackage.test.length > 1) {
-      // це пакет
-      payload.analysis_package_id = selectedPackage.id;
-    } else {
-      // це окремий тест
-      payload.analysis_test_id = selectedPackage.id;
-    }
+    console.log("Payload to send:", payload); // для дебагу
 
     try {
-      await addRecord(payload);
+      await addRecord(payload); // відправка JSON на бекенд
 
       Swal.fire({
         icon: "success",
@@ -173,11 +167,22 @@ export default function AnalysisPage() {
 
       closeAddModal();
     } catch (error) {
-      console.error("API Error:", error.response || error.message);
+      console.error("API Error:", error.response?.data || error.message);
+
+      const errorMessage =
+        error.response?.data && typeof error.response.data === "object"
+          ? Object.entries(error.response.data)
+              .map(
+                ([key, value]) =>
+                  `${key}: ${Array.isArray(value) ? value.join(", ") : value}`
+              )
+              .join("\n")
+          : "Failed to schedule the test. Please try again.";
+
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to schedule the test. Please try again.",
+        text: errorMessage,
       });
     }
   };
