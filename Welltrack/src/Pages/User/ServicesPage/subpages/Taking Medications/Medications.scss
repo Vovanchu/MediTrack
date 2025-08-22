@@ -1,5 +1,4 @@
-@use "@/styles/_mixins" as *;
-
+// Medications.scss
 .medications {
   padding: 2rem 1rem;
   background: linear-gradient(to bottom, #f0f4ff, #ffffff);
@@ -23,17 +22,18 @@
       font-size: 1rem;
       color: #475569;
     }
+  }
 
-    & > .medications__icon {
-      width: 70px;
-      height: 70px;
-      background: #fef3c7;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto;
-    }
+  &__icon {
+    width: 70px;
+    height: 70px;
+    background: #fef3c7;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: #f59e0b;
   }
 
   &__content {
@@ -44,19 +44,17 @@
     gap: 2rem;
     align-items: start;
 
-    @include tablet {
+    @media (max-width: 768px) {
       grid-template-columns: 1fr;
     }
 
-    @include mobile-medium {
+    @media (max-width: 480px) {
       grid-template-columns: 1fr;
-    }
-
-    @include mobile-small {
-      grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
   }
 
+  // Form Section Styles
   &__form-section,
   &__plans-section {
     background: white;
@@ -68,91 +66,102 @@
       font-size: 1.5rem;
       color: #1e293b;
       margin-bottom: 1.5rem;
+      font-weight: 600;
     }
+  }
+
+  &__form-header {
+    margin-bottom: 2rem;
+
+    h2 {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  &__required-info {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  &__required-mark {
+    color: #ef4444;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-left: 4px;
   }
 
   &__form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+  }
 
-    label {
-      display: flex;
-      flex-direction: column;
-      font-weight: 600;
-      color: #334155;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
+  &__form-group {
+    margin-bottom: 1.5rem;
+  }
 
-      select {
-        margin-top: 0.3rem;
-        padding: 0.45rem 0.75rem;
-        border: 1.5px solid #cbd5e1; // світло-сірий
-        border-radius: 0.5rem;
-        font-size: 1rem;
-        color: #1e293b; // темніший текст
-        background-color: #f8fafc; // дуже світлий фон
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  &__label {
+    display: block;
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
 
-        &:focus {
-          outline: none;
-          border-color: #f97316; // помаранчевий акцент
-          box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
-          background-color: #fff;
-        }
+    &--error {
+      color: #ef4444;
+    }
+  }
 
-        &:disabled {
-          background-color: #e2e8f0;
-          color: #94a3b8;
-          cursor: not-allowed;
-        }
-      }
+  &__input,
+  &__textarea {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    background-color: #f8fafc;
+    transition: all 0.3s ease;
 
-      option {
-        color: #1e293b;
-        background-color: #fff;
-      }
+    &:focus {
+      outline: 2px solid #f97316;
+      border-color: transparent;
+      background-color: #fff;
+    }
 
-      input,
-      textarea {
-        margin-top: 0.5rem;
-        padding: 0.6rem 1rem;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        font-size: 1rem;
-        resize: none;
+    &--error {
+      border-color: #ef4444;
+      background-color: #fef2f2;
 
-        &:focus {
-          outline: 2px solid #f97316;
-          border-color: transparent;
-        }
-      }
-
-      textarea {
-        min-height: 80px;
+      &:focus {
+        outline: 2px solid #ef4444;
+        border-color: transparent;
       }
     }
 
-    button {
-      margin-top: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      background-color: #f97316;
-      color: white;
-      padding: 0.75rem 1rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
+    &::placeholder {
+      color: #94a3b8;
+    }
+  }
 
-      @include hover-large {
-        &:hover {
-          background-color: #ea580c;
-        }
-      }
+  &__textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+  }
+
+  &__field-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+
+    svg {
+      flex-shrink: 0;
     }
   }
 
@@ -161,15 +170,54 @@
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 
-    @include mobile-medium {
-      grid-template-columns: 1fr;
-    }
-
-    @include mobile-small {
+    @media (max-width: 480px) {
       grid-template-columns: 1fr;
     }
   }
 
+  &__submit-btn {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #f97316;
+    color: white;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+
+    &:hover:not(:disabled) {
+      background-color: #ea580c;
+    }
+
+    &:active {
+      background-color: #dc2626;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    &--loading {
+      .medications__spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
+
+  // Plans Section Styles
   &__plans-header {
     display: flex;
     justify-content: space-between;
@@ -180,15 +228,46 @@
       font-size: 1.5rem;
       font-weight: 600;
       color: #1e293b;
+      margin-bottom: 0;
+    }
+  }
+
+  &__reminder {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #f97316;
+    font-weight: 500;
+
+    svg {
+      animation: pulse 2s infinite;
+    }
+  }
+
+  &__empty {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    color: #94a3b8;
+
+    svg {
+      color: #cbd5e1;
+      margin-bottom: 1rem;
     }
 
-    .medications__reminder {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    h3 {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    p {
       font-size: 0.9rem;
-      color: #f97316;
-      font-weight: 500;
+      margin-top: 0.5rem;
+      line-height: 1.6;
     }
   }
 
@@ -204,70 +283,96 @@
     padding: 1rem;
     transition: box-shadow 0.2s ease;
 
-    @include hover-large {
-      &:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-    }
-
-    &-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      margin-bottom: 0.5rem;
-
-      h4 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #1e293b;
-      }
-
-      p {
-        font-size: 0.9rem;
-        color: #64748b;
-        margin-top: 0.2rem;
-      }
-
-      button {
-        background: transparent;
-        border: none;
-        color: #ef4444;
-        cursor: pointer;
-        transition: color 0.2s;
-
-        @include hover-large {
-          &:hover {
-            color: #dc2626;
-          }
-        }
-      }
-    }
-
-    &-dates {
-      font-size: 0.85rem;
-      color: #475569;
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 0.5rem;
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
   }
 
-  &__empty {
-    border: 2px dashed #cbd5e1;
-    border-radius: 16px;
-    padding: 3rem;
-    text-align: center;
-    color: #94a3b8;
+  &__plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+  }
 
-    h3 {
-      margin-top: 1rem;
-      font-size: 1.2rem;
-      color: #64748b;
-    }
+  &__plan-info {
+    flex: 1;
+  }
 
-    p {
-      font-size: 0.9rem;
-      margin-top: 0.2rem;
+  &__plan-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 0.2rem 0;
+  }
+
+  &__plan-description {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__delete-btn {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    padding: 0.25rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+
+    &:hover {
+      color: #dc2626;
+      background-color: rgba(239, 68, 68, 0.1);
     }
   }
+
+  &__plan-dates {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+
+  &__plan-date,
+  &__plan-time {
+    font-size: 0.85rem;
+    color: #475569;
+
+    strong {
+      color: #1e293b;
+      font-weight: 600;
+    }
+  }
+}
+
+// Keyframes
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Required field styles for backward compatibility
+.required {
+  color: #ef4444;
+  margin-left: 4px;
+  font-weight: bold;
 }
