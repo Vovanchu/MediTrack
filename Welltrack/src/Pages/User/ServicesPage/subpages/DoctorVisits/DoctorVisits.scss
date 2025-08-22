@@ -52,14 +52,55 @@
     text-align: center;
     background: #fff;
     border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     cursor: pointer;
-    transition: 0.3s;
-    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 
-    &:hover {
-      background: #dbeafe;
-      border-color: #93c5fd;
+    @include hover-large {
+      &:hover {
+        background: #f9fbff;
+        border-color: #4a90e2;
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(74, 144, 226, 0.2);
+      }
+    }
+
+    &-description {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #555;
+      margin-top: 0.5rem;
+      line-height: 1.5;
+      text-align: center;
+      max-width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0.9;
+      transition: color 0.3s ease;
+
+      @include hover-large {
+        &:hover {
+          color: #1a73e8;
+        }
+      }
+    }
+  }
+
+  &__readmore {
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #4a90e2;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+
+    @include hover-large {
+      &:hover {
+        color: #0056b3;
+      }
     }
   }
 }

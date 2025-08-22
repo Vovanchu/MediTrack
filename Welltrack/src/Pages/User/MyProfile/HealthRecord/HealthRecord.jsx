@@ -79,35 +79,37 @@ export default function HealthRecord() {
       case "visit":
         return (
           <p className="record-provider">
-            <strong>Specialty:</strong> {record.medical_specialty || "—"}
+            <strong>Specialty:</strong>{" "}
+            {String(record.medical_specialty || "—")}
           </p>
         );
 
       case "vaccination":
         return (
           <p className="record-provider">
-            <strong>Vaccine:</strong> {record.vaccination_name || "—"}
+            <strong>Vaccine:</strong> {String(record.vaccination_name || "—")}
           </p>
         );
 
       case "analysis":
         return (
           <p className="record-provider">
-            <strong>Test/Analysis:</strong> {record.analysis_test_name || "—"}
+            <strong>Test/Analysis:</strong>{" "}
+            {String(record.analysis_test_name || "—")}
           </p>
         );
 
       case "blood_donation":
         return (
           <p className="record-provider">
-            <strong>Blood Donation:</strong> {record.center_name || "—"}
+            <strong>Blood Donation:</strong> {String(record.center_name || "—")}
           </p>
         );
 
       default:
         return (
           <p className="record-provider">
-            <strong>Note:</strong> {record.short_description || "—"}
+            <strong>Note:</strong> {String(record.short_description || "—")}
           </p>
         );
     }

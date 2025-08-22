@@ -17,6 +17,7 @@ export default function DoctorVisitPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [expandedDescription, setExpandedDescription] = useState(null);
 
   // Завантажуємо спеціальності з бекенду (GET)
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function DoctorVisitPage() {
       });
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const handleSelect = (specialty) => {
     setSelectedSpecialty(specialty);
     setIsModalOpen(true);
@@ -64,14 +66,28 @@ export default function DoctorVisitPage() {
       return;
     }
 
-    // Валідація часу - тільки з 08:00 до 18:00
     if (formData.time) {
       const [hours, minutes] = formData.time.split(":").map(Number);
+
       if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
         Swal.fire({
           icon: "error",
           title: "Invalid Time",
           text: "Appointments are allowed only between 08:00 and 18:00.",
+        });
+        return;
+      }
+
+      const selectedDateTime = new Date(formData.date);
+      selectedDateTime.setHours(hours, minutes, 0, 0);
+
+      const now = new Date();
+
+      if (selectedDateTime < now) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Time",
+          text: "You cannot book an appointment in the past.",
         });
         return;
       }
@@ -170,22 +186,46 @@ export default function DoctorVisitPage() {
 
           <div className="doctor-visit__grid">
             {specialties.map((specialty) => (
-              <div
-                key={specialty.id}
-                className="doctor-visit__badge"
-                onClick={() => handleSelect(specialty)}
-              >
+              <div key={specialty.id} className="doctor-visit__badge">
                 {specialty.title || specialty}
+                <p className="doctor-visit__badge-description">
+                  {specialty.description || specialty}
+                </p>
+                {specialty.description?.length > 120 && (
+                  <button
+                    className="doctor-visit__readmore"
+                    onClick={() => setExpandedDescription(specialty)}
+                  >
+                    Read more
+                  </button>
+                )}
               </div>
             ))}
           </div>
         </main>
 
+        {expandedDescription && (
+          <div
+            className="modal-overlay"
+            onClick={() => setExpandedDescription(null)}
+          >
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2>{expandedDescription.title}</h2>
+              <p>{expandedDescription.description}</p>
+              <button
+                className="btn-close"
+                onClick={() => setExpandedDescription(null)}
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
+
         {isModalOpen && (
           <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <h2>Add Event: {selectedSpecialty.title || selectedSpecialty}</h2>
-              <p>{selectedSpecialty.description || selectedSpecialty}</p>
               <form onSubmit={handleSubmit} className="modal-form">
                 <label>
                   Date:
