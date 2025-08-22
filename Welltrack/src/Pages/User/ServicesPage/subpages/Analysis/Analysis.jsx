@@ -142,25 +142,31 @@ export default function AnalysisPage() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No package selected.",
+        text: "No package or test selected.",
       });
       return;
     }
 
+    // Формуємо payload залежно від того, пакет чи індивідуальний тест
+    const isSingleTest = selectedPackage.test.length === 1;
+
     const payload = {
-      start_date: testDate, // "2025-08-18"
-      start_time: testTime, // "10:00"
-      analysis_test: selectedPackage.test[0].id, // число
+      start_date: testDate,
+      start_time: testTime,
+      short_description: "", // або значення з форми
+      ...(isSingleTest
+        ? { analysis_test_id: selectedPackage.id } // індивідуальний тест
+        : { analysis_package_id: selectedPackage.id }), // пакет
     };
 
-    console.log("Payload to send:", payload); // для дебагу
+    console.log("Payload to send:", payload);
 
     try {
-      await addRecord(payload); // відправка JSON на бекенд
+      await addRecord(payload);
 
       Swal.fire({
         icon: "success",
-        title: "Test scheduled successfully!",
+        title: "Scheduled successfully!",
         showConfirmButton: false,
         timer: 2000,
       });
@@ -177,7 +183,7 @@ export default function AnalysisPage() {
                   `${key}: ${Array.isArray(value) ? value.join(", ") : value}`
               )
               .join("\n")
-          : "Failed to schedule the test. Please try again.";
+          : "Failed to schedule. Please try again.";
 
       Swal.fire({
         icon: "error",

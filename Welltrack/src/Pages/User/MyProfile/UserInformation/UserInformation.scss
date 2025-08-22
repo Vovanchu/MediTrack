@@ -83,8 +83,10 @@ $user-accent-hover: #0ea5e9;
     cursor: pointer;
     transition: background 0.3s;
 
-    &:hover {
-      background: $user-accent-hover;
+    @include hover-large {
+      &:hover {
+        background: $user-accent-hover;
+      }
     }
 
     @include tablet {
@@ -97,10 +99,12 @@ $user-accent-hover: #0ea5e9;
       width: 100%;
       margin-top: 0.8rem;
       text-align: center;
+      top: 3rem;
     }
 
     @include mobile-small {
       font-size: 0.85rem;
+      top: 3rem;
     }
   }
 

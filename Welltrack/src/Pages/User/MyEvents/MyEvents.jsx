@@ -22,7 +22,7 @@ import Footer from "../components/Footer/Footer";
 const EVENT_TYPES = {
   VISIT: "visit",
   VACCINATION: "vaccination",
-  ANALYSIS: "analysis_test",
+  ANALYSIS: "analysis",
   BLOOD_DONATION: "blood_donation",
 };
 
@@ -102,6 +102,13 @@ export default function EventsPage() {
       case EVENT_TYPES.BLOOD_DONATION:
         displayTitle = event.service?.title || event.name;
         details = event.donation_center ?? null;
+        break;
+      case EVENT_TYPES.ANALYSIS:
+        displayTitle = event.analysis_test?.title || event.name;
+        details = {
+          description: event.analysis_test?.description,
+          packageId: event.analysis_test?.package,
+        };
         break;
       default:
         break;
@@ -237,6 +244,17 @@ export default function EventsPage() {
                           {event.donation_center.title},{" "}
                           {event.donation_center.city}
                           <p>{event.donation_center.address}</p>
+                        </div>
+                      )}
+
+                    {event.event_type === EVENT_TYPES.ANALYSIS &&
+                      event.analysis_test && (
+                        <div>
+                          <strong>Test:</strong> {event.analysis_test.title}
+                          {event.analysis_test.package && (
+                            <p>Package ID: {event.analysis_test.package}</p>
+                          )}
+                          <p>{event.analysis_test.description}</p>
                         </div>
                       )}
                   </div>

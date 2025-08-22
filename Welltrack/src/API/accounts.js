@@ -19,23 +19,8 @@ export const verifyToken = (token) =>
 
 // Запит на скидання паролю
 export const resetPassword = async (email) => {
-  const response = await fetch(
-    "https://dr-reminder-backend-test.onrender.com/api/accounts/reset-password/",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    }
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    const error = new Error("Error resetting password");
-    error.response = { data: errorData };
-    throw error;
-  }
-
-  return response.json();
+  const response = await api.post("/accounts/reset-password/", { email });
+  return response.data; // повертаємо дані
 };
 
 // Підтвердження скидання паролю
@@ -161,9 +146,11 @@ export const deleteMedication = (id) =>
 
 /* ============== BLOOD DONATIONS ================== */
 
+// Отримати всі центри крові
 export const fetchBloodCenters = () =>
   api.get("/services/donation-centers/").then((res) => res.data);
 
+// Додати новий центр крові
 export const addBloodService = (data) =>
   api.post("/services/blood-donations/", data);
 
@@ -176,3 +163,14 @@ export const fetchAnalysisPackages = () =>
 // Отримати всі тести
 export const fetchAnalysisTests = () =>
   api.get("/services/analysis-tests/").then((res) => res.data);
+
+/* ============== SETTINGS ================== */
+
+// Отримати налаштування
+export const fetchSettings = () => api.get("/me/settings/");
+
+// Оновити налаштування
+export const updateSettings = (data) => api.patch("/me/settings/", data);
+
+// Оновити пароль
+export const changePassword = (data) => api.post("/me/change-password/", data);

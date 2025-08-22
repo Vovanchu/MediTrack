@@ -1,21 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BtnBack from "../../components/ui/BtnBack/BtnBack";
 import NavBar from "../../components/NavBar/NavBar";
 import "./ProfileSettingsPage.scss";
 import { Eye, EyeOff, Check, X } from "lucide-react";
+import {
+  fetchSettings,
+  updateSettings,
+  changePassword,
+} from "../../../..//API/accounts";
+import Swal from "sweetalert2";
 
 export default function ProfileSettingsPage() {
-  const [settings, setSettings] = useState({
-    profileVisibility: "private",
-    emailNotifications: true,
-    pushNotifications: true,
-    smsNotifications: false,
-    appointmentReminders: true,
-    medicationReminders: true,
-    twoFactorAuth: false,
-    timezone: "UTC-5",
-    dateFormat: "MM/DD/YYYY",
-    units: "imperial",
+  const [settings, setSettings] = useState(null);
+  const [activeTab, setActiveTab] = useState("privacy");
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  // Маппінг з API в локальний стейт
+  const mapFromApi = (data) => ({
+    profileVisibility: data.profile_visibility,
+    emailNotifications: data.email_notifications,
+    pushNotifications: data.push_notifications,
+    smsNotifications: data.sms_notifications,
+    appointmentReminders: data.appointment_notifications,
+    medicationReminders: data.medication_reminders,
+    timezone: data.timezone,
+    dateFormat: data.date_format,
+    units: data.units,
+    twoFactorAuth: data.two_factor_enabled,
+  });
+
+  // Маппінг з локального стейту в формат для API
+  const mapToApi = (data) => ({
+    profile_visibility: data.profileVisibility,
+    email_notifications: data.emailNotifications,
+    push_notifications: data.pushNotifications,
+    sms_notifications: data.smsNotifications,
+    appointment_notifications: data.appointmentReminders,
+    medication_reminders: data.medicationReminders,
+    timezone: data.timezone,
+    date_format: data.dateFormat,
+    units: data.units,
+    two_factor_enabled: data.twoFactorAuth,
   });
 
   const [showPassword, setShowPassword] = useState({
@@ -24,15 +53,50 @@ export default function ProfileSettingsPage() {
     confirm: false,
   });
 
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetchSettings();
+        console.log("Loaded settings from API:", response.data);
+        setSettings(mapFromApi(response.data));
+      } catch (error) {
+        console.error("Error loading settings:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to load settings. Please try again.",
+          confirmButtonColor: "#3085d6",
+        });
+      }
+    };
+    loadSettings();
+  }, []);
+
+  if (!settings) {
+    return (
+      <div className="profile-settings-page">
+        <NavBar />
+        <main className="container">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "200px",
+              fontSize: "18px",
+              color: "#666",
+            }}
+          >
+            Loading settings...
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const togglePassword = (field) => {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
   };
-
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
 
   const passwordValidation = {
     length: passwordData.newPassword.length >= 8,
@@ -44,23 +108,110 @@ export default function ProfileSettingsPage() {
       passwordData.newPassword.length > 0,
   };
 
-  const [activeTab, setActiveTab] = useState("privacy");
-
   const handleSettingChange = (key, value) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handlePasswordChange = () => {
-    console.log("Password change requested", passwordData);
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+  const handlePasswordChange = async () => {
+    try {
+      await changePassword({
+        current_password: passwordData.currentPassword,
+        new_password: passwordData.newPassword,
+        confirm_password: passwordData.confirmPassword,
+      });
+
+      console.log("Password change requested", {
+        current_password: passwordData.currentPassword,
+        new_password: passwordData.newPassword,
+      });
+
+      // очищаємо форму
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Password has been updated successfully.",
+        confirmButtonColor: "#22c55e",
+      });
+    } catch (error) {
+      console.error("Error changing password:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update password. Please check your current password and try again.",
+        confirmButtonColor: "#ef4444",
+      });
+    }
   };
 
   const handleDeleteAccount = () => {
-    console.log("Account deletion requested");
+    Swal.fire({
+      title: "Are you sure?",
+      text: "This action cannot be undone! Your account and all data will be permanently deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete my account",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Тут має бути API call для видалення акаунту
+        console.log("Account deletion confirmed");
+        Swal.fire({
+          icon: "success",
+          title: "Account Deleted",
+          text: "Your account has been successfully deleted.",
+          confirmButtonColor: "#ef4444",
+        });
+      }
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      // Перетворюємо дані у формат, який очікує API
+      const apiData = mapToApi(settings);
+      console.log("Sending data to API:", apiData);
+
+      const response = await updateSettings(apiData);
+      console.log("Settings updated successfully:", response);
+
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: "Your settings have been saved successfully.",
+        confirmButtonColor: "#22c55e",
+        timer: 2000,
+        timerProgressBar: true,
+      });
+    } catch (error) {
+      console.error("Error saving settings:", error);
+
+      let errorMessage = "Could not save settings. Please try again.";
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response?.status === 401) {
+        errorMessage = "Your session has expired. Please log in again.";
+      } else if (error.response?.status === 400) {
+        errorMessage = "Invalid settings data. Please check your input.";
+      } else if (error.response?.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+        confirmButtonColor: "#ef4444",
+      });
+    }
   };
 
   return (
@@ -207,6 +358,7 @@ export default function ProfileSettingsPage() {
                           currentPassword: e.target.value,
                         })
                       }
+                      onCopy={(e) => e.preventDefault()}
                     />
                     <button
                       type="button"
@@ -232,6 +384,7 @@ export default function ProfileSettingsPage() {
                           newPassword: e.target.value,
                         })
                       }
+                      onCopy={(e) => e.preventDefault()}
                     />
                     <button
                       type="button"
@@ -246,7 +399,6 @@ export default function ProfileSettingsPage() {
                     </button>
                   </div>
 
-                  {/* Вимоги до паролю */}
                   <ul className="password-requirements">
                     <li
                       className={
@@ -320,6 +472,7 @@ export default function ProfileSettingsPage() {
                           confirmPassword: e.target.value,
                         })
                       }
+                      onCopy={(e) => e.preventDefault()}
                     />
                     <button
                       type="button"
@@ -379,13 +532,20 @@ export default function ProfileSettingsPage() {
                         handleSettingChange("timezone", e.target.value)
                       }
                     >
-                      <option value="UTC-5">Eastern Time (UTC-5)</option>
-                      <option value="UTC-6">Central Time (UTC-6)</option>
-                      <option value="UTC-7">Mountain Time (UTC-7)</option>
-                      <option value="UTC-8">Pacific Time (UTC-8)</option>
-                      <option value="UTC+2">
-                        Eastern European Time (UTC+2)
+                      <option value="America/New_York">
+                        Eastern Time (UTC-5)
                       </option>
+                      <option value="America/Chicago">
+                        Central Time (UTC-6)
+                      </option>
+                      <option value="America/Denver">
+                        Mountain Time (UTC-7)
+                      </option>
+                      <option value="America/Los_Angeles">
+                        Pacific Time (UTC-8)
+                      </option>
+                      <option value="Europe/Kyiv">Kyiv Time (UTC+2)</option>
+                      <option value="Europe/London">London Time (UTC+0)</option>
                     </select>
                   </div>
                   <div>
@@ -429,7 +589,9 @@ export default function ProfileSettingsPage() {
         </nav>
 
         <div className="actions">
-          <button className="btn btn-primary btn-save">Save All Changes</button>
+          <button className="btn btn-primary btn-save" onClick={handleSave}>
+            Save All Changes
+          </button>
         </div>
       </main>
     </div>

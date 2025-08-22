@@ -103,11 +103,10 @@ export default function BloodDonation() {
       const eventPayload = {
         start_date: formData.date,
         start_time: formData.time,
-        blood_donation: bloodDonation.id,
+        service: bloodDonation.id,
         short_description: `You have registered to donate blood at ${
           centres.find((c) => c.id === formData.center)?.title
         }`,
-        event_type: "blood_donation",
       };
 
       console.log("Дані, які підуть у Event:", eventPayload);
