@@ -32,10 +32,16 @@ export default function DoctorVisitPage() {
       });
   }, []);
 
-  // eslint-disable-next-line no-unused-vars
-  const handleSelect = (specialty) => {
+  // Функція для відкриття форми запису
+  const handleCardClick = (specialty) => {
     setSelectedSpecialty(specialty);
     setIsModalOpen(true);
+  };
+
+  // Функція для відкриття повного опису
+  const handleReadMore = (e, specialty) => {
+    e.stopPropagation(); // Запобігаємо спрацьовуванню handleCardClick
+    setExpandedDescription(specialty);
   };
 
   const handleChange = (e) => {
@@ -186,15 +192,22 @@ export default function DoctorVisitPage() {
 
           <div className="doctor-visit__grid">
             {specialties.map((specialty) => (
-              <div key={specialty.id} className="doctor-visit__badge">
-                {specialty.title || specialty}
+              <div
+                key={specialty.id}
+                className="doctor-visit__badge"
+                onClick={() => handleCardClick(specialty)}
+                style={{ cursor: "pointer" }}
+              >
+                <h3>{specialty.title || specialty}</h3>
                 <p className="doctor-visit__badge-description">
-                  {specialty.description || specialty}
+                  {specialty.description && specialty.description.length > 120
+                    ? `${specialty.description.substring(0, 120)}...`
+                    : specialty.description || specialty}
                 </p>
                 {specialty.description?.length > 120 && (
                   <button
                     className="doctor-visit__readmore"
-                    onClick={() => setExpandedDescription(specialty)}
+                    onClick={(e) => handleReadMore(e, specialty)}
                   >
                     Read more
                   </button>
@@ -204,6 +217,7 @@ export default function DoctorVisitPage() {
           </div>
         </main>
 
+        {/* Модальне вікно для повного опису */}
         {expandedDescription && (
           <div
             className="modal-overlay"
@@ -222,6 +236,7 @@ export default function DoctorVisitPage() {
           </div>
         )}
 
+        {/* Модальне вікно для форми запису */}
         {isModalOpen && (
           <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>

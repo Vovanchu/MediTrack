@@ -33,6 +33,24 @@ const EVENT_TYPE_LABELS = {
   [EVENT_TYPES.BLOOD_DONATION]: "Blood donation",
 };
 
+// Функція для перевірки чи подія в минулому
+const isPastEvent = (date, time) => {
+  if (!date) return false;
+
+  const now = new Date();
+  const eventDateTime = new Date(date);
+
+  if (time) {
+    const [hours, minutes] = time.split(":");
+    eventDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+  } else {
+    // Якщо немає часу, вважаємо що подія в кінці дня
+    eventDateTime.setHours(23, 59, 59, 999);
+  }
+
+  return eventDateTime < now;
+};
+
 export default function EventsPage() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["events"],
@@ -114,11 +132,15 @@ export default function EventsPage() {
         break;
     }
 
+    // Додаємо інформацію про те, чи подія в минулому
+    const isPast = isPastEvent(event.start_date, event.start_time);
+
     return {
       ...event,
       event_type: event.event_type?.replace(" ", "_").toLowerCase(),
       displayTitle,
       details,
+      isPast,
     };
   });
 
@@ -190,89 +212,119 @@ export default function EventsPage() {
         </div>
 
         {/* Events display */}
-        {isLoading ? (
-          <p>Loading events...</p>
-        ) : isError ? (
-          <p>Error: {error.message}</p>
-        ) : filteredEvents.length === 0 ? (
-          <p>No events found for this filter.</p>
-        ) : (
-          <ul className="events-list">
-            {sortedEvents.map((event) => {
-              const dateTime = `${event.start_date || "No date"}${
-                event.start_time ? `, ${event.start_time.slice(0, 5)}` : ""
-              }`;
+        <div className="events-container">
+          {isLoading ? (
+            <div className="empty-state">
+              <div className="empty-icon">⏳</div>
+              <p>Loading events...</p>
+            </div>
+          ) : isError ? (
+            <div className="empty-state">
+              <div className="empty-icon">❌</div>
+              <p className="error-message">Error: {error.message}</p>
+            </div>
+          ) : filteredEvents.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">📅</div>
+              <p>No events found for this filter.</p>
+            </div>
+          ) : (
+            <ul className="events-list">
+              {sortedEvents.map((event) => {
+                const dateTime = `${event.start_date || "No date"}${
+                  event.start_time ? `, ${event.start_time.slice(0, 5)}` : ""
+                }`;
 
-              return (
-                <li key={event.id} className="event-item">
-                  {/* Заголовок + дата */}
-                  <div className="event-header">
-                    <h4 className="event-title">{event.displayTitle}</h4>
-                    <span className="event-date">{dateTime}</span>
-                  </div>
-
-                  {/* Тип */}
-                  <div
-                    className={`event-badge event-badge--${event.event_type}`}
+                return (
+                  <li
+                    key={event.id}
+                    className={`event-item ${
+                      event.isPast ? "event-item--past" : ""
+                    }`}
                   >
-                    {EVENT_TYPE_LABELS[event.event_type] || "Other"}
-                  </div>
+                    {/* Заголовок + дата */}
+                    <div className="event-header">
+                      <h4 className="event-title">
+                        {event.displayTitle}
+                        {event.isPast && (
+                          <span className="past-indicator"> ✓</span>
+                        )}
+                      </h4>
+                      <span className="event-date">{dateTime}</span>
+                    </div>
 
-                  {/* Деталі */}
-                  <div className="event-details">
-                    {event.event_type === EVENT_TYPES.VISIT &&
-                      event.medical_specialty && (
-                        <div>
-                          <strong>Specialty:</strong>{" "}
-                          {event.medical_specialty.title}
-                          <p>{event.medical_specialty.description}</p>
-                        </div>
-                      )}
-
-                    {event.event_type === EVENT_TYPES.VACCINATION &&
-                      event.vaccination && (
-                        <div>
-                          <strong>Vaccine:</strong> {event.vaccination.title}
-                          <p>{event.vaccination.description}</p>
-                        </div>
-                      )}
-
-                    {event.event_type === EVENT_TYPES.BLOOD_DONATION &&
-                      event.donation_center && (
-                        <div>
-                          <strong>Donation Center:</strong>{" "}
-                          {event.donation_center.title},{" "}
-                          {event.donation_center.city}
-                          <p>{event.donation_center.address}</p>
-                        </div>
-                      )}
-
-                    {event.event_type === EVENT_TYPES.ANALYSIS &&
-                      event.analysis_test && (
-                        <div>
-                          <strong>Test:</strong> {event.analysis_test.title}
-                          {event.analysis_test.package && (
-                            <p>Package ID: {event.analysis_test.package}</p>
-                          )}
-                          <p>{event.analysis_test.description}</p>
-                        </div>
-                      )}
-                  </div>
-
-                  {/* Дії */}
-                  <div className="event-actions">
-                    <button
-                      className="btn btn--danger btn--small"
-                      onClick={() => handleDelete(event.id)}
+                    {/* Тип */}
+                    <div
+                      className={`event-badge event-badge--${
+                        event.event_type
+                      } ${event.isPast ? "event-badge--past" : ""}`}
                     >
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+                      {EVENT_TYPE_LABELS[event.event_type] || "Other"}
+                    </div>
+
+                    {/* Статус подій (тільки для минулих) */}
+                    {event.isPast && (
+                      <div className="event-status">
+                        <span className="status-completed">Completed</span>
+                      </div>
+                    )}
+
+                    {/* Деталі */}
+                    <div className="event-details">
+                      {event.event_type === EVENT_TYPES.VISIT &&
+                        event.medical_specialty && (
+                          <div>
+                            <strong>Specialty:</strong>{" "}
+                            {event.medical_specialty.title}
+                            <p>{event.medical_specialty.description}</p>
+                          </div>
+                        )}
+
+                      {event.event_type === EVENT_TYPES.VACCINATION &&
+                        event.vaccination && (
+                          <div>
+                            <strong>Vaccine:</strong> {event.vaccination.title}
+                            <p>{event.vaccination.description}</p>
+                          </div>
+                        )}
+
+                      {event.event_type === EVENT_TYPES.BLOOD_DONATION &&
+                        event.donation_center && (
+                          <div>
+                            <strong>Donation Center:</strong>{" "}
+                            {event.donation_center.title},{" "}
+                            {event.donation_center.city}
+                            <p>{event.donation_center.address}</p>
+                          </div>
+                        )}
+
+                      {event.event_type === EVENT_TYPES.ANALYSIS &&
+                        event.analysis_test && (
+                          <div>
+                            <strong>Test:</strong> {event.analysis_test.title}
+                            {event.analysis_test.package && (
+                              <p>Package ID: {event.analysis_test.package}</p>
+                            )}
+                            <p>{event.analysis_test.description}</p>
+                          </div>
+                        )}
+                    </div>
+
+                    {/* Дії */}
+                    <div className="event-actions">
+                      <button
+                        className="btn btn--danger btn--small"
+                        onClick={() => handleDelete(event.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </div>
       <Footer />
     </>

@@ -89,6 +89,7 @@ export default function BloodDonation() {
     }
 
     try {
+      // Створюємо BloodDonation
       const bloodDonationPayload = {
         user: 5,
         center: formData.center,
@@ -97,41 +98,62 @@ export default function BloodDonation() {
       };
 
       const bloodDonation = await addBloodService(bloodDonationPayload);
+      console.log("✅ BloodDonation created:", bloodDonation.data.id);
 
-      console.log("Створений запис BloodDonation:", bloodDonation);
+      // Підготовка даних для Event
+      const selectedCenter = centres.find(
+        (c) => c.id === parseInt(formData.center)
+      );
+      const centerName = selectedCenter?.title || "the center";
 
       const eventPayload = {
         start_date: formData.date,
         start_time: formData.time,
-        service: bloodDonation.id,
-        short_description: `You have registered to donate blood at ${
-          centres.find((c) => c.id === formData.center)?.title
-        }`,
+        service: bloodDonation.data.id,
+        short_description: `You have registered to donate blood at ${centerName}`,
       };
 
-      console.log("Дані, які підуть у Event:", eventPayload);
+      try {
+        await addRecord(eventPayload);
+        console.log("✅ Event created successfully");
+      } catch (eventError) {
+        console.error(
+          "⚠️ Error creating Event:",
+          eventError.response?.data || eventError
+        );
+        Swal.fire({
+          icon: "warning",
+          title: "Увага",
+          text: "Донорський запис створено, але Event не додався.",
+        });
+      }
 
-      await addRecord(eventPayload);
-
-      Swal.fire({
-        icon: "success",
-        title: "Успіх!",
-        text: "Запис успішно додано.",
-      });
-
+      // Очищення форми та закриття модалки
       setFormData({ date: "", time: "", center: "", notes: "" });
       setErrors({});
       closeModal();
+
+      // Показати успіх
+      Swal.fire({
+        icon: "success",
+        title: "Успіх!",
+        text: "Запис донорства успішно додано.",
+      });
     } catch (error) {
+      console.error(
+        "❌ Error creating BloodDonation:",
+        error.response?.data || error
+      );
+
       if (error.response?.data) {
         setErrors(error.response.data);
       }
+
       Swal.fire({
         icon: "error",
         title: "Помилка",
-        text: "Не вдалося додати запис.",
+        text: "Не вдалося додати запис донорства.",
       });
-      console.error("Error creating blood donation or event:", error);
     }
   };
 

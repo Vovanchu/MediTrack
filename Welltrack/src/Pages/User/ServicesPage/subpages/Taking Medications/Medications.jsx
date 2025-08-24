@@ -52,6 +52,13 @@ const MedicationsPage = () => {
         "Medicine name must be at least 2 characters";
     }
 
+    // Description
+    if (!formData.description || !formData.description.trim()) {
+      newErrors.description = "Description is required";
+    } else if (formData.description.trim().length < 5) {
+      newErrors.description = "Description must be at least 5 characters";
+    }
+
     // Start date
     if (!formData.start_date) {
       newErrors.start_date = "Start date is required";
@@ -66,7 +73,9 @@ const MedicationsPage = () => {
     }
 
     // Finish date
-    if (formData.finish_date) {
+    if (!formData.finish_date) {
+      newErrors.finish_date = "Finish date is required";
+    } else {
       const startDate = new Date(formData.start_date);
       const finishDate = new Date(formData.finish_date);
 
@@ -250,9 +259,18 @@ const MedicationsPage = () => {
               </div>
 
               <div className="medications__form-group">
-                <label className="medications__label">Short Description</label>
+                <label
+                  className={`medications__label ${
+                    errors.description ? "medications__label--error" : ""
+                  }`}
+                >
+                  Short Description{" "}
+                  <span className="medications__required-mark">*</span>
+                </label>
                 <textarea
-                  className="medications__textarea"
+                  className={`medications__textarea ${
+                    errors.description ? "medications__input--error" : ""
+                  }`}
                   placeholder="Purpose, dosage, or notes..."
                   value={formData.description}
                   onChange={(e) =>
@@ -260,6 +278,7 @@ const MedicationsPage = () => {
                   }
                   rows="3"
                 />
+                {renderFieldError("description")}
               </div>
 
               <div className="medications__form-dates">
@@ -293,6 +312,7 @@ const MedicationsPage = () => {
                     }`}
                   >
                     Finish Date
+                    <span className="medications__required-mark">*</span>
                   </label>
                   <input
                     type="date"
@@ -402,6 +422,7 @@ const MedicationsPage = () => {
                         <Trash2 size={18} strokeWidth={1.8} />
                       </button>
                     </div>
+
                     <div className="medications__plan-dates">
                       <span>
                         <strong>Start:</strong>{" "}

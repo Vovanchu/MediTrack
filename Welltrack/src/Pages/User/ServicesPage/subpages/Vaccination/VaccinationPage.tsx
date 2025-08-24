@@ -154,8 +154,13 @@ export default function VaccinationPage() {
     }
 
     // === Валідація часу ===
-    if (selectedTime) {
+    if (selectedDate && selectedTime) {
+      const now = new Date();
+      const selected = new Date(selectedDate);
       const [hours, minutes] = selectedTime.split(":").map(Number);
+      selected.setHours(hours, minutes, 0, 0);
+
+      // Перевірка робочого часу
       if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
         Swal.fire({
           icon: "error",
@@ -164,11 +169,26 @@ export default function VaccinationPage() {
         });
         return;
       }
+
+      // Перевірка на минулий час у той же день
+      const today = new Date();
+      const selectedDay = new Date(selectedDate);
+      if (
+        selectedDay.toDateString() === today.toDateString() &&
+        selected <= now
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid Date/Time",
+          text: "You cannot select a time in the past.",
+        });
+        return;
+      }
     } else {
       Swal.fire({
         icon: "error",
-        title: "Time Required",
-        text: "Please select a time for the vaccination.",
+        title: "Date and Time Required",
+        text: "Please select both a date and time for the vaccination.",
       });
       return;
     }

@@ -13,16 +13,18 @@ import AuthRoutes from "./Pages/User/Routes/AuthRoutes.jsx";
 
 export default function App() {
   return (
-    <Routes>
-      {/* Публічні сторінки */}
-      <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/complete-profile" element={<CompleteProfile />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+    <div id="root">
+      <Routes>
+        {/* Публічні сторінки */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/complete-profile" element={<CompleteProfile />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* Приватні маршрути */}
-      <Route path="/*" element={<AuthRoutes />} />
-    </Routes>
+        {/* Приватні маршрути */}
+        <Route path="/*" element={<AuthRoutes />} />
+      </Routes>
+    </div>
   );
 }
