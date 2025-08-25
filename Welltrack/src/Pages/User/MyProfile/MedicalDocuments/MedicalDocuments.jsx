@@ -357,6 +357,8 @@ export default function MedicalDocuments() {
           </div>
         </div>
       </section>
+
+      <Footer />
     </>
   );
 }

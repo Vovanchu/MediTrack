@@ -25,7 +25,7 @@ export default function NavBar() {
       <Link to="/home" className="navbar-logo-link">
         <div className="navbar-logo">
           <img src={heart} alt="Heart Logo" className="navbar-logo-image" />
-          <h1 className="navbar-title">HealthCare</h1>
+          <h1 className="navbar-title">Welltrack </h1>
         </div>
       </Link>
 

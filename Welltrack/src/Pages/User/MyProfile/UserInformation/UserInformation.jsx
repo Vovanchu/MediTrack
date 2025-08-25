@@ -152,8 +152,14 @@ const validateFields = (data, section) => {
     }
 
     if (!data.email?.trim()) {
-      errors.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      errors.email =
+        "Email is required and must be between 12 and 72 characters.";
+    } else if (data.email.length < 12 || data.email.length > 72) {
+      errors.email =
+        "Email is required and must be between 12 and 72 characters.";
+    } else if (
+      !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(data.email)
+    ) {
       errors.email = "Invalid email format.";
     }
   }

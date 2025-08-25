@@ -143,68 +143,68 @@
     }
   }
 
-  &__calendar-section {
+  &__timeline {
     flex: 1;
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 1rem;
-    padding: 1.5rem 1.75rem;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-    height: fit-content;
-
-    @include mobile-small {
-      padding: 1rem;
-    }
+    text-align: center;
 
     h2 {
       font-size: 1.5rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
-      color: #1e3a8a;
-      text-align: center;
+      margin-bottom: 0.5rem;
 
       @include mobile-small {
         font-size: 1.25rem;
-        margin-bottom: 0.8rem;
+      }
+
+      @include tablet {
+        font-size: 1.4rem;
       }
     }
 
-    .calendar-info {
-      font-style: italic;
-      font-size: 0.95rem;
-      color: #444;
+    p {
+      font-size: 1rem;
       margin-bottom: 1rem;
-      text-align: center;
+      color: #555;
 
       @include mobile-small {
         font-size: 0.9rem;
-        margin-bottom: 0.8rem;
+        padding: 0 0.5rem;
       }
     }
 
-    ul {
-      list-style-type: none;
-      padding: 0;
-      max-height: 250px;
-      overflow-y: auto;
+    .vaccination-timeline-img {
+      width: 100%;
+      height: auto;
+      border-radius: 1rem;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
 
-      @include mobile-small {
-        max-height: 200px;
+      @include hover-large {
+        &:hover {
+          transform: scale(1.03);
+        }
       }
 
-      li {
-        padding: 0.35rem 0;
-        border-bottom: 1px solid #f0f0f0;
-        font-size: 0.9rem;
+      @include mobile-small {
+        border-radius: 0.5rem;
+        margin: 0 auto;
+      }
 
-        @include mobile-small {
-          font-size: 0.85rem;
-          padding: 0.4rem 0;
-        }
+      @include tablet {
+        max-width: 90%;
+        margin: 0 auto;
+      }
 
-        strong {
-          color: #2563eb;
-        }
+      @include laptop-small {
+        max-width: 85%;
+      }
+
+      @include laptop {
+        max-width: 80%;
+      }
+
+      @include desktop-large {
+        max-width: 75%;
       }
     }
   }
@@ -398,139 +398,6 @@
             }
           }
         }
-      }
-    }
-  }
-}
-
-/* Календар */
-.calendar {
-  border: 1px solid #cbd5e1;
-  border-radius: 0.75rem;
-  padding: 1rem;
-  user-select: none;
-  background: #f9fafb;
-  box-shadow: inset 0 0 8px #e2e8f0;
-
-  @include mobile-small {
-    padding: 0.4rem;
-  }
-
-  &-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-
-    @include mobile-small {
-      margin-bottom: 0.8rem;
-    }
-
-    button {
-      background: transparent;
-      border: none;
-      font-size: 1.5rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: #2563eb;
-      transition: color 0.3s ease;
-      padding: 0.2rem;
-      min-width: 44px;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      @include mobile-small {
-        font-size: 1.25rem;
-      }
-
-      &:hover {
-        color: #1e40af;
-      }
-
-      &:focus {
-        outline: none;
-        color: #1e40af;
-        background: rgba(37, 99, 235, 0.1);
-        border-radius: 0.5rem;
-      }
-
-      @media (hover: none) {
-        &:active {
-          color: #1e40af;
-          background: rgba(37, 99, 235, 0.1);
-        }
-      }
-    }
-
-    span {
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: #1e293b;
-
-      @include mobile-small {
-        font-size: 1rem;
-      }
-    }
-  }
-
-  &-days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.3rem;
-    justify-items: center;
-
-    @include mobile-small {
-      gap: 0.2rem;
-    }
-  }
-
-  &-day {
-    width: 36px;
-    height: 36px;
-    border-radius: 0.5rem;
-    background: #fff;
-    border: 1px solid transparent;
-    font-weight: 600;
-    color: #2563eb;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.25s ease;
-    font-size: 0.9rem;
-
-    @include mobile-small {
-      width: 32px;
-      height: 32px;
-      font-size: 0.8rem;
-      min-width: 32px;
-      min-height: 32px;
-    }
-
-    &:hover {
-      background: #dbeafe;
-      border-color: #3b82f6;
-      color: #1e40af;
-    }
-
-    &:focus {
-      outline: 2px solid #3b82f6;
-      outline-offset: 2px;
-    }
-
-    &.selected {
-      background: #2563eb;
-      color: #fff;
-      box-shadow: 0 0 6px #2563ebaa;
-    }
-
-    @media (hover: none) {
-      &:active {
-        background: #dbeafe;
-        border-color: #3b82f6;
-        color: #1e40af;
       }
     }
   }

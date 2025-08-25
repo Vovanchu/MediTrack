@@ -8,6 +8,8 @@ import { fetchVaccinations, addRecord } from "../../../../../API/accounts";
 import NavBar from "../../../components/NavBar/NavBar";
 import Footer from "../../../components/Footer/Footer";
 
+import VaccinationTimeline from "@/assets/images/vaccination-timeline.jpg";
+
 // ================= TYPES =================
 interface Vaccine {
   id: number;
@@ -24,99 +26,13 @@ interface VaccinationRecord {
   short_description: string;
 }
 
-interface SimpleCalendarProps {
-  selectedDate: Date;
-  onChange: (date: Date) => void;
-}
-
-// ================= CALENDAR =================
-function SimpleCalendar({ selectedDate, onChange }: SimpleCalendarProps) {
-  const [month, setMonth] = useState<number>(selectedDate.getMonth());
-  const [year, setYear] = useState<number>(selectedDate.getFullYear());
-
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const daysArray = [...Array(daysInMonth).keys()].map((d) => d + 1);
-
-  useEffect(() => {
-    if (
-      selectedDate.getMonth() !== month ||
-      selectedDate.getFullYear() !== year
-    ) {
-      const newDate = new Date(year, month, selectedDate.getDate());
-      if (newDate.getDate() !== selectedDate.getDate()) {
-        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-        newDate.setDate(lastDayOfMonth);
-      }
-      onChange(newDate);
-    }
-  }, [month, year, selectedDate, onChange]);
-
-  function selectDay(day: number) {
-    const newDate = new Date(year, month, day);
-    onChange(newDate);
-  }
-
-  function prevMonth() {
-    if (month === 0) {
-      setMonth(11);
-      setYear((prev) => prev - 1);
-    } else {
-      setMonth((prev) => prev - 1);
-    }
-  }
-
-  function nextMonth() {
-    if (month === 11) {
-      setMonth(0);
-      setYear((prev) => prev + 1);
-    } else {
-      setMonth((prev) => prev + 1);
-    }
-  }
-
-  return (
-    <div className="calendar">
-      <div className="calendar-header">
-        <button onClick={prevMonth}>&lt;</button>
-        <span>
-          {new Date(year, month).toLocaleString("default", {
-            month: "long",
-            year: "numeric",
-          })}
-        </span>
-        <button onClick={nextMonth}>&gt;</button>
-      </div>
-      <div className="calendar-days">
-        {daysArray.map((day) => (
-          <button
-            key={day}
-            className={`calendar-day ${
-              selectedDate.getDate() === day &&
-              selectedDate.getMonth() === month &&
-              selectedDate.getFullYear() === year
-                ? "selected"
-                : ""
-            }`}
-            onClick={() => selectDay(day)}
-          >
-            {day}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ================= MAIN PAGE =================
 export default function VaccinationPage() {
   const [selectedVaccine, setSelectedVaccine] = useState<Vaccine | null>(null);
-
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string>("10:00");
   const [shortDescription, setShortDescription] = useState<string>("");
-
   const [vaccinesFromDB, setVaccinesFromDB] = useState<Vaccine[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -160,7 +76,6 @@ export default function VaccinationPage() {
       const [hours, minutes] = selectedTime.split(":").map(Number);
       selected.setHours(hours, minutes, 0, 0);
 
-      // Перевірка робочого часу
       if (hours < 8 || hours > 18 || (hours === 18 && minutes > 0)) {
         Swal.fire({
           icon: "error",
@@ -170,11 +85,9 @@ export default function VaccinationPage() {
         return;
       }
 
-      // Перевірка на минулий час у той же день
-      const today = new Date();
-      const selectedDay = new Date(selectedDate);
+      const todayCheck = new Date();
       if (
-        selectedDay.toDateString() === today.toDateString() &&
+        selectedDate.toDateString() === todayCheck.toDateString() &&
         selected <= now
       ) {
         Swal.fire({
@@ -264,6 +177,7 @@ export default function VaccinationPage() {
         </p>
 
         <div className="container">
+          {/* Список вакцин */}
           <section className="vaccination-page__vaccine-list">
             <h2>Available Vaccines</h2>
             <div className="badges">
@@ -280,25 +194,19 @@ export default function VaccinationPage() {
             </div>
           </section>
 
-          <section className="vaccination-page__calendar-section">
-            <h2>Vaccination Calendar</h2>
-            <p className="calendar-info">
-              Approximate recommended ages for vaccinations:
-            </p>
-            <ul>
-              {vaccinesFromDB.map((v) => (
-                <li key={v.id}>
-                  <strong>{v.title}:</strong>
-                </li>
-              ))}
-            </ul>
-            <SimpleCalendar
-              selectedDate={selectedDate}
-              onChange={setSelectedDate}
+          {/* Статична діаграма вакцинацій */}
+          <section className="vaccination-page__timeline">
+            <h2>Vaccination Timeline</h2>
+            <p>Recommended vaccines throughout life:</p>
+            <img
+              src={VaccinationTimeline}
+              alt="Vaccination Timeline"
+              className="vaccination-timeline-img"
             />
           </section>
         </div>
 
+        {/* Модальне вікно додавання події */}
         {modalOpen && selectedVaccine && (
           <div className="modal-overlay" onClick={closeModal}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>

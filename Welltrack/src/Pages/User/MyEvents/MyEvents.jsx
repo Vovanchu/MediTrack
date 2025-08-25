@@ -146,6 +146,7 @@ export default function EventsPage() {
 
   const filteredEvents = normalizedEvents.filter((event) => {
     if (activeFilter === "all") return true;
+    if (activeFilter === "past_events") return event.isPast;
     return event.event_type === activeFilter;
   });
 
@@ -185,6 +186,11 @@ export default function EventsPage() {
     });
   };
 
+  // Підрахунок кількості минулих подій для відображення у фільтрі
+  const pastEventsCount = normalizedEvents.filter(
+    (event) => event.isPast
+  ).length;
+
   return (
     <>
       <NavBar />
@@ -198,6 +204,15 @@ export default function EventsPage() {
             onClick={() => setActiveFilter("all")}
           >
             All Events
+          </button>
+
+          <button
+            className={`filter-btn filter-btn--past ${
+              activeFilter === "past_events" ? "active" : ""
+            }`}
+            onClick={() => setActiveFilter("past_events")}
+          >
+            Past Events {pastEventsCount > 0 && `(${pastEventsCount})`}
           </button>
 
           {Object.entries(EVENT_TYPE_LABELS).map(([type, label]) => (
@@ -225,8 +240,14 @@ export default function EventsPage() {
             </div>
           ) : filteredEvents.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">📅</div>
-              <p>No events found for this filter.</p>
+              <div className="empty-icon">
+                {activeFilter === "past_events" ? "⏰" : "📅"}
+              </div>
+              <p>
+                {activeFilter === "past_events"
+                  ? "No past events found."
+                  : "No events found for this filter."}
+              </p>
             </div>
           ) : (
             <ul className="events-list">
@@ -262,8 +283,8 @@ export default function EventsPage() {
                       {EVENT_TYPE_LABELS[event.event_type] || "Other"}
                     </div>
 
-                    {/* Статус подій (тільки для минулих) */}
-                    {event.isPast && (
+                    {/* Статус подій (тільки для минулих подій та фільтру past_events) */}
+                    {event.isPast && activeFilter === "past_events" && (
                       <div className="event-status">
                         <span className="status-completed">Completed</span>
                       </div>

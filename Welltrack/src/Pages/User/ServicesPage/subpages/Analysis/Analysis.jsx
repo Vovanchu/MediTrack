@@ -93,6 +93,22 @@ export default function AnalysisPage() {
         if (timeInMinutes > maxTime) {
           return "Time must be before 6:00 PM";
         }
+
+        // 🔥 Додаткова перевірка: якщо дата сьогодні, час не може бути в минулому
+        if (testDate) {
+          const today = new Date();
+          const selectedDate = new Date(testDate);
+
+          if (
+            selectedDate.toDateString() === today.toDateString() // обрано сьогодні
+          ) {
+            const nowMinutes = today.getHours() * 60 + today.getMinutes();
+            if (timeInMinutes <= nowMinutes) {
+              return "Time cannot be in the past today";
+            }
+          }
+        }
+
         return "";
       }
 
@@ -133,30 +149,30 @@ export default function AnalysisPage() {
       Swal.fire({
         icon: "error",
         title: "Validation Error",
-        text: "Please fix the errors before submitting.",
+        text: "Please check the form fields and try again.",
       });
       return;
     }
 
     if (!selectedPackage) {
       Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "No package or test selected.",
+        icon: "warning",
+        title: "No Selection",
+        text: "Please select a package or an individual test before saving.",
       });
       return;
     }
 
-    // Формуємо payload залежно від того, пакет чи індивідуальний тест
+    // Перевірка: чи це індивідуальний тест
     const isSingleTest = selectedPackage.test.length === 1;
 
     const payload = {
       start_date: testDate,
       start_time: testTime,
-      short_description: "", // або значення з форми
+      short_description: "",
       ...(isSingleTest
-        ? { analysis_test_id: selectedPackage.id } // індивідуальний тест
-        : { analysis_package_id: selectedPackage.id }), // пакет
+        ? { analysis_test_id: selectedPackage.id }
+        : { analysis_package_id: selectedPackage.id }),
     };
 
     console.log("Payload to send:", payload);
@@ -166,7 +182,8 @@ export default function AnalysisPage() {
 
       Swal.fire({
         icon: "success",
-        title: "Scheduled successfully!",
+        title: "Success!",
+        text: "Your test has been successfully scheduled.",
         showConfirmButton: false,
         timer: 2000,
       });
@@ -175,15 +192,26 @@ export default function AnalysisPage() {
     } catch (error) {
       console.error("API Error:", error.response?.data || error.message);
 
-      const errorMessage =
-        error.response?.data && typeof error.response.data === "object"
-          ? Object.entries(error.response.data)
-              .map(
-                ([key, value]) =>
-                  `${key}: ${Array.isArray(value) ? value.join(", ") : value}`
-              )
-              .join("\n")
-          : "Failed to schedule. Please try again.";
+      // Обробка помилок з бекенду
+      let errorMessage = "Something went wrong. Please try again later.";
+
+      if (error.response?.status === 400) {
+        errorMessage = "Invalid data provided. Please check your input.";
+      } else if (error.response?.status === 404) {
+        errorMessage = "The selected test or package was not found.";
+      } else if (error.response?.status === 500) {
+        errorMessage = "Server error. Please try again later.";
+      } else if (
+        error.response?.data &&
+        typeof error.response.data === "object"
+      ) {
+        errorMessage = Object.entries(error.response.data)
+          .map(
+            ([key, value]) =>
+              `${key}: ${Array.isArray(value) ? value.join(", ") : value}`
+          )
+          .join("\n");
+      }
 
       Swal.fire({
         icon: "error",

@@ -131,6 +131,9 @@ $user-accent-hover: #0ea5e9;
         color: $user-muted;
         text-align: right;
         flex: 1;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        white-space: normal;
 
         // Спеціальні стилі для відображення телефону
         &.phone-display {

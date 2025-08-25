@@ -12,17 +12,14 @@
   @include mobile-small {
     padding: 1rem;
     padding-bottom: 3rem; // Менший відступ на мобілках
-    min-height: calc(100vh - 160px); // Адаптивна мінімальна висота
   }
 
   @include mobile-medium {
     padding-bottom: 3.5rem;
-    min-height: calc(100vh - 170px);
   }
 
   @include tablet {
     padding-bottom: 4rem;
-    min-height: calc(100vh - 180px);
   }
 
   h2 {
