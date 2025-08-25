@@ -8,6 +8,7 @@ import {
   fetchSettings,
   updateSettings,
   changePassword,
+  deleteAccount,
 } from "../../../..//API/accounts";
 import Swal from "sweetalert2";
 
@@ -20,7 +21,6 @@ export default function ProfileSettingsPage() {
     confirmPassword: "",
   });
 
-  // Маппінг з API в локальний стейт
   const mapFromApi = (data) => ({
     profileVisibility: data.profile_visibility,
     emailNotifications: data.email_notifications,
@@ -34,7 +34,6 @@ export default function ProfileSettingsPage() {
     twoFactorAuth: data.two_factor_enabled,
   });
 
-  // Маппінг з локального стейту в формат для API
   const mapToApi = (data) => ({
     profile_visibility: data.profileVisibility,
     email_notifications: data.emailNotifications,
@@ -150,8 +149,8 @@ export default function ProfileSettingsPage() {
     }
   };
 
-  const handleDeleteAccount = () => {
-    Swal.fire({
+  const handleDeleteAccount = async () => {
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "This action cannot be undone! Your account and all data will be permanently deleted.",
       icon: "warning",
@@ -160,18 +159,29 @@ export default function ProfileSettingsPage() {
       cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, delete my account",
       cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Тут має бути API call для видалення акаунту
-        console.log("Account deletion confirmed");
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteAccount();
+
         Swal.fire({
           icon: "success",
           title: "Account Deleted",
           text: "Your account has been successfully deleted.",
           confirmButtonColor: "#ef4444",
         });
+
+        window.location.href = "/login";
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message,
+          confirmButtonColor: "#ef4444",
+        });
       }
-    });
+    }
   };
 
   const handleSave = async () => {

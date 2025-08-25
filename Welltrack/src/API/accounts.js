@@ -15,6 +15,20 @@ export const logoutUser = () => api.post("/accounts/logout/");
 export const verifyToken = (token) =>
   api.post("/accounts/token/verify/", { token });
 
+// Зміна логіна
+export const changeLogin = (data) => api.post("/accounts/change-login/", data);
+
+// Видалення акаунту
+export const deleteAccount = async () => {
+  try {
+    await api.delete("/accounts/profile/");
+    return true;
+  } catch (error) {
+    const message = error.response?.data?.detail || "Failed to delete account";
+    throw new Error(message);
+  }
+};
+
 /* ============ PASSWORD RECOVERY ============ */
 
 // Запит на скидання паролю

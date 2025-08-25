@@ -3,7 +3,7 @@ import NavBar from "../../components/NavBar/NavBar";
 import BtnBack from "../../components/ui/BtnBack/BtnBack";
 import Footer from "../../components/Footer/Footer";
 import Swal from "sweetalert2";
-import { fetchMe, updateMe } from "../../../../API/accounts";
+import { fetchMe, updateMe, changeLogin } from "../../../../API/accounts";
 import "./UserInformation.scss";
 
 // Покращена функція валідації телефону
@@ -245,10 +245,14 @@ export default function UserInformation() {
           formData.append("city", userData.city);
         }
 
-        // Для секції right (контактна інформація)
         if (section === "right") {
-          formData.append("phone_number", normalizePhoneForAPI(userData.phone));
-          formData.append("email", userData.email);
+          // Змінюємо телефон через updateMe
+          await updateMe(formData);
+
+          // Змінюємо емейл окремим запитом
+          if (userData.email) {
+            await changeLogin({ email: userData.email });
+          }
         }
 
         await updateMe(formData); // використовуємо FormData для всіх оновлень

@@ -78,11 +78,51 @@ export default function Login() {
       });
 
       setTimeout(() => navigate("/my-profile"), 1500);
-    } catch {
+    } catch (error) {
+      let message = "An unexpected error occurred. Please try again.";
+
+      if (error.response) {
+        // Axios повертає response якщо сервер відповів
+        switch (error.response.status) {
+          case 400:
+            message = "Invalid request. Please check your input.";
+            break;
+          case 401:
+            message = "Incorrect email or password.";
+            break;
+          case 403:
+            message = "You do not have permission to access this resource.";
+            break;
+          case 404:
+            message = "Server endpoint not found.";
+            break;
+          case 500:
+            message = "Internal server error. Try again later.";
+            break;
+          case 502:
+            message = "Bad gateway. Server is unreachable.";
+            break;
+          case 503:
+            message = "Server is currently unavailable. Try again later.";
+            break;
+          case 504:
+            message = "Server timed out. Try again.";
+            break;
+          default:
+            message = error.response.data?.detail || message;
+        }
+      } else if (error.request) {
+        // Запит був надісланий, але відповіді немає
+        message = "No response from server. Check your connection.";
+      } else {
+        // Інші помилки
+        message = error.message;
+      }
+
       Swal.fire({
         icon: "error",
         title: "Login Failed",
-        text: "Incorrect email or password",
+        text: message,
       });
     } finally {
       setLoading(false);
