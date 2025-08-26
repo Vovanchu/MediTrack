@@ -98,6 +98,22 @@ export default function ProfileSettingsPage() {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
+  // Функція для обробки зміни паролів з обрізкою пробілів
+  const handlePasswordDataChange = (field, value) => {
+    // Обрізаємо пробіли на початку та в кінці
+    const trimmedValue = value.trim();
+    setPasswordData((prev) => ({
+      ...prev,
+      [field]: trimmedValue,
+    }));
+  };
+
+  // Функція для блокування копіювання/вставлення
+  const handlePasswordEvent = (e) => {
+    e.preventDefault();
+    return false;
+  };
+
   const passwordValidation = {
     length: passwordData.newPassword.length >= 8,
     uppercase: /[A-Z]/.test(passwordData.newPassword),
@@ -271,9 +287,6 @@ export default function ProfileSettingsPage() {
                     >
                       <option value="public">Public</option>
                       <option value="private">Private</option>
-                      <option value="healthcare">
-                        Healthcare providers only
-                      </option>
                     </select>
                   </div>
                 </section>
@@ -373,12 +386,15 @@ export default function ProfileSettingsPage() {
                         placeholder="Current Password"
                         value={passwordData.currentPassword}
                         onChange={(e) =>
-                          setPasswordData({
-                            ...passwordData,
-                            currentPassword: e.target.value,
-                          })
+                          handlePasswordDataChange(
+                            "currentPassword",
+                            e.target.value
+                          )
                         }
-                        onCopy={(e) => e.preventDefault()}
+                        onCopy={handlePasswordEvent}
+                        onPaste={handlePasswordEvent}
+                        onCut={handlePasswordEvent}
+                        autoComplete="current-password"
                       />
                       <button
                         type="button"
@@ -399,12 +415,15 @@ export default function ProfileSettingsPage() {
                         placeholder="New Password"
                         value={passwordData.newPassword}
                         onChange={(e) =>
-                          setPasswordData({
-                            ...passwordData,
-                            newPassword: e.target.value,
-                          })
+                          handlePasswordDataChange(
+                            "newPassword",
+                            e.target.value
+                          )
                         }
-                        onCopy={(e) => e.preventDefault()}
+                        onCopy={handlePasswordEvent}
+                        onPaste={handlePasswordEvent}
+                        onCut={handlePasswordEvent}
+                        autoComplete="new-password"
                       />
                       <button
                         type="button"
@@ -489,12 +508,15 @@ export default function ProfileSettingsPage() {
                         placeholder="Confirm Password"
                         value={passwordData.confirmPassword}
                         onChange={(e) =>
-                          setPasswordData({
-                            ...passwordData,
-                            confirmPassword: e.target.value,
-                          })
+                          handlePasswordDataChange(
+                            "confirmPassword",
+                            e.target.value
+                          )
                         }
-                        onCopy={(e) => e.preventDefault()}
+                        onCopy={handlePasswordEvent}
+                        onPaste={handlePasswordEvent}
+                        onCut={handlePasswordEvent}
+                        autoComplete="new-password"
                       />
                       <button
                         type="button"
@@ -567,9 +589,6 @@ export default function ProfileSettingsPage() {
                           Pacific Time (UTC-8)
                         </option>
                         <option value="Europe/Kyiv">Kyiv Time (UTC+2)</option>
-                        <option value="Europe/London">
-                          London Time (UTC+0)
-                        </option>
                       </select>
                     </div>
                     <div>

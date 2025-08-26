@@ -12,7 +12,7 @@ const nav_links = [
 const legal_links = [
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms of Service", href: "/terms-of-service" },
-  { label: "ComplianceStatements", href: "/compliance-statements" },
+  { label: "Compliance Statements", href: "/compliance-statements" },
   { label: "Contact Us", href: "/my-profile" },
 ];
 

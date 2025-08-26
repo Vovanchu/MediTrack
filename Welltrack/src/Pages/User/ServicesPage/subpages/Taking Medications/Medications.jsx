@@ -108,9 +108,7 @@ const MedicationsPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!validateForm()) return;
 
     setIsSubmitting(true);
